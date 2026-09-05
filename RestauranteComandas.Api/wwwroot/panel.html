@@ -1,0 +1,270 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel Principal - Restaurante Comandas</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        header {
+            background: #dc2626;
+            color: white;
+            padding: 22px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .titulo {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .usuario {
+            font-size: 14px;
+            color: #fee2e2;
+            margin-top: 4px;
+        }
+
+        .btn-salir {
+            background: #111827;
+            color: white;
+            border: 1px solid #fca5a5;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .contenedor {
+            max-width: 1100px;
+            margin: auto;
+            padding: 35px 20px;
+        }
+
+        .bienvenida {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 5px 14px rgba(0,0,0,0.10);
+            margin-bottom: 25px;
+        }
+
+            .bienvenida h1 {
+                margin-top: 0;
+                color: #dc2626;
+            }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 5px 14px rgba(0,0,0,0.10);
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: 0.2s;
+        }
+
+            .card:hover {
+                transform: translateY(-3px);
+                border-color: #dc2626;
+            }
+
+            .card h2 {
+                margin-top: 0;
+                color: #dc2626;
+            }
+
+            .card p {
+                color: #4b5563;
+                line-height: 1.4;
+            }
+
+        .badge {
+            display: inline-block;
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        .mensaje {
+            text-align: center;
+            color: #dc2626;
+            font-weight: bold;
+            margin-top: 25px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div>
+            <div class="titulo">Restaurante Comandas</div>
+            <div class="usuario" id="usuarioInfo"></div>
+        </div>
+
+        <button class="btn-salir" onclick="cerrarSesion()">Cerrar sesión</button>
+    </header>
+
+    <div class="contenedor">
+        <div class="bienvenida">
+            <h1>Panel principal</h1>
+            <p>
+                Selecciona el módulo al que deseas ingresar según tu rol dentro del restaurante.
+            </p>
+        </div>
+
+        <div class="grid" id="contenedorModulos"></div>
+
+        <div class="mensaje" id="mensaje"></div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem("token");
+        const usuarioNombre = localStorage.getItem("usuarioNombre");
+        const usuarioRol = localStorage.getItem("usuarioRol");
+
+        const usuarioInfo = document.getElementById("usuarioInfo");
+        const contenedorModulos = document.getElementById("contenedorModulos");
+        const mensaje = document.getElementById("mensaje");
+
+        validarSesion();
+
+        usuarioInfo.innerText = `${usuarioNombre} - ${usuarioRol}`;
+
+        function validarSesion() {
+            if (!token) {
+                window.location.href = "/login.html";
+                return;
+            }
+        }
+
+        function crearCard(titulo, descripcion, url, etiqueta) {
+            const div = document.createElement("div");
+            div.className = "card";
+
+            div.innerHTML = `
+                <h2>${titulo}</h2>
+                <p>${descripcion}</p>
+                <span class="badge">${etiqueta}</span>
+            `;
+
+            div.onclick = function () {
+                window.location.href = url;
+            };
+
+            contenedorModulos.appendChild(div);
+        }
+
+        function cargarModulos() {
+            contenedorModulos.innerHTML = "";
+
+            if (usuarioRol === "Administrador") {
+                crearCard(
+                    "Toma de pedidos",
+                    "Permite seleccionar mesa, agregar platos, detalles personalizados y enviar la orden a cocina.",
+                    "/mesero.html",
+                    "Mesero"
+                );
+
+                crearCard(
+                    "Monitor de cocina",
+                    "Permite visualizar órdenes en tiempo real y actualizar su estado de preparación.",
+                    "/cocina.html",
+                    "Cocina"
+                );
+
+                crearCard(
+                    "Caja y pagos",
+                    "Permite cobrar órdenes, registrar método de pago y generar comprobantes digitales.",
+                    "/caja.html",
+                    "Caja"
+                );
+
+                crearCard(
+                    "Historial de órdenes",
+                    "Permite consultar órdenes por fecha, estado, mesa y revisar pagos o comprobantes.",
+                    "/historial.html",
+                    "Administración"
+                );
+
+                crearCard(
+                    "Administración",
+                    "Permite administrar menú, mesas y usuarios del sistema.",
+                    "/admin.html",
+                    "Administrador"
+                );
+
+                return;
+            }
+
+            if (usuarioRol === "Mesero") {
+                crearCard(
+                    "Toma de pedidos",
+                    "Selecciona mesa, agrega platos al pedido y envía la orden directamente a cocina.",
+                    "/mesero.html",
+                    "Mesero"
+                );
+
+                return;
+            }
+
+            if (usuarioRol === "Cocina") {
+                crearCard(
+                    "Monitor de cocina",
+                    "Visualiza en tiempo real las comandas pendientes, en preparación y listas.",
+                    "/cocina.html",
+                    "Cocina"
+                );
+
+                return;
+            }
+
+            if (usuarioRol === "Caja") {
+                crearCard(
+                    "Caja y pagos",
+                    "Consulta órdenes por cobrar, registra pagos y genera comprobantes digitales.",
+                    "/caja.html",
+                    "Caja"
+                );
+
+                crearCard(
+                    "Historial de órdenes",
+                    "Permite consultar órdenes pagadas y abrir comprobantes digitales.",
+                    "/historial.html",
+                    "Caja"
+                );
+
+                return;
+            }
+
+            mensaje.innerText = "Rol no reconocido. Comuníquese con el administrador.";
+        }
+
+        function cerrarSesion() {
+            localStorage.clear();
+            window.location.href = "/login.html";
+        }
+
+        cargarModulos();
+    </script>
+</body>
+</html>

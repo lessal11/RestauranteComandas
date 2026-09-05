@@ -1,0 +1,574 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Caja - Restaurante Comandas</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        header {
+            background: #111827;
+            color: white;
+            padding: 18px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .titulo {
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        .usuario {
+            font-size: 14px;
+            color: #d1d5db;
+        }
+
+        .btn-salir {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 9px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .contenedor {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 390px;
+            gap: 20px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 5px 14px rgba(0,0,0,0.12);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #dc2626;
+        }
+
+        .ordenes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 15px;
+        }
+
+        .orden {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 15px;
+            background: #f9fafb;
+            cursor: pointer;
+        }
+
+            .orden:hover {
+                border-color: #dc2626;
+            }
+
+            .orden.seleccionada {
+                border-color: #dc2626;
+                background: #fee2e2;
+            }
+
+            .orden h3 {
+                margin: 0 0 8px 0;
+                color: #dc2626;
+            }
+
+        .estado {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background: #facc15;
+            color: #111827;
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .total-card {
+            font-size: 20px;
+            font-weight: bold;
+            color: #16a34a;
+            margin-top: 10px;
+        }
+
+        .detalle {
+            border-bottom: 1px solid #e5e7eb;
+            padding: 8px 0;
+        }
+
+        .nota {
+            color: #dc2626;
+            font-size: 13px;
+            font-style: italic;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 12px;
+            margin-bottom: 5px;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        .resumen {
+            background: #f9fafb;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+            .resumen strong {
+                color: #374151;
+            }
+
+        .total {
+            font-size: 26px;
+            font-weight: bold;
+            text-align: right;
+            color: #16a34a;
+            margin-top: 18px;
+        }
+
+        .btn-pagar {
+            width: 100%;
+            background: #16a34a;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+            .btn-pagar:disabled {
+                background: #9ca3af;
+                cursor: not-allowed;
+            }
+
+        .btn-comprobante {
+            width: 100%;
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-recargar {
+            background: #111827;
+            color: white;
+            border: none;
+            padding: 10px 13px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .mensaje {
+            margin-top: 12px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .ok {
+            color: #16a34a;
+        }
+
+        .error {
+            color: #dc2626;
+        }
+
+        .vacio {
+            text-align: center;
+            color: #6b7280;
+            font-size: 18px;
+            margin-top: 25px;
+        }
+
+        @media (max-width: 950px) {
+            .contenedor {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div>
+            <div class="titulo">Caja y Pagos</div>
+            <div class="usuario" id="usuarioInfo"></div>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn-salir" onclick="volverPanel()">Panel</button>
+            <button class="btn-salir" onclick="cerrarSesion()">Cerrar sesión</button>
+        </div>
+    </header>
+
+    <div class="contenedor">
+        <div class="panel">
+            <h2>Órdenes por cobrar</h2>
+
+            <button class="btn-recargar" onclick="cargarOrdenes()">
+                Recargar órdenes
+            </button>
+
+            <div class="ordenes-grid" id="contenedorOrdenes"></div>
+        </div>
+
+        <div class="panel">
+            <h2>Registrar pago</h2>
+
+            <div id="resumenOrden" class="resumen">
+                Seleccione una orden para registrar el pago.
+            </div>
+
+            <label for="metodoPago">Método de pago</label>
+            <select id="metodoPago">
+                <option value="Efectivo">Efectivo</option>
+                <option value="Transferencia">Transferencia</option>
+                <option value="D1">D1</option>
+            </select>
+
+            <label for="monto">Monto pagado</label>
+            <input type="number" id="monto" min="0" step="0.01" placeholder="0.00">
+
+            <label for="referencia">Referencia</label>
+            <input type="text" id="referencia" placeholder="Ej: Pago en caja, TRX-123, D1-456">
+
+            <div class="total" id="totalTexto">
+                Total: $0.00
+            </div>
+
+            <button class="btn-pagar" onclick="registrarPago()">
+                Confirmar pago
+            </button>
+
+            <button class="btn-comprobante" id="btnComprobante" onclick="abrirComprobanteUltimoPago()" style="display:none;">
+                Ver comprobante
+            </button>
+
+            <div class="mensaje" id="mensaje"></div>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem("token");
+        const usuarioNombre = localStorage.getItem("usuarioNombre");
+        const usuarioRol = localStorage.getItem("usuarioRol");
+
+        const usuarioInfo = document.getElementById("usuarioInfo");
+        const contenedorOrdenes = document.getElementById("contenedorOrdenes");
+        const resumenOrden = document.getElementById("resumenOrden");
+        const metodoPago = document.getElementById("metodoPago");
+        const monto = document.getElementById("monto");
+        const referencia = document.getElementById("referencia");
+        const totalTexto = document.getElementById("totalTexto");
+        const mensaje = document.getElementById("mensaje");
+        const btnComprobante = document.getElementById("btnComprobante");
+
+        let ordenes = [];
+        let ordenSeleccionada = null;
+        let ultimoOrdenPagadaId = null;
+
+        validarSesion();
+
+        usuarioInfo.innerText = `${usuarioNombre} - ${usuarioRol}`;
+
+        function validarSesion() {
+            if (!token) {
+                window.location.href = "/login.html";
+                return;
+            }
+
+            if (usuarioRol !== "Caja" && usuarioRol !== "Administrador") {
+                alert("No tiene permiso para acceder a la pantalla de caja");
+                window.location.href = "/login.html";
+            }
+        }
+
+        async function cargarOrdenes() {
+            limpiarMensaje();
+            btnComprobante.style.display = "none";
+
+            try {
+                const response = await fetch("/api/Ordenes/por-cobrar", {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    localStorage.clear();
+                    window.location.href = "/login.html";
+                    return;
+                }
+
+                if (!response.ok) {
+                    mostrarMensaje("No se pudieron cargar las órdenes", "error");
+                    return;
+                }
+
+                const data = await response.json();
+
+                ordenes = data;
+
+                renderizarOrdenes();
+
+            } catch (error) {
+                mostrarMensaje("Error de conexión con el servidor", "error");
+            }
+        }
+
+        function renderizarOrdenes() {
+            contenedorOrdenes.innerHTML = "";
+
+            if (ordenes.length === 0) {
+                contenedorOrdenes.innerHTML = `
+                    <div class="vacio">
+                        No hay órdenes pendientes de pago.
+                    </div>
+                `;
+                return;
+            }
+
+            ordenes.forEach(orden => {
+                const div = document.createElement("div");
+                div.className = "orden";
+
+                if (ordenSeleccionada && ordenSeleccionada.id === orden.id) {
+                    div.classList.add("seleccionada");
+                }
+
+                let detallesHtml = "";
+
+                orden.detalles.forEach(detalle => {
+                    detallesHtml += `
+                        <div class="detalle">
+                            <strong>${detalle.cantidad} x ${detalle.plato}</strong>
+                            <div>Subtotal: $${Number(detalle.subtotal).toFixed(2)}</div>
+                            ${detalle.detallePersonalizado ? `<div class="nota">Detalle: ${detalle.detallePersonalizado}</div>` : ""}
+                        </div>
+                    `;
+                });
+
+                div.innerHTML = `
+                    <h3>Mesa ${orden.mesa}</h3>
+                    <div class="estado">${orden.estado}</div>
+                    <div><strong>Orden:</strong> #${orden.id}</div>
+                    <div><strong>Mesero:</strong> ${orden.mesero}</div>
+                    <div><strong>Hora:</strong> ${new Date(orden.fecha).toLocaleTimeString()}</div>
+                    ${detallesHtml}
+                    <div class="total-card">Total: $${Number(orden.total).toFixed(2)}</div>
+                `;
+
+                div.onclick = function () {
+                    seleccionarOrden(orden);
+                };
+
+                contenedorOrdenes.appendChild(div);
+            });
+        }
+
+        function seleccionarOrden(orden) {
+            ordenSeleccionada = orden;
+            ultimoOrdenPagadaId = null;
+            btnComprobante.style.display = "none";
+
+            resumenOrden.innerHTML = `
+                <div><strong>Orden:</strong> #${orden.id}</div>
+                <div><strong>Mesa:</strong> ${orden.mesa}</div>
+                <div><strong>Estado:</strong> ${orden.estado}</div>
+                <div><strong>Total a pagar:</strong> $${Number(orden.total).toFixed(2)}</div>
+            `;
+
+            monto.value = Number(orden.total).toFixed(2);
+            referencia.value = "";
+
+            totalTexto.innerText = `Total: $${Number(orden.total).toFixed(2)}`;
+
+            renderizarOrdenes();
+            limpiarMensaje();
+        }
+
+        async function registrarPago() {
+            limpiarMensaje();
+
+            if (!ordenSeleccionada) {
+                mostrarMensaje("Debe seleccionar una orden", "error");
+                return;
+            }
+
+            const metodo = metodoPago.value;
+            const montoPagado = parseFloat(monto.value);
+            const ref = referencia.value.trim();
+
+            if (!metodo) {
+                mostrarMensaje("Debe seleccionar método de pago", "error");
+                return;
+            }
+
+            if (isNaN(montoPagado) || montoPagado <= 0) {
+                mostrarMensaje("El monto debe ser mayor a 0", "error");
+                return;
+            }
+
+            if (montoPagado < Number(ordenSeleccionada.total)) {
+                mostrarMensaje("El monto no puede ser menor al total de la orden", "error");
+                return;
+            }
+
+            const dto = {
+                ordenId: ordenSeleccionada.id,
+                metodoPago: metodo,
+                monto: montoPagado,
+                referencia: ref || "Sin referencia"
+            };
+
+            try {
+                const response = await fetch("/api/Pagos", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(dto)
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    alert("No tiene permiso o la sesión expiró");
+                    localStorage.clear();
+                    window.location.href = "/login.html";
+                    return;
+                }
+
+                if (!response.ok) {
+                    const error = await response.text();
+                    mostrarMensaje(error || "No se pudo registrar el pago", "error");
+                    return;
+                }
+
+                const data = await response.json();
+
+                mostrarMensaje(`Pago registrado correctamente para la orden #${data.ordenId}`, "ok");
+
+                ultimoOrdenPagadaId = data.ordenId;
+                btnComprobante.style.display = "block";
+
+                ordenSeleccionada = null;
+                resumenOrden.innerHTML = "Seleccione una orden para registrar el pago.";
+                monto.value = "";
+                referencia.value = "";
+                totalTexto.innerText = "Total: $0.00";
+
+                await cargarOrdenes();
+
+                btnComprobante.style.display = "block";
+
+            } catch (error) {
+                mostrarMensaje("Error de conexión con el servidor", "error");
+            }
+        }
+
+        async function abrirComprobanteUltimoPago() {
+            if (!ultimoOrdenPagadaId) {
+                mostrarMensaje("No hay comprobante disponible", "error");
+                return;
+            }
+
+            await abrirComprobante(ultimoOrdenPagadaId);
+        }
+
+        async function abrirComprobante(ordenId) {
+            try {
+                const response = await fetch(`/api/Pagos/orden/${ordenId}/comprobante`, {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    alert("No tiene permiso o la sesión expiró");
+                    localStorage.clear();
+                    window.location.href = "/login.html";
+                    return;
+                }
+
+                if (!response.ok) {
+                    const error = await response.text();
+                    mostrarMensaje(error || "No se pudo generar el comprobante", "error");
+                    return;
+                }
+
+                const html = await response.text();
+
+                const ventana = window.open("", "_blank");
+
+                if (!ventana) {
+                    mostrarMensaje("El navegador bloqueó la ventana emergente", "error");
+                    return;
+                }
+
+                ventana.document.open();
+                ventana.document.write(html);
+                ventana.document.close();
+
+            } catch (error) {
+                mostrarMensaje("Error al abrir comprobante", "error");
+            }
+        }
+
+        function mostrarMensaje(texto, tipo) {
+            mensaje.innerText = texto;
+            mensaje.className = `mensaje ${tipo}`;
+        }
+
+        function limpiarMensaje() {
+            mensaje.innerText = "";
+            mensaje.className = "mensaje";
+        }
+
+        function volverPanel() {
+            window.location.href = "/panel.html";
+        }
+
+        function cerrarSesion() {
+            localStorage.clear();
+            window.location.href = "/login.html";
+        }
+
+        cargarOrdenes();
+    </script>
+</body>
+</html>

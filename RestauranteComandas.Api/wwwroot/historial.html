@@ -1,0 +1,544 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Historial de Órdenes</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        header {
+            background: #111827;
+            color: white;
+            padding: 18px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .titulo {
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        .usuario {
+            font-size: 14px;
+            color: #d1d5db;
+        }
+
+        .acciones-header {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: none;
+            padding: 10px 13px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-panel {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-salir {
+            background: #dc2626;
+            color: white;
+        }
+
+        .contenedor {
+            max-width: 1200px;
+            margin: auto;
+            padding: 25px 20px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 5px 14px rgba(0,0,0,0.12);
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #dc2626;
+        }
+
+        .filtros {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        .btn-buscar {
+            background: #16a34a;
+            color: white;
+        }
+
+        .resumen {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .card-resumen {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+
+            .card-resumen strong {
+                display: block;
+                color: #dc2626;
+                font-size: 22px;
+                margin-top: 8px;
+            }
+
+        .orden {
+            background: white;
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 5px 14px rgba(0,0,0,0.12);
+            margin-bottom: 15px;
+        }
+
+        .orden-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .orden h3 {
+            margin: 0;
+            color: #dc2626;
+        }
+
+        .estado {
+            display: inline-block;
+            padding: 5px 11px;
+            border-radius: 20px;
+            background: #facc15;
+            color: #111827;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+            .estado.Pagado {
+                background: #22c55e;
+                color: white;
+            }
+
+            .estado.Cancelado {
+                background: #ef4444;
+                color: white;
+            }
+
+        .detalle {
+            border-bottom: 1px solid #e5e7eb;
+            padding: 8px 0;
+        }
+
+        .nota {
+            color: #dc2626;
+            font-style: italic;
+            font-size: 13px;
+        }
+
+        .total {
+            text-align: right;
+            font-size: 22px;
+            font-weight: bold;
+            color: #16a34a;
+            margin-top: 10px;
+        }
+
+        .btn-comprobante {
+            background: #2563eb;
+            color: white;
+            margin-top: 10px;
+        }
+
+        .mensaje {
+            text-align: center;
+            color: #dc2626;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .vacio {
+            text-align: center;
+            color: #6b7280;
+            font-size: 18px;
+            margin-top: 25px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div>
+            <div class="titulo">Historial de Órdenes</div>
+            <div class="usuario" id="usuarioInfo"></div>
+        </div>
+
+        <div class="acciones-header">
+            <button class="btn-panel" onclick="volverPanel()">Panel</button>
+            <button class="btn-salir" onclick="cerrarSesion()">Cerrar sesión</button>
+        </div>
+    </header>
+
+    <div class="contenedor">
+        <div class="panel">
+            <h2>Filtros</h2>
+
+            <div class="filtros">
+                <div>
+                    <label>Desde</label>
+                    <input type="date" id="desde">
+                </div>
+
+                <div>
+                    <label>Hasta</label>
+                    <input type="date" id="hasta">
+                </div>
+
+                <div>
+                    <label>Estado</label>
+                    <select id="estado">
+                        <option value="">Todos</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="En preparación">En preparación</option>
+                        <option value="Listo">Listo</option>
+                        <option value="Pagado">Pagado</option>
+                        <option value="Cancelado">Cancelado</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Mesa ID</label>
+                    <input type="number" id="mesaId" min="1" placeholder="Opcional">
+                </div>
+
+                <div>
+                    <button class="btn-buscar" onclick="cargarHistorial()">Buscar</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel" id="panelResumen">
+            <h2>Resumen del día</h2>
+            <div class="resumen" id="resumenAdmin">
+                Disponible solo para administrador.
+            </div>
+        </div>
+
+        <div id="contenedorOrdenes"></div>
+
+        <div class="mensaje" id="mensaje"></div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem("token");
+        const usuarioNombre = localStorage.getItem("usuarioNombre");
+        const usuarioRol = localStorage.getItem("usuarioRol");
+
+        const usuarioInfo = document.getElementById("usuarioInfo");
+        const contenedorOrdenes = document.getElementById("contenedorOrdenes");
+        const mensaje = document.getElementById("mensaje");
+        const resumenAdmin = document.getElementById("resumenAdmin");
+        const panelResumen = document.getElementById("panelResumen");
+
+        validarSesion();
+
+        usuarioInfo.innerText = `${usuarioNombre} - ${usuarioRol}`;
+
+        function validarSesion() {
+            if (!token) {
+                window.location.href = "/login.html";
+                return;
+            }
+
+            if (usuarioRol !== "Administrador" && usuarioRol !== "Caja") {
+                alert("No tiene permiso para acceder al historial");
+                window.location.href = "/panel.html";
+            }
+        }
+
+        function obtenerFechaHoy() {
+            const hoy = new Date();
+            return hoy.toISOString().split("T")[0];
+        }
+
+        function inicializarFechas() {
+            document.getElementById("desde").value = obtenerFechaHoy();
+            document.getElementById("hasta").value = obtenerFechaHoy();
+        }
+
+        async function cargarResumen() {
+            if (usuarioRol !== "Administrador") {
+                panelResumen.style.display = "none";
+                return;
+            }
+
+            try {
+                const response = await fetch("/api/Ordenes/resumen", {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    resumenAdmin.innerHTML = "No se pudo cargar el resumen.";
+                    return;
+                }
+
+                const data = await response.json();
+
+                resumenAdmin.innerHTML = `
+                    <div class="card-resumen">
+                        Total órdenes
+                        <strong>${data.totalOrdenes}</strong>
+                    </div>
+
+                    <div class="card-resumen">
+                        Pagadas
+                        <strong>${data.ordenesPagadas}</strong>
+                    </div>
+
+                    <div class="card-resumen">
+                        Pendientes
+                        <strong>${data.ordenesPendientes}</strong>
+                    </div>
+
+                    <div class="card-resumen">
+                        Canceladas
+                        <strong>${data.ordenesCanceladas}</strong>
+                    </div>
+
+                    <div class="card-resumen">
+                        Ventas hoy
+                        <strong>$${Number(data.ventasHoy).toFixed(2)}</strong>
+                    </div>
+
+                    <div class="card-resumen">
+                        Efectivo
+                        <strong>$${Number(data.pagos.efectivo).toFixed(2)}</strong>
+                    </div>
+
+                    <div class="card-resumen">
+                        Transferencia
+                        <strong>$${Number(data.pagos.transferencia).toFixed(2)}</strong>
+                    </div>
+
+                    <div class="card-resumen">
+                        D1
+                        <strong>$${Number(data.pagos.d1).toFixed(2)}</strong>
+                    </div>
+                `;
+
+            } catch (error) {
+                resumenAdmin.innerHTML = "Error al cargar resumen.";
+            }
+        }
+
+        async function cargarHistorial() {
+            limpiarMensaje();
+
+            const desde = document.getElementById("desde").value;
+            const hasta = document.getElementById("hasta").value;
+            const estado = document.getElementById("estado").value;
+            const mesaId = document.getElementById("mesaId").value;
+
+            const params = new URLSearchParams();
+
+            if (desde) params.append("desde", desde);
+            if (hasta) params.append("hasta", hasta);
+            if (estado) params.append("estado", estado);
+            if (mesaId) params.append("mesaId", mesaId);
+
+            try {
+                const response = await fetch(`/api/Ordenes/historial?${params.toString()}`, {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    alert("No tiene permiso o la sesión expiró");
+                    localStorage.clear();
+                    window.location.href = "/login.html";
+                    return;
+                }
+
+                if (!response.ok) {
+                    mostrarMensaje("No se pudo cargar el historial");
+                    return;
+                }
+
+                const ordenes = await response.json();
+
+                renderizarOrdenes(ordenes);
+
+            } catch (error) {
+                mostrarMensaje("Error de conexión con el servidor");
+            }
+        }
+
+        function renderizarOrdenes(ordenes) {
+            contenedorOrdenes.innerHTML = "";
+
+            if (ordenes.length === 0) {
+                contenedorOrdenes.innerHTML = `
+                    <div class="vacio">
+                        No se encontraron órdenes con los filtros aplicados.
+                    </div>
+                `;
+                return;
+            }
+
+            ordenes.forEach(orden => {
+                const div = document.createElement("div");
+                div.className = "orden";
+
+                let detallesHtml = "";
+
+                orden.detalles.forEach(detalle => {
+                    detallesHtml += `
+                        <div class="detalle">
+                            <strong>${detalle.cantidad} x ${detalle.plato}</strong>
+                            <div>Precio: $${Number(detalle.precioUnitario).toFixed(2)}</div>
+                            <div>Subtotal: $${Number(detalle.subtotal).toFixed(2)}</div>
+                            ${detalle.detallePersonalizado ? `<div class="nota">Detalle: ${detalle.detallePersonalizado}</div>` : ""}
+                        </div>
+                    `;
+                });
+
+                let pagoHtml = "";
+
+                if (orden.pago) {
+                    pagoHtml = `
+                        <div>
+                            <strong>Pago:</strong> ${orden.pago.metodoPago} -
+                            $${Number(orden.pago.monto).toFixed(2)}
+                        </div>
+                        <div><strong>Referencia:</strong> ${orden.pago.referencia || "Sin referencia"}</div>
+                    `;
+                } else {
+                    pagoHtml = `<div><strong>Pago:</strong> No registrado</div>`;
+                }
+
+                const botonComprobante = orden.estado === "Pagado"
+                    ? `<button class="btn-comprobante" onclick="abrirComprobante(${orden.id})">Ver comprobante</button>`
+                    : "";
+
+                div.innerHTML = `
+                    <div class="orden-header">
+                        <div>
+                            <h3>Orden #${orden.id} - Mesa ${orden.mesa}</h3>
+                            <div><strong>Mesero:</strong> ${orden.mesero}</div>
+                            <div><strong>Fecha:</strong> ${new Date(orden.fecha).toLocaleString()}</div>
+                        </div>
+
+                        <div>
+                            <span class="estado ${orden.estado}">${orden.estado}</span>
+                        </div>
+                    </div>
+
+                    ${detallesHtml}
+
+                    ${pagoHtml}
+
+                    <div class="total">Total: $${Number(orden.total).toFixed(2)}</div>
+
+                    ${botonComprobante}
+                `;
+
+                contenedorOrdenes.appendChild(div);
+            });
+        }
+
+        async function abrirComprobante(ordenId) {
+            try {
+                const response = await fetch(`/api/Pagos/orden/${ordenId}/comprobante`, {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    mostrarMensaje("No se pudo abrir el comprobante");
+                    return;
+                }
+
+                const html = await response.text();
+                const ventana = window.open("", "_blank");
+
+                if (!ventana) {
+                    mostrarMensaje("El navegador bloqueó la ventana emergente");
+                    return;
+                }
+
+                ventana.document.open();
+                ventana.document.write(html);
+                ventana.document.close();
+
+            } catch (error) {
+                mostrarMensaje("Error al abrir comprobante");
+            }
+        }
+
+        function mostrarMensaje(texto) {
+            mensaje.innerText = texto;
+        }
+
+        function limpiarMensaje() {
+            mensaje.innerText = "";
+        }
+
+        function volverPanel() {
+            window.location.href = "/panel.html";
+        }
+
+        function cerrarSesion() {
+            localStorage.clear();
+            window.location.href = "/login.html";
+        }
+
+        inicializarFechas();
+        cargarResumen();
+        cargarHistorial();
+    </script>
+</body>
+</html>

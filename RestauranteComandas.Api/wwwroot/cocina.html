@@ -1,0 +1,374 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Pantalla de Cocina</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #111827;
+            color: white;
+        }
+
+        header {
+            background: #dc2626;
+            padding: 18px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .titulo {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .usuario {
+            font-size: 14px;
+            color: #fee2e2;
+        }
+
+        .btn-salir {
+            background: #111827;
+            color: white;
+            border: 1px solid #fca5a5;
+            padding: 9px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .estado-conexion {
+            text-align: center;
+            padding: 10px;
+            background: #1f2937;
+            font-size: 15px;
+        }
+
+        .contenedor {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .orden {
+            background: #f9fafb;
+            color: #111827;
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.35);
+        }
+
+            .orden h2 {
+                margin-top: 0;
+                color: #dc2626;
+            }
+
+        .estado {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: #facc15;
+            color: #111827;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .detalle {
+            border-bottom: 1px solid #ddd;
+            padding: 8px 0;
+        }
+
+            .detalle strong {
+                font-size: 18px;
+            }
+
+        .nota {
+            color: #dc2626;
+            font-style: italic;
+            margin-top: 4px;
+        }
+
+        .acciones {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: none;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-preparacion {
+            background: #f97316;
+            color: white;
+        }
+
+        .btn-listo {
+            background: #22c55e;
+            color: white;
+        }
+
+        .sin-ordenes {
+            text-align: center;
+            font-size: 22px;
+            color: #d1d5db;
+            margin-top: 40px;
+        }
+
+        .error {
+            text-align: center;
+            color: #fecaca;
+            margin-top: 30px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div>
+            <div class="titulo">Monitor de Cocina</div>
+            <div class="usuario" id="usuarioInfo"></div>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn-salir" onclick="volverPanel()">Panel</button>
+            <button class="btn-salir" onclick="cerrarSesion()">Cerrar sesión</button>
+        </div>
+    </header>
+
+    <div class="estado-conexion" id="estadoConexion">
+        Conectando con cocina...
+    </div>
+
+    <div class="contenedor" id="contenedorOrdenes"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+
+    <script>
+        const token = localStorage.getItem("token");
+        const usuarioNombre = localStorage.getItem("usuarioNombre");
+        const usuarioRol = localStorage.getItem("usuarioRol");
+
+        const contenedor = document.getElementById("contenedorOrdenes");
+        const estadoConexion = document.getElementById("estadoConexion");
+        const usuarioInfo = document.getElementById("usuarioInfo");
+
+        validarSesion();
+
+        usuarioInfo.innerText = `${usuarioNombre} - ${usuarioRol}`;
+
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/hubs/cocina", {
+                accessTokenFactory: () => token
+            })
+            .withAutomaticReconnect()
+            .build();
+
+        connection.on("ConexionExitosa", function (mensaje) {
+            estadoConexion.innerText = mensaje;
+        });
+
+        connection.on("NuevaOrden", function (orden) {
+            agregarOrden(orden);
+        });
+
+        connection.on("EstadoOrdenActualizado", function (data) {
+            const estadoElemento = document.getElementById(`estado-${data.id}`);
+
+            if (estadoElemento) {
+                estadoElemento.innerText = data.estado;
+            }
+
+            if (data.estado === "Listo" || data.estado === "Pagado" || data.estado === "Cancelado") {
+                const ordenElemento = document.getElementById(`orden-${data.id}`);
+
+                if (ordenElemento) {
+                    ordenElemento.remove();
+                }
+            }
+
+            mostrarMensajeSinOrdenes();
+        });
+
+        function validarSesion() {
+            if (!token) {
+                window.location.href = "/login.html";
+                return;
+            }
+
+            if (usuarioRol !== "Cocina" && usuarioRol !== "Administrador") {
+                alert("No tiene permiso para acceder a la pantalla de cocina");
+                window.location.href = "/login.html";
+            }
+        }
+
+        async function iniciarConexion() {
+            try {
+                await connection.start();
+                estadoConexion.innerText = "Conectado a cocina en tiempo real";
+            } catch (err) {
+                estadoConexion.innerText = "Error de conexión. Reintentando...";
+                setTimeout(iniciarConexion, 3000);
+            }
+        }
+
+        async function cargarOrdenesPendientes() {
+            try {
+                const response = await fetch("/api/Ordenes/pendientes", {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    localStorage.clear();
+                    window.location.href = "/login.html";
+                    return;
+                }
+
+                if (!response.ok) {
+                    contenedor.innerHTML = `
+                            <div class="error">
+                                No se pudieron cargar las órdenes pendientes.
+                            </div>
+                        `;
+                    return;
+                }
+
+                const ordenes = await response.json();
+
+                contenedor.innerHTML = "";
+
+                ordenes.forEach(orden => {
+                    agregarOrden(orden);
+                });
+
+                mostrarMensajeSinOrdenes();
+
+            } catch (error) {
+                contenedor.innerHTML = `
+                        <div class="error">
+                            Error de conexión con el servidor.
+                        </div>
+                    `;
+            }
+        }
+
+        function agregarOrden(orden) {
+            const mensaje = document.querySelector(".sin-ordenes");
+            if (mensaje) {
+                mensaje.remove();
+            }
+
+            const existente = document.getElementById(`orden-${orden.id}`);
+
+            if (existente) {
+                existente.remove();
+            }
+
+            const div = document.createElement("div");
+            div.className = "orden";
+            div.id = `orden-${orden.id}`;
+
+            let detallesHtml = "";
+
+            orden.detalles.forEach(detalle => {
+                detallesHtml += `
+                        <div class="detalle">
+                            <strong>${detalle.cantidad} x ${detalle.plato}</strong>
+                            ${detalle.detallePersonalizado ? `<div class="nota">Detalle: ${detalle.detallePersonalizado}</div>` : ""}
+                        </div>
+                    `;
+            });
+
+            div.innerHTML = `
+                    <h2>Mesa ${orden.mesa}</h2>
+                    <div class="estado" id="estado-${orden.id}">${orden.estado}</div>
+                    <p><strong>Orden:</strong> #${orden.id}</p>
+                    <p><strong>Hora:</strong> ${new Date(orden.fecha).toLocaleTimeString()}</p>
+
+                    ${detallesHtml}
+
+                    <div class="acciones">
+                        <button class="btn-preparacion" onclick="actualizarEstado(${orden.id}, 'En preparación')">
+                            En preparación
+                        </button>
+
+                        <button class="btn-listo" onclick="actualizarEstado(${orden.id}, 'Listo')">
+                            Listo
+                        </button>
+                    </div>
+                `;
+
+            contenedor.prepend(div);
+            mostrarMensajeSinOrdenes();
+        }
+
+        async function actualizarEstado(id, estado) {
+            try {
+                const response = await fetch(`/api/Ordenes/${id}/estado`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(estado)
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    alert("No tiene permiso o la sesión expiró");
+                    localStorage.clear();
+                    window.location.href = "/login.html";
+                    return;
+                }
+
+                if (!response.ok) {
+                    const error = await response.text();
+                    alert(error || "No se pudo actualizar el estado");
+                    return;
+                }
+
+            } catch (error) {
+                alert("Error de conexión con el servidor");
+            }
+        }
+
+        function mostrarMensajeSinOrdenes() {
+            const ordenes = document.querySelectorAll(".orden");
+
+            if (ordenes.length === 0 && !document.querySelector(".sin-ordenes")) {
+                contenedor.innerHTML = `
+                        <div class="sin-ordenes">
+                            No hay órdenes pendientes por preparar.
+                        </div>
+                    `;
+            }
+        }
+
+        function volverPanel() {
+            window.location.href = "/panel.html";
+        }
+
+        function cerrarSesion() {
+            localStorage.clear();
+            window.location.href = "/login.html";
+        }
+
+        iniciarConexion();
+        cargarOrdenesPendientes();
+    </script>
+</body>
+</html>

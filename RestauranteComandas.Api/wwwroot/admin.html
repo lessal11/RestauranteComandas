@@ -1,0 +1,822 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Administración - Restaurante Comandas</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        header {
+            background: #111827;
+            color: white;
+            padding: 18px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .titulo {
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        .usuario {
+            font-size: 14px;
+            color: #d1d5db;
+        }
+
+        .acciones-header {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: none;
+            padding: 10px 13px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-panel {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-salir {
+            background: #dc2626;
+            color: white;
+        }
+
+        .contenedor {
+            max-width: 1200px;
+            margin: auto;
+            padding: 25px 20px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            background: #e5e7eb;
+            color: #111827;
+        }
+
+            .tab.activa {
+                background: #dc2626;
+                color: white;
+            }
+
+        .panel {
+            background: white;
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 5px 14px rgba(0,0,0,0.12);
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #dc2626;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            align-items: end;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        .btn-guardar {
+            background: #16a34a;
+            color: white;
+        }
+
+        .btn-limpiar {
+            background: #6b7280;
+            color: white;
+        }
+
+        .tabla {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+            .tabla th {
+                background: #dc2626;
+                color: white;
+                padding: 10px;
+                text-align: left;
+            }
+
+            .tabla td {
+                padding: 10px;
+                border-bottom: 1px solid #e5e7eb;
+            }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 13px;
+            display: inline-block;
+        }
+
+        .ok-badge {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .no-badge {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .warn-badge {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .btn-editar {
+            background: #2563eb;
+            color: white;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .btn-desactivar {
+            background: #f97316;
+            color: white;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .btn-activar {
+            background: #16a34a;
+            color: white;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .mensaje {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 14px;
+        }
+
+        .ok {
+            color: #16a34a;
+        }
+
+        .error {
+            color: #dc2626;
+        }
+
+        .seccion {
+            display: none;
+        }
+
+            .seccion.activa {
+                display: block;
+            }
+
+        @media (max-width: 800px) {
+            .tabla {
+                font-size: 13px;
+            }
+
+                .tabla th, .tabla td {
+                    padding: 7px;
+                }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div>
+            <div class="titulo">Administración</div>
+            <div class="usuario" id="usuarioInfo"></div>
+        </div>
+
+        <div class="acciones-header">
+            <button class="btn-panel" onclick="volverPanel()">Panel</button>
+            <button class="btn-salir" onclick="cerrarSesion()">Cerrar sesión</button>
+        </div>
+    </header>
+
+    <div class="contenedor">
+        <div class="tabs">
+            <button class="tab activa" onclick="mostrarSeccion('menu', this)">Menú</button>
+            <button class="tab" onclick="mostrarSeccion('mesas', this)">Mesas</button>
+            <button class="tab" onclick="mostrarSeccion('usuarios', this)">Usuarios</button>
+        </div>
+
+        <!-- SECCIÓN MENÚ -->
+        <div id="seccion-menu" class="seccion activa">
+            <div class="panel">
+                <h2>Administrar menú</h2>
+
+                <input type="hidden" id="menuId">
+
+                <div class="form-grid">
+                    <div>
+                        <label>Nombre del plato</label>
+                        <input type="text" id="menuNombre" placeholder="Ej: Encebollado">
+                    </div>
+
+                    <div>
+                        <label>Categoría</label>
+                        <select id="menuCategoria">
+                            <option value="Entradas">Entradas</option>
+                            <option value="Platos fuertes">Platos fuertes</option>
+                            <option value="Bebidas">Bebidas</option>
+                            <option value="Postres">Postres</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Precio</label>
+                        <input type="number" id="menuPrecio" min="0" step="0.01" placeholder="0.00">
+                    </div>
+
+                    <div>
+                        <button class="btn-guardar" onclick="guardarMenu()">Guardar plato</button>
+                        <button class="btn-limpiar" onclick="limpiarMenu()">Limpiar</button>
+                    </div>
+                </div>
+
+                <div class="mensaje" id="mensajeMenu"></div>
+
+                <table class="tabla">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Plato</th>
+                            <th>Categoría</th>
+                            <th>Precio</th>
+                            <th>Disponible</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaMenu"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SECCIÓN MESAS -->
+        <div id="seccion-mesas" class="seccion">
+            <div class="panel">
+                <h2>Administrar mesas</h2>
+
+                <input type="hidden" id="mesaId">
+
+                <div class="form-grid">
+                    <div>
+                        <label>Número de mesa</label>
+                        <input type="number" id="mesaNumero" min="1" placeholder="Ej: 1">
+                    </div>
+
+                    <div>
+                        <label>Estado</label>
+                        <select id="mesaEstado">
+                            <option value="Disponible">Disponible</option>
+                            <option value="Ocupada">Ocupada</option>
+                            <option value="En pago">En pago</option>
+                            <option value="Cerrada">Cerrada</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <button class="btn-guardar" onclick="guardarMesa()">Guardar mesa</button>
+                        <button class="btn-limpiar" onclick="limpiarMesa()">Limpiar</button>
+                    </div>
+                </div>
+
+                <div class="mensaje" id="mensajeMesas"></div>
+
+                <table class="tabla">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Número</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaMesas"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SECCIÓN USUARIOS -->
+        <div id="seccion-usuarios" class="seccion">
+            <div class="panel">
+                <h2>Administrar usuarios</h2>
+
+                <div class="form-grid">
+                    <div>
+                        <label>Nombre</label>
+                        <input type="text" id="usuarioNombreNuevo" placeholder="Ej: Mesero 2">
+                    </div>
+
+                    <div>
+                        <label>Usuario</label>
+                        <input type="text" id="usuarioLoginNuevo" placeholder="Ej: mesero2">
+                    </div>
+
+                    <div>
+                        <label>Contraseña</label>
+                        <input type="password" id="usuarioClaveNueva" placeholder="Contraseña">
+                    </div>
+
+                    <div>
+                        <label>Rol</label>
+                        <select id="usuarioRolNuevo">
+                            <option value="Administrador">Administrador</option>
+                            <option value="Mesero">Mesero</option>
+                            <option value="Cocina">Cocina</option>
+                            <option value="Caja">Caja</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <button class="btn-guardar" onclick="crearUsuario()">Crear usuario</button>
+                        <button class="btn-limpiar" onclick="limpiarUsuario()">Limpiar</button>
+                    </div>
+                </div>
+
+                <div class="mensaje" id="mensajeUsuarios"></div>
+
+                <table class="tabla">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Usuario</th>
+                            <th>Rol</th>
+                            <th>Activo</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaUsuarios"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem("token");
+        const usuarioNombre = localStorage.getItem("usuarioNombre");
+        const usuarioRol = localStorage.getItem("usuarioRol");
+
+        const usuarioInfo = document.getElementById("usuarioInfo");
+
+        let menu = [];
+        let mesas = [];
+        let usuarios = [];
+
+        validarSesion();
+
+        usuarioInfo.innerText = `${usuarioNombre} - ${usuarioRol}`;
+
+        function validarSesion() {
+            if (!token) {
+                window.location.href = "/login.html";
+                return;
+            }
+
+            if (usuarioRol !== "Administrador") {
+                alert("Solo el administrador puede ingresar a esta pantalla");
+                window.location.href = "/panel.html";
+            }
+        }
+
+        function headersJson() {
+            return {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            };
+        }
+
+        function headersAuth() {
+            return {
+                "Authorization": `Bearer ${token}`
+            };
+        }
+
+        function manejarNoAutorizado(response) {
+            if (response.status === 401 || response.status === 403) {
+                alert("No tiene permiso o la sesión expiró");
+                localStorage.clear();
+                window.location.href = "/login.html";
+                return true;
+            }
+
+            return false;
+        }
+
+        function mostrarSeccion(seccion, boton) {
+            document.querySelectorAll(".seccion").forEach(s => s.classList.remove("activa"));
+            document.querySelectorAll(".tab").forEach(t => t.classList.remove("activa"));
+
+            document.getElementById(`seccion-${seccion}`).classList.add("activa");
+            boton.classList.add("activa");
+        }
+
+        function mensaje(id, texto, tipo) {
+            const elemento = document.getElementById(id);
+            elemento.innerText = texto;
+            elemento.className = `mensaje ${tipo}`;
+        }
+
+        // =========================
+        // MENÚ
+        // =========================
+
+        async function cargarMenu() {
+            const response = await fetch("/api/Menu", {
+                headers: headersAuth()
+            });
+
+            if (manejarNoAutorizado(response)) return;
+
+            menu = await response.json();
+            renderizarMenu();
+        }
+
+        function renderizarMenu() {
+            const tbody = document.getElementById("tablaMenu");
+            tbody.innerHTML = "";
+
+            menu.forEach(item => {
+                const tr = document.createElement("tr");
+
+                tr.innerHTML = `
+                    <td>${item.id}</td>
+                    <td>${item.nombre}</td>
+                    <td>${item.categoria}</td>
+                    <td>$${Number(item.precio).toFixed(2)}</td>
+                    <td>
+                        <span class="badge ${item.disponible ? "ok-badge" : "no-badge"}">
+                            ${item.disponible ? "Sí" : "No"}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn-editar" onclick="editarMenu(${item.id})">Editar</button>
+                        <button class="${item.disponible ? "btn-desactivar" : "btn-activar"}"
+                                onclick="cambiarDisponibilidadMenu(${item.id}, ${!item.disponible})">
+                            ${item.disponible ? "Desactivar" : "Activar"}
+                        </button>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function guardarMenu() {
+            const id = document.getElementById("menuId").value;
+            const nombre = document.getElementById("menuNombre").value.trim();
+            const categoria = document.getElementById("menuCategoria").value;
+            const precio = parseFloat(document.getElementById("menuPrecio").value);
+
+            if (!nombre || !categoria || isNaN(precio) || precio <= 0) {
+                mensaje("mensajeMenu", "Complete correctamente los datos del plato", "error");
+                return;
+            }
+
+            const body = {
+                id: id ? parseInt(id) : 0,
+                nombre,
+                categoria,
+                precio,
+                disponible: true
+            };
+
+            let response;
+
+            if (id) {
+                const itemActual = menu.find(x => x.id === parseInt(id));
+                body.disponible = itemActual ? itemActual.disponible : true;
+
+                response = await fetch(`/api/Menu/${id}`, {
+                    method: "PUT",
+                    headers: headersJson(),
+                    body: JSON.stringify(body)
+                });
+            } else {
+                response = await fetch("/api/Menu", {
+                    method: "POST",
+                    headers: headersJson(),
+                    body: JSON.stringify(body)
+                });
+            }
+
+            if (manejarNoAutorizado(response)) return;
+
+            if (!response.ok) {
+                const error = await response.text();
+                mensaje("mensajeMenu", error || "No se pudo guardar el plato", "error");
+                return;
+            }
+
+            mensaje("mensajeMenu", "Plato guardado correctamente", "ok");
+            limpiarMenu();
+            await cargarMenu();
+        }
+
+        function editarMenu(id) {
+            const item = menu.find(x => x.id === id);
+
+            if (!item) return;
+
+            document.getElementById("menuId").value = item.id;
+            document.getElementById("menuNombre").value = item.nombre;
+            document.getElementById("menuCategoria").value = item.categoria;
+            document.getElementById("menuPrecio").value = item.precio;
+        }
+
+        async function cambiarDisponibilidadMenu(id, disponible) {
+            const response = await fetch(`/api/Menu/${id}/disponibilidad`, {
+                method: "PATCH",
+                headers: headersJson(),
+                body: JSON.stringify(disponible)
+            });
+
+            if (manejarNoAutorizado(response)) return;
+
+            if (!response.ok) {
+                const error = await response.text();
+                mensaje("mensajeMenu", error || "No se pudo cambiar disponibilidad", "error");
+                return;
+            }
+
+            mensaje("mensajeMenu", "Disponibilidad actualizada", "ok");
+            await cargarMenu();
+        }
+
+        function limpiarMenu() {
+            document.getElementById("menuId").value = "";
+            document.getElementById("menuNombre").value = "";
+            document.getElementById("menuCategoria").value = "Entradas";
+            document.getElementById("menuPrecio").value = "";
+        }
+
+        // =========================
+        // MESAS
+        // =========================
+
+        async function cargarMesas() {
+            const response = await fetch("/api/Mesas", {
+                headers: headersAuth()
+            });
+
+            if (manejarNoAutorizado(response)) return;
+
+            mesas = await response.json();
+            renderizarMesas();
+        }
+
+        function renderizarMesas() {
+            const tbody = document.getElementById("tablaMesas");
+            tbody.innerHTML = "";
+
+            mesas.forEach(mesa => {
+                const tr = document.createElement("tr");
+
+                const badgeClase = mesa.estado === "Disponible" ? "ok-badge" :
+                    mesa.estado === "Ocupada" ? "warn-badge" : "no-badge";
+
+                tr.innerHTML = `
+                    <td>${mesa.id}</td>
+                    <td>Mesa ${mesa.numero}</td>
+                    <td>
+                        <span class="badge ${badgeClase}">
+                            ${mesa.estado}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn-editar" onclick="editarMesa(${mesa.id})">Editar</button>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function guardarMesa() {
+            const id = document.getElementById("mesaId").value;
+            const numero = parseInt(document.getElementById("mesaNumero").value);
+            const estado = document.getElementById("mesaEstado").value;
+
+            if (isNaN(numero) || numero <= 0) {
+                mensaje("mensajeMesas", "Ingrese un número de mesa válido", "error");
+                return;
+            }
+
+            const body = {
+                id: id ? parseInt(id) : 0,
+                numero,
+                estado
+            };
+
+            let response;
+
+            if (id) {
+                response = await fetch(`/api/Mesas/${id}`, {
+                    method: "PUT",
+                    headers: headersJson(),
+                    body: JSON.stringify(body)
+                });
+            } else {
+                response = await fetch("/api/Mesas", {
+                    method: "POST",
+                    headers: headersJson(),
+                    body: JSON.stringify(body)
+                });
+            }
+
+            if (manejarNoAutorizado(response)) return;
+
+            if (!response.ok) {
+                const error = await response.text();
+                mensaje("mensajeMesas", error || "No se pudo guardar la mesa", "error");
+                return;
+            }
+
+            mensaje("mensajeMesas", "Mesa guardada correctamente", "ok");
+            limpiarMesa();
+            await cargarMesas();
+        }
+
+        function editarMesa(id) {
+            const mesa = mesas.find(x => x.id === id);
+
+            if (!mesa) return;
+
+            document.getElementById("mesaId").value = mesa.id;
+            document.getElementById("mesaNumero").value = mesa.numero;
+            document.getElementById("mesaEstado").value = mesa.estado;
+        }
+
+        function limpiarMesa() {
+            document.getElementById("mesaId").value = "";
+            document.getElementById("mesaNumero").value = "";
+            document.getElementById("mesaEstado").value = "Disponible";
+        }
+
+        // =========================
+        // USUARIOS
+        // =========================
+
+        async function cargarUsuarios() {
+            const response = await fetch("/api/Usuarios", {
+                headers: headersAuth()
+            });
+
+            if (manejarNoAutorizado(response)) return;
+
+            usuarios = await response.json();
+            renderizarUsuarios();
+        }
+
+        function renderizarUsuarios() {
+            const tbody = document.getElementById("tablaUsuarios");
+            tbody.innerHTML = "";
+
+            usuarios.forEach(usuario => {
+                const tr = document.createElement("tr");
+
+                tr.innerHTML = `
+                    <td>${usuario.id}</td>
+                    <td>${usuario.nombre}</td>
+                    <td>${usuario.nombreUsuario}</td>
+                    <td>${usuario.rol}</td>
+                    <td>
+                        <span class="badge ${usuario.activo ? "ok-badge" : "no-badge"}">
+                            ${usuario.activo ? "Sí" : "No"}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="${usuario.activo ? "btn-desactivar" : "btn-activar"}"
+                                onclick="cambiarEstadoUsuario(${usuario.id}, ${!usuario.activo})">
+                            ${usuario.activo ? "Desactivar" : "Activar"}
+                        </button>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function crearUsuario() {
+            const nombre = document.getElementById("usuarioNombreNuevo").value.trim();
+            const nombreUsuario = document.getElementById("usuarioLoginNuevo").value.trim();
+            const clave = document.getElementById("usuarioClaveNueva").value.trim();
+            const rol = document.getElementById("usuarioRolNuevo").value;
+
+            if (!nombre || !nombreUsuario || !clave || !rol) {
+                mensaje("mensajeUsuarios", "Complete todos los datos del usuario", "error");
+                return;
+            }
+
+            const body = {
+                nombre,
+                nombreUsuario,
+                clave,
+                rol
+            };
+
+            const response = await fetch("/api/Usuarios", {
+                method: "POST",
+                headers: headersJson(),
+                body: JSON.stringify(body)
+            });
+
+            if (manejarNoAutorizado(response)) return;
+
+            if (!response.ok) {
+                const error = await response.text();
+                mensaje("mensajeUsuarios", error || "No se pudo crear el usuario", "error");
+                return;
+            }
+
+            mensaje("mensajeUsuarios", "Usuario creado correctamente", "ok");
+            limpiarUsuario();
+            await cargarUsuarios();
+        }
+
+        async function cambiarEstadoUsuario(id, activo) {
+            const response = await fetch(`/api/Usuarios/${id}/estado`, {
+                method: "PATCH",
+                headers: headersJson(),
+                body: JSON.stringify(activo)
+            });
+
+            if (manejarNoAutorizado(response)) return;
+
+            if (!response.ok) {
+                const error = await response.text();
+                mensaje("mensajeUsuarios", error || "No se pudo cambiar estado del usuario", "error");
+                return;
+            }
+
+            mensaje("mensajeUsuarios", "Estado de usuario actualizado", "ok");
+            await cargarUsuarios();
+        }
+
+        function limpiarUsuario() {
+            document.getElementById("usuarioNombreNuevo").value = "";
+            document.getElementById("usuarioLoginNuevo").value = "";
+            document.getElementById("usuarioClaveNueva").value = "";
+            document.getElementById("usuarioRolNuevo").value = "Mesero";
+        }
+
+        // =========================
+        // NAVEGACIÓN
+        // =========================
+
+        function volverPanel() {
+            window.location.href = "/panel.html";
+        }
+
+        function cerrarSesion() {
+            localStorage.clear();
+            window.location.href = "/login.html";
+        }
+
+        cargarMenu();
+        cargarMesas();
+        cargarUsuarios();
+    </script>
+</body>
+</html>
