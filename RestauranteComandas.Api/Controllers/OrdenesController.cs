@@ -160,7 +160,7 @@ namespace RestauranteComandas.Api.Controllers
             {
                 MesaId = dto.MesaId,
                 UsuarioId = usuarioId,
-                Fecha = DateTime.Now,
+                Fecha = DateTime.UtcNow,
                 Estado = "Pendiente",
                 Total = 0
             };

@@ -164,7 +164,7 @@ namespace RestauranteComandas.Api.Controllers
                 MetodoPago = dto.MetodoPago,
                 Monto = dto.Monto,
                 Referencia = dto.Referencia,
-                FechaPago = DateTime.Now,
+                FechaPago = DateTime.UtcNow,
                 EstadoPago = "Confirmado"
             };
 
