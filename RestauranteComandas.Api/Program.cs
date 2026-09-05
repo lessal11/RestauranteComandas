@@ -51,7 +51,7 @@ builder.Services.AddSwaggerGen(options =>
 
 // Base de datos SQL Server
 builder.Services.AddDbContext<RestauranteDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // SignalR
 builder.Services.AddSignalR();
@@ -117,6 +117,9 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddAuthorization();
+
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 var app = builder.Build();
 
