@@ -238,368 +238,530 @@ namespace RestauranteComandas.Api.Controllers
                 DateTime.SpecifyKind(pago.FechaPago, DateTimeKind.Utc)
             ).ToOffset(ecuadorOffset);
 
+            var mesero = System.Net.WebUtility.HtmlEncode(
+                orden.Usuario != null
+                    ? orden.Usuario.Nombre
+                    : "No registrado"
+            );
+
+            var metodoPago = System.Net.WebUtility.HtmlEncode(
+                pago.MetodoPago ?? ""
+            );
+
+            var referencia = System.Net.WebUtility.HtmlEncode(
+                string.IsNullOrWhiteSpace(pago.Referencia)
+                    ? "Sin referencia"
+                    : pago.Referencia
+            );
+
+            var estadoPago = System.Net.WebUtility.HtmlEncode(
+                pago.EstadoPago ?? ""
+            );
+
             var html = new StringBuilder();
 
             html.Append($@"
 <!DOCTYPE html>
+
 <html lang='es'>
+
 <head>
+
     <meta charset='UTF-8'>
-    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+
+    <meta
+        name='viewport'
+        content='width=device-width, initial-scale=1.0'
+    >
 
     <title>Pedido #{orden.Id:D3}</title>
 
     <style>
-    * {{
-        box-sizing: border-box;
-    }}
 
-    @page {{
-        size: auto;
-        margin: 6mm;
-    }}
-
-    html,
-    body {{
-        width: 100%;
-        margin: 0;
-        padding: 0;
-        background: #fff;
-        color: #000;
-        font-family: Arial, Helvetica, sans-serif;
-    }}
-
-    body {{
-        font-size: 18px;
-        line-height: 1.25;
-    }}
-
-    .ticket {{
-        width: 100%;
-        max-width: none;
-        margin: 0;
-        padding: 0;
-        background: #fff;
-    }}
-
-    .encabezado {{
-        width: 100%;
-        text-align: center;
-        padding: 0 0 14px 0;
-    }}
-
-    .restaurante {{
-        margin: 0;
-        font-size: 34px;
-        line-height: 1.05;
-        font-weight: 900;
-    }}
-
-    .tipo-documento {{
-        margin-top: 7px;
-        font-size: 22px;
-        font-weight: 900;
-    }}
-
-    .pedido {{
-        margin-top: 6px;
-        font-size: 30px;
-        line-height: 1.05;
-        font-weight: 900;
-    }}
-
-    .linea-fuerte {{
-        width: 100%;
-        border-top: 4px solid #000;
-        margin: 14px 0;
-    }}
-
-    .linea {{
-        width: 100%;
-        border-top: 2px dashed #000;
-        margin: 10px 0;
-    }}
-
-    .datos {{
-        width: 100%;
-        font-size: 20px;
-    }}
-
-    .fila-dato {{
-        display: flex;
-        width: 100%;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 15px;
-        margin: 7px 0;
-    }}
-
-    .fila-dato .etiqueta {{
-        font-weight: 900;
-        white-space: nowrap;
-    }}
-
-    .fila-dato .valor {{
-        flex: 1;
-        text-align: right;
-        font-weight: 600;
-        overflow-wrap: anywhere;
-    }}
-
-    .cabecera-productos {{
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) 25%;
-        width: 100%;
-        gap: 15px;
-        padding: 8px 0 10px 0;
-        font-size: 20px;
-        line-height: 1.05;
-        font-weight: 900;
-        border-bottom: 4px solid #000;
-    }}
-
-    .cabecera-productos .precio {{
-        text-align: right;
-    }}
-
-    .producto {{
-        width: 100%;
-        padding: 13px 0;
-        border-bottom: 2px dashed #666;
-
-        break-inside: avoid;
-        page-break-inside: avoid;
-    }}
-
-    .producto-principal {{
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) 25%;
-        gap: 15px;
-        width: 100%;
-        align-items: start;
-    }}
-
-    .producto-nombre {{
-        min-width: 0;
-        font-size: 22px;
-        line-height: 1.15;
-        font-weight: 900;
-        overflow-wrap: anywhere;
-    }}
-
-    .producto-total {{
-        font-size: 22px;
-        line-height: 1.15;
-        font-weight: 900;
-        text-align: right;
-        white-space: nowrap;
-    }}
-
-    .producto-calculo {{
-        margin-top: 5px;
-        font-size: 17px;
-        font-weight: 500;
-    }}
-
-    .producto-nota {{
-        margin-top: 7px;
-        padding: 6px 0;
-        font-size: 17px;
-        line-height: 1.2;
-        font-weight: 700;
-        font-style: italic;
-        overflow-wrap: anywhere;
-    }}
-
-    .total {{
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        gap: 15px;
-        padding: 14px 0;
-        font-size: 30px;
-        line-height: 1.1;
-        font-weight: 900;
-
-        break-inside: avoid;
-        page-break-inside: avoid;
-    }}
-
-    .pago {{
-        width: 100%;
-        font-size: 18px;
-
-        break-inside: avoid;
-        page-break-inside: avoid;
-    }}
-
-    .estado {{
-        font-weight: 900;
-    }}
-
-    .pie {{
-        width: 100%;
-        margin-top: 15px;
-        padding-top: 12px;
-        border-top: 2px dashed #000;
-        text-align: center;
-        font-size: 18px;
-        line-height: 1.3;
-        font-weight: 700;
-
-        break-inside: avoid;
-        page-break-inside: avoid;
-    }}
-
-    .botones {{
-        margin-top: 20px;
-        text-align: center;
-    }}
-
-    button {{
-        padding: 12px 20px;
-        border: none;
-        background: #000;
-        color: #fff;
-        font-size: 16px;
-        font-weight: bold;
-        cursor: pointer;
-    }}
-
-    @media print {{
-
-        html,
-        body {{
-            width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            background: #fff !important;
+        * {{
+            box-sizing: border-box;
         }}
+
+        /*
+         * El alto de 300mm es únicamente inicial.
+         * Antes de imprimir, JavaScript lo reemplaza
+         * por la altura REAL del ticket.
+         */
+        @page {{
+            size: 58mm 300mm;
+            margin: 0;
+        }}
+
+        html {{
+            width: 58mm;
+            margin: 0;
+            padding: 0;
+            background: #fff;
+        }}
+
+        body {{
+            width: 58mm;
+            margin: 0;
+            padding: 0;
+
+            background: #fff;
+            color: #000;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            font-size: 14px;
+
+            line-height: 1.15;
+        }}
+
+
+        /* ==========================================
+           TICKET
+
+           Casi TODO el ancho del papel.
+           ========================================== */
 
         .ticket {{
-            width: 100% !important;
-            max-width: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
+            width: 58mm;
+
+            margin: 0;
+
+            /*
+             * Margen interno mínimo.
+             * 0.7 mm a cada lado.
+             */
+            padding:
+                1mm
+                0.7mm
+                1mm
+                0.7mm;
+
+            background: white;
         }}
 
-        .botones {{
-            display: none !important;
-        }}
 
-        .producto,
-        .producto-principal,
-        .total,
-        .pago,
-        .pie {{
-            break-inside: avoid !important;
-            page-break-inside: avoid !important;
-        }}
-    }}
+        /* ==========================================
+           ENCABEZADO
+           SOLO APARECE UNA VEZ
+           ========================================== */
 
-    @media print and (max-width: 80mm) {{
+        .encabezado {{
+            width: 100%;
 
-        @page {{
-            margin: 2mm;
-        }}
+            text-align: center;
 
-        body {{
-            font-size: 10px;
+            padding: 0;
+            margin: 0;
         }}
 
         .restaurante {{
-            font-size: 17px;
+            margin: 0;
+
+            font-size: 20px;
+            line-height: 1;
+
+            font-weight: 900;
         }}
 
         .tipo-documento {{
-            font-size: 11px;
+            margin-top: 5px;
+
+            font-size: 14px;
+            line-height: 1;
+
+            font-weight: 900;
         }}
 
         .pedido {{
-            font-size: 15px;
+            margin-top: 4px;
+
+            font-size: 19px;
+            line-height: 1;
+
+            font-weight: 900;
         }}
+
+
+        /* ==========================================
+           SEPARADORES
+           ========================================== */
 
         .linea-fuerte {{
-            border-top-width: 2px;
-            margin: 6px 0;
+            width: 100%;
+
+            border-top:
+                2.5px
+                solid
+                #000;
+
+            margin:
+                7px
+                0;
         }}
 
-        .linea {{
-            border-top-width: 1px;
-            margin: 5px 0;
+        .linea-producto {{
+            width: 100%;
+
+            border-top:
+                1px
+                dashed
+                #000;
+
+            margin:
+                2px
+                0;
         }}
+
+
+        /* ==========================================
+           DATOS DEL PEDIDO
+           ========================================== */
 
         .datos {{
-            font-size: 10px;
+            width: 100%;
+
+            font-size: 14px;
+            line-height: 1.15;
         }}
 
         .fila-dato {{
-            gap: 4px;
-            margin: 3px 0;
+            width: 100%;
+
+            margin:
+                4px
+                0;
         }}
+
+        .fila-dato strong {{
+            font-weight: 900;
+        }}
+
+
+        /* ==========================================
+           ENCABEZADO PRODUCTOS
+           ========================================== */
 
         .cabecera-productos {{
-            grid-template-columns: minmax(0, 1fr) 18mm;
-            gap: 3px;
-            font-size: 10px;
-            padding: 4px 0;
-            border-bottom-width: 2px;
+            display: grid;
+
+            grid-template-columns:
+                minmax(0, 1fr)
+                16mm;
+
+            gap: 2px;
+
+            width: 100%;
+
+            padding:
+                3px
+                0
+                5px
+                0;
+
+            font-size: 14px;
+            line-height: 1;
+
+            font-weight: 900;
+
+            border-bottom:
+                2.5px
+                solid
+                #000;
         }}
 
+        .cabecera-precio {{
+            text-align: right;
+        }}
+
+
+        /* ==========================================
+           PRODUCTOS
+
+           IMPORTANTE:
+           NO page-break
+           NO break-inside
+           NO saltos de hoja
+           ========================================== */
+
         .producto {{
-            padding: 5px 0;
-            border-bottom-width: 1px;
+            width: 100%;
+
+            padding:
+                5px
+                0
+                4px
+                0;
+
+            border-bottom:
+                1px
+                dashed
+                #000;
         }}
 
         .producto-principal {{
-            grid-template-columns: minmax(0, 1fr) 18mm;
-            gap: 3px;
+            display: grid;
+
+            grid-template-columns:
+                minmax(0, 1fr)
+                16mm;
+
+            gap: 2px;
+
+            width: 100%;
+
+            align-items: start;
         }}
 
         .producto-nombre {{
-            font-size: 11px;
+            min-width: 0;
+
+            font-size: 16px;
+            line-height: 1.08;
+
+            font-weight: 900;
+
+            overflow-wrap: anywhere;
+            word-break: break-word;
         }}
 
         .producto-total {{
-            font-size: 11px;
-        }}
+            font-size: 16px;
+            line-height: 1.08;
 
-        .producto-calculo {{
-            margin-top: 2px;
-            font-size: 9px;
+            font-weight: 900;
+
+            text-align: right;
+
+            white-space: nowrap;
         }}
 
         .producto-nota {{
+            width: 100%;
+
             margin-top: 3px;
-            padding: 0;
-            font-size: 9px;
+
+            font-size: 12px;
+            line-height: 1.1;
+
+            font-weight: 700;
+            font-style: italic;
+
+            overflow-wrap: anywhere;
+            word-break: break-word;
         }}
+
+
+        /* ==========================================
+           TOTAL
+           ========================================== */
 
         .total {{
-            padding: 6px 0;
-            font-size: 15px;
+            display: flex;
+
+            width: 100%;
+
+            justify-content:
+                space-between;
+
+            align-items:
+                center;
+
+            gap: 4px;
+
+            padding:
+                7px
+                0;
+
+            font-size: 19px;
+            line-height: 1;
+
+            font-weight: 900;
         }}
 
-        .pago {{
-            font-size: 10px;
+
+        /* ==========================================
+           DATOS DEL PAGO
+           ========================================== */
+
+        .datos-pago {{
+            width: 100%;
+
+            font-size: 13px;
+            line-height: 1.15;
         }}
+
+        .fila-pago {{
+            display: flex;
+
+            width: 100%;
+
+            justify-content:
+                space-between;
+
+            align-items:
+                flex-start;
+
+            gap: 4px;
+
+            margin:
+                3px
+                0;
+        }}
+
+        .etiqueta {{
+            flex-shrink: 0;
+
+            font-weight: 900;
+        }}
+
+        .valor {{
+            flex: 1;
+
+            text-align: right;
+
+            font-weight: 600;
+
+            overflow-wrap: anywhere;
+        }}
+
+
+        /* ==========================================
+           PIE
+           ========================================== */
 
         .pie {{
-            margin-top: 7px;
-            padding-top: 5px;
-            font-size: 9px;
+            width: 100%;
+
+            margin-top: 6px;
+
+            padding:
+                6px
+                0
+                2px
+                0;
+
+            border-top:
+                1px
+                dashed
+                #000;
+
+            text-align: center;
+
+            font-size: 12px;
+            line-height: 1.15;
+
+            font-weight: 700;
         }}
-    }}
-</style>
+
+
+        /* ==========================================
+           BOTÓN
+           NO FORMA PARTE DEL TICKET
+           ========================================== */
+
+        .botones {{
+            width: 58mm;
+
+            margin-top: 10px;
+
+            padding:
+                0
+                1mm;
+
+            text-align: center;
+        }}
+
+        button {{
+            width: 100%;
+
+            padding: 10px;
+
+            border: 0;
+
+            background: #111;
+            color: white;
+
+            font-size: 13px;
+            font-weight: bold;
+
+            cursor: pointer;
+        }}
+
+
+        /* ==========================================
+           PANTALLA
+           ========================================== */
+
+        @media screen {{
+
+            body {{
+                background: #e5e7eb;
+            }}
+
+            .ticket {{
+                background: #fff;
+            }}
+
+        }}
+
+
+        /* ==========================================
+           IMPRESIÓN
+           ========================================== */
+
+        @media print {{
+
+            html,
+            body {{
+                width: 58mm !important;
+
+                margin: 0 !important;
+                padding: 0 !important;
+
+                background: white !important;
+            }}
+
+            .ticket {{
+                width: 58mm !important;
+
+                margin: 0 !important;
+
+                padding:
+                    1mm
+                    0.7mm
+                    1mm
+                    0.7mm !important;
+            }}
+
+            .botones {{
+                display: none !important;
+            }}
+
+        }}
+
+    </style>
+
 </head>
+
 
 <body>
 
-<div class='ticket'>
+
+<div
+    class='ticket'
+    id='ticket'
+>
+
+    <!-- ENCABEZADO: SOLO UNA VEZ -->
 
     <div class='encabezado'>
-        <div class='restaurante'>LA SUPER CORVINA</div>
+
+        <div class='restaurante'>
+            LA SUPER CORVINA
+        </div>
 
         <div class='tipo-documento'>
             COMPROBANTE DE PAGO
@@ -608,9 +770,14 @@ namespace RestauranteComandas.Api.Controllers
         <div class='pedido'>
             PEDIDO #{orden.Id:D3}
         </div>
+
     </div>
 
+
     <div class='linea-fuerte'></div>
+
+
+    <!-- DATOS -->
 
     <div class='datos'>
 
@@ -621,7 +788,7 @@ namespace RestauranteComandas.Api.Controllers
 
         <div class='fila-dato'>
             <strong>Mesero:</strong>
-            {(orden.Usuario != null ? orden.Usuario.Nombre : "No registrado")}
+            {mesero}
         </div>
 
         <div class='fila-dato'>
@@ -631,19 +798,39 @@ namespace RestauranteComandas.Api.Controllers
 
     </div>
 
+
     <div class='linea-fuerte'></div>
 
+
+    <!-- PRODUCTOS -->
+
     <div class='cabecera-productos'>
-        <div>Detalle del Producto</div>
-        <div class='precio'>Precio<br>Total</div>
+
+        <div>
+            Detalle del Producto
+        </div>
+
+        <div class='cabecera-precio'>
+            Precio<br>Total
+        </div>
+
     </div>
 ");
 
+
             foreach (var detalle in orden.Detalles)
             {
-                var nombreProducto = detalle.MenuItem != null
-                    ? detalle.MenuItem.Nombre
-                    : "Producto";
+                var nombreProducto =
+                    System.Net.WebUtility.HtmlEncode(
+                        detalle.MenuItem != null
+                            ? detalle.MenuItem.Nombre
+                            : "Producto"
+                    );
+
+                var nota =
+                    System.Net.WebUtility.HtmlEncode(
+                        detalle.DetallePersonalizado ?? ""
+                    );
 
                 html.Append($@"
 
@@ -652,24 +839,25 @@ namespace RestauranteComandas.Api.Controllers
         <div class='producto-principal'>
 
             <div class='producto-nombre'>
+
                 {detalle.Cantidad}× {nombreProducto}
+
             </div>
 
             <div class='producto-total'>
+
                 ${detalle.Subtotal:F2}
+
             </div>
 
         </div>
 
-        <div class='producto-calculo'>
-            {detalle.Cantidad} × ${detalle.PrecioUnitario:F2}
-        </div>
 
-        {(string.IsNullOrWhiteSpace(detalle.DetallePersonalizado)
-                        ? ""
-                        : $@"
+        {(string.IsNullOrWhiteSpace(nota)
+                    ? ""
+                    : $@"
                 <div class='producto-nota'>
-                    {detalle.DetallePersonalizado}
+                    {nota}
                 </div>
             ")}
 
@@ -677,61 +865,262 @@ namespace RestauranteComandas.Api.Controllers
 ");
             }
 
+
             html.Append($@"
 
+    <!-- TOTAL INMEDIATAMENTE DESPUÉS DEL ÚLTIMO PLATO -->
+
     <div class='linea-fuerte'></div>
+
 
     <div class='total'>
-        <span>TOTAL:</span>
-        <span>${pago.Monto:F2}</span>
+
+        <span>
+            TOTAL:
+        </span>
+
+        <span>
+            ${pago.Monto:F2}
+        </span>
+
     </div>
 
+
     <div class='linea-fuerte'></div>
+
+
+    <!-- DATOS DEL PAGO -->
 
     <div class='datos-pago'>
 
-        <div class='fila-dato'>
-            <strong>Forma de pago:</strong>
-            {pago.MetodoPago}
+
+        <div class='fila-pago'>
+
+            <span class='etiqueta'>
+                Forma de pago:
+            </span>
+
+            <span class='valor'>
+                {metodoPago}
+            </span>
+
         </div>
 
-        <div class='fila-dato'>
-            <strong>Referencia:</strong>
-            {(string.IsNullOrWhiteSpace(pago.Referencia)
-                ? "Sin referencia"
-                : pago.Referencia)}
+
+        <div class='fila-pago'>
+
+            <span class='etiqueta'>
+                Referencia:
+            </span>
+
+            <span class='valor'>
+                {referencia}
+            </span>
+
         </div>
 
-        <div class='fila-dato'>
-            <strong>Fecha pago:</strong>
-            {fechaPagoEcuador:dd/MM/yyyy HH:mm}
+
+        <div class='fila-pago'>
+
+            <span class='etiqueta'>
+                Fecha pago:
+            </span>
+
+            <span class='valor'>
+                {fechaPagoEcuador:dd/MM/yyyy HH:mm}
+            </span>
+
         </div>
 
-        <div class='fila-dato'>
-            <strong>Estado:</strong>
-            {pago.EstadoPago}
+
+        <div class='fila-pago'>
+
+            <span class='etiqueta'>
+                Estado:
+            </span>
+
+            <span class='valor'>
+                {estadoPago}
+            </span>
+
         </div>
 
     </div>
+
 
     <div class='pie'>
-        ¡Gracias por su preferencia!<br>
+
+        ¡Gracias por su preferencia!
+        ·
         LA SUPER CORVINA
+
     </div>
 
-    <div class='botones'>
-        <button onclick='window.print()'>
-            Imprimir comprobante
-        </button>
-    </div>
 
 </div>
 
+
+<!-- BOTÓN FUERA DEL PAPEL -->
+
+<div class='botones'>
+
+    <button
+        type='button'
+        onclick='imprimirTicket()'
+    >
+        Imprimir comprobante
+    </button>
+
+</div>
+
+
+<script>
+
+    (function () {{
+
+        function configurarAlturaTicket() {{
+
+            const ticket =
+                document.getElementById('ticket');
+
+            if (!ticket) {{
+                return;
+            }}
+
+
+            /*
+             * Altura REAL de todo:
+             *
+             * encabezado
+             * +
+             * datos
+             * +
+             * todos los platos
+             * +
+             * total
+             * +
+             * pago
+             * +
+             * pie
+             */
+
+            const altoPx =
+                Math.ceil(
+                    ticket.getBoundingClientRect().height
+                );
+
+
+            /*
+             * Conversión px -> mm
+             */
+
+            const altoMm =
+                (altoPx * 25.4 / 96) + 0.5;
+
+
+            let style =
+                document.getElementById(
+                    'ticket-page-size'
+                );
+
+
+            if (!style) {{
+
+                style =
+                    document.createElement('style');
+
+                style.id =
+                    'ticket-page-size';
+
+                document.head.appendChild(style);
+
+            }}
+
+
+            /*
+             * Una página:
+             *
+             * 58mm × altura real.
+             */
+
+            style.textContent = `
+                @page {{
+                    size: 58mm ${{altoMm.toFixed(2)}}mm;
+                    margin: 0;
+                }}
+            `;
+
+        }}
+
+
+        window.imprimirTicket =
+            function () {{
+
+                configurarAlturaTicket();
+
+                requestAnimationFrame(
+                    function () {{
+
+                        setTimeout(
+                            function () {{
+
+                                window.print();
+
+                            }},
+                            150
+                        );
+
+                    }}
+                );
+
+        window.addEventListener(
+            'load',
+            function () {{
+
+                setTimeout(
+                    configurarAlturaTicket,
+                    100
+                );
+
+            }}
+        );
+
+
+        window.addEventListener(
+            'beforeprint',
+            configurarAlturaTicket
+        );
+
+
+        window.addEventListener(
+            'resize',
+            configurarAlturaTicket
+        );
+
+
+        if (document.fonts) {{
+
+            document.fonts.ready.then(
+                configurarAlturaTicket
+            );
+
+        }}
+
+    }})();
+
+</script>
+
+
 </body>
+
 </html>
 ");
 
-            return Content(html.ToString(), "text/html; charset=utf-8");
+
+            return Content(
+                html.ToString(),
+                "text/html; charset=utf-8"
+            );
         }
     }
 }
