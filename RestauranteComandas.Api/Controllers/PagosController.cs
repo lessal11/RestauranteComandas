@@ -227,7 +227,6 @@ namespace RestauranteComandas.Api.Controllers
 
             var orden = pago.Orden;
 
-            // Ecuador continental UTC-5
             var ecuadorOffset = TimeSpan.FromHours(-5);
 
             var fechaOrdenEcuador = new DateTimeOffset(
@@ -262,525 +261,283 @@ namespace RestauranteComandas.Api.Controllers
 
             html.Append($@"
 <!DOCTYPE html>
-
 <html lang='es'>
-
 <head>
-
     <meta charset='UTF-8'>
-
-    <meta
-        name='viewport'
-        content='width=device-width, initial-scale=1.0'
-    >
-
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
     <title>Pedido #{orden.Id:D3}</title>
 
     <style>
-
         * {{
             box-sizing: border-box;
         }}
 
         /*
-         * El alto de 300mm es únicamente inicial.
-         * Antes de imprimir, JavaScript lo reemplaza
-         * por la altura REAL del ticket.
+         * El navegador usa el tamaño de papel seleccionado.
+         * No se fija 58 mm dentro del HTML.
+         * Así el contenido ocupa todo el ancho del PDF o de la impresora.
          */
         @page {{
-            size: 58mm 300mm;
             margin: 0;
         }}
 
-        html {{
-            width: 58mm;
+        html,
+        body {{
+            width: 100%;
             margin: 0;
             padding: 0;
             background: #fff;
+            color: #000;
+            font-family: Arial, Helvetica, sans-serif;
         }}
 
         body {{
-            width: 58mm;
-            margin: 0;
-            padding: 0;
-
-            background: #fff;
-            color: #000;
-
-            font-family:
-                Arial,
-                Helvetica,
-                sans-serif;
-
-            font-size: 14px;
-
-            line-height: 1.15;
+            font-size: 22px;
+            line-height: 1.08;
         }}
 
-
-        /* ==========================================
-           TICKET
-
-           Casi TODO el ancho del papel.
-           ========================================== */
-
+        /*
+         * Márgenes laterales prácticamente nulos.
+         */
         .ticket {{
-            width: 58mm;
-
+            width: 100%;
+            max-width: none;
             margin: 0;
-
-            /*
-             * Margen interno mínimo.
-             * 0.7 mm a cada lado.
-             */
-            padding:
-                1mm
-                0.7mm
-                1mm
-                0.7mm;
-
-            background: white;
+            padding: 3px 5px;
+            background: #fff;
+            overflow: visible;
         }}
 
-
-        /* ==========================================
-           ENCABEZADO
-           SOLO APARECE UNA VEZ
-           ========================================== */
-
+        /*
+         * Encabezado único: solamente existe aquí,
+         * por lo que no se repite al continuar hacia abajo.
+         */
         .encabezado {{
             width: 100%;
-
             text-align: center;
-
-            padding: 0;
             margin: 0;
+            padding: 3px 0 8px 0;
         }}
 
         .restaurante {{
             margin: 0;
-
-            font-size: 20px;
+            font-size: 38px;
             line-height: 1;
-
             font-weight: 900;
         }}
 
         .tipo-documento {{
-            margin-top: 5px;
-
-            font-size: 14px;
+            margin-top: 6px;
+            font-size: 27px;
             line-height: 1;
-
             font-weight: 900;
         }}
 
         .pedido {{
-            margin-top: 4px;
-
-            font-size: 19px;
+            margin-top: 6px;
+            font-size: 34px;
             line-height: 1;
-
             font-weight: 900;
         }}
 
-
-        /* ==========================================
-           SEPARADORES
-           ========================================== */
-
         .linea-fuerte {{
             width: 100%;
-
-            border-top:
-                2.5px
-                solid
-                #000;
-
-            margin:
-                7px
-                0;
+            margin: 9px 0;
+            border-top: 5px solid #000;
         }}
-
-        .linea-producto {{
-            width: 100%;
-
-            border-top:
-                1px
-                dashed
-                #000;
-
-            margin:
-                2px
-                0;
-        }}
-
-
-        /* ==========================================
-           DATOS DEL PEDIDO
-           ========================================== */
 
         .datos {{
             width: 100%;
-
-            font-size: 14px;
-            line-height: 1.15;
+            font-size: 26px;
+            line-height: 1.08;
         }}
 
         .fila-dato {{
             width: 100%;
-
-            margin:
-                4px
-                0;
+            margin: 5px 0;
+            overflow-wrap: anywhere;
         }}
 
         .fila-dato strong {{
             font-weight: 900;
         }}
 
-
-        /* ==========================================
-           ENCABEZADO PRODUCTOS
-           ========================================== */
-
         .cabecera-productos {{
             display: grid;
-
-            grid-template-columns:
-                minmax(0, 1fr)
-                16mm;
-
-            gap: 2px;
-
+            grid-template-columns: minmax(0, 1fr) 24%;
             width: 100%;
-
-            padding:
-                3px
-                0
-                5px
-                0;
-
-            font-size: 14px;
+            gap: 8px;
+            padding: 5px 0 8px 0;
+            border-bottom: 5px solid #000;
+            font-size: 27px;
             line-height: 1;
-
             font-weight: 900;
-
-            border-bottom:
-                2.5px
-                solid
-                #000;
         }}
 
         .cabecera-precio {{
             text-align: right;
         }}
 
-
-        /* ==========================================
-           PRODUCTOS
-
-           IMPORTANTE:
-           NO page-break
-           NO break-inside
-           NO saltos de hoja
-           ========================================== */
-
+        /*
+         * Los platos están en flujo normal:
+         * uno inmediatamente después del otro.
+         * No hay alturas fijas ni saltos forzados.
+         */
         .producto {{
             width: 100%;
-
-            padding:
-                5px
-                0
-                4px
-                0;
-
-            border-bottom:
-                1px
-                dashed
-                #000;
+            margin: 0;
+            padding: 7px 0 6px 0;
+            border-bottom: 2px dashed #000;
         }}
 
         .producto-principal {{
             display: grid;
-
-            grid-template-columns:
-                minmax(0, 1fr)
-                16mm;
-
-            gap: 2px;
-
+            grid-template-columns: minmax(0, 1fr) 24%;
             width: 100%;
-
+            gap: 8px;
             align-items: start;
         }}
 
         .producto-nombre {{
             min-width: 0;
-
-            font-size: 16px;
-            line-height: 1.08;
-
+            font-size: 29px;
+            line-height: 1.05;
             font-weight: 900;
-
             overflow-wrap: anywhere;
-            word-break: break-word;
         }}
 
         .producto-total {{
-            font-size: 16px;
-            line-height: 1.08;
-
+            font-size: 29px;
+            line-height: 1.05;
             font-weight: 900;
-
             text-align: right;
-
             white-space: nowrap;
         }}
 
         .producto-nota {{
             width: 100%;
-
             margin-top: 3px;
-
-            font-size: 12px;
-            line-height: 1.1;
-
+            padding: 0;
+            font-size: 21px;
+            line-height: 1.08;
             font-weight: 700;
             font-style: italic;
-
             overflow-wrap: anywhere;
-            word-break: break-word;
         }}
-
-
-        /* ==========================================
-           TOTAL
-           ========================================== */
 
         .total {{
             display: flex;
-
             width: 100%;
-
-            justify-content:
-                space-between;
-
-            align-items:
-                center;
-
-            gap: 4px;
-
-            padding:
-                7px
-                0;
-
-            font-size: 19px;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+            padding: 9px 0;
+            font-size: 35px;
             line-height: 1;
-
             font-weight: 900;
         }}
 
-
-        /* ==========================================
-           DATOS DEL PAGO
-           ========================================== */
-
         .datos-pago {{
             width: 100%;
-
-            font-size: 13px;
-            line-height: 1.15;
+            font-size: 24px;
+            line-height: 1.08;
         }}
 
         .fila-pago {{
             display: flex;
-
             width: 100%;
-
-            justify-content:
-                space-between;
-
-            align-items:
-                flex-start;
-
-            gap: 4px;
-
-            margin:
-                3px
-                0;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+            margin: 4px 0;
         }}
 
         .etiqueta {{
             flex-shrink: 0;
-
             font-weight: 900;
         }}
 
         .valor {{
             flex: 1;
-
             text-align: right;
-
             font-weight: 600;
-
             overflow-wrap: anywhere;
         }}
 
-
-        /* ==========================================
-           PIE
-           ========================================== */
-
         .pie {{
             width: 100%;
-
-            margin-top: 6px;
-
-            padding:
-                6px
-                0
-                2px
-                0;
-
-            border-top:
-                1px
-                dashed
-                #000;
-
+            margin-top: 7px;
+            padding: 7px 0 3px 0;
+            border-top: 2px dashed #000;
             text-align: center;
-
-            font-size: 12px;
-            line-height: 1.15;
-
+            font-size: 22px;
+            line-height: 1.1;
             font-weight: 700;
         }}
 
-
-        /* ==========================================
-           BOTÓN
-           NO FORMA PARTE DEL TICKET
-           ========================================== */
-
         .botones {{
-            width: 58mm;
-
-            margin-top: 10px;
-
-            padding:
-                0
-                1mm;
-
+            width: 100%;
+            margin: 12px 0 0 0;
+            padding: 0 5px;
             text-align: center;
         }}
 
         button {{
             width: 100%;
-
-            padding: 10px;
-
-            border: 0;
-
+            border: none;
+            padding: 12px;
             background: #111;
-            color: white;
-
-            font-size: 13px;
+            color: #fff;
+            font-size: 18px;
             font-weight: bold;
-
             cursor: pointer;
         }}
 
-
-        /* ==========================================
-           PANTALLA
-           ========================================== */
-
-        @media screen {{
-
-            body {{
-                background: #e5e7eb;
-            }}
-
-            .ticket {{
-                background: #fff;
-            }}
-
-        }}
-
-
-        /* ==========================================
-           IMPRESIÓN
-           ========================================== */
-
         @media print {{
-
             html,
             body {{
-                width: 58mm !important;
-
+                width: 100% !important;
                 margin: 0 !important;
                 padding: 0 !important;
-
-                background: white !important;
+                background: #fff !important;
+                overflow: visible !important;
             }}
 
             .ticket {{
-                width: 58mm !important;
-
+                width: 100% !important;
+                max-width: none !important;
                 margin: 0 !important;
-
-                padding:
-                    1mm
-                    0.7mm
-                    1mm
-                    0.7mm !important;
+                padding: 2px 3px !important;
+                overflow: visible !important;
             }}
 
             .botones {{
                 display: none !important;
             }}
 
+            /*
+             * No se aplican page-break ni break-inside.
+             * Si el controlador de la térmica usa rollo continuo,
+             * los productos continúan hacia abajo.
+             */
         }}
-
     </style>
-
 </head>
-
 
 <body>
 
-
-<div
-    class='ticket'
-    id='ticket'
->
-
-    <!-- ENCABEZADO: SOLO UNA VEZ -->
+<div class='ticket'>
 
     <div class='encabezado'>
-
-        <div class='restaurante'>
-            LA SUPER CORVINA
-        </div>
-
-        <div class='tipo-documento'>
-            COMPROBANTE DE PAGO
-        </div>
-
-        <div class='pedido'>
-            PEDIDO #{orden.Id:D3}
-        </div>
-
+        <div class='restaurante'>LA SUPER CORVINA</div>
+        <div class='tipo-documento'>COMPROBANTE DE PAGO</div>
+        <div class='pedido'>PEDIDO #{orden.Id:D3}</div>
     </div>
-
 
     <div class='linea-fuerte'></div>
 
-
-    <!-- DATOS -->
-
     <div class='datos'>
-
         <div class='fila-dato'>
             <strong>Mesa:</strong>
             {(orden.Mesa != null ? orden.Mesa.Numero : 0)}
@@ -795,303 +552,99 @@ namespace RestauranteComandas.Api.Controllers
             <strong>Fecha:</strong>
             {fechaOrdenEcuador:dd/MM/yyyy HH:mm}
         </div>
-
     </div>
-
 
     <div class='linea-fuerte'></div>
 
-
-    <!-- PRODUCTOS -->
-
     <div class='cabecera-productos'>
-
-        <div>
-            Detalle del Producto
-        </div>
-
-        <div class='cabecera-precio'>
-            Precio<br>Total
-        </div>
-
+        <div>Detalle del Producto</div>
+        <div class='cabecera-precio'>Precio<br>Total</div>
     </div>
 ");
 
-
             foreach (var detalle in orden.Detalles)
             {
-                var nombreProducto =
-                    System.Net.WebUtility.HtmlEncode(
-                        detalle.MenuItem != null
-                            ? detalle.MenuItem.Nombre
-                            : "Producto"
-                    );
+                var nombreProducto = System.Net.WebUtility.HtmlEncode(
+                    detalle.MenuItem != null
+                        ? detalle.MenuItem.Nombre
+                        : "Producto"
+                );
 
-                var nota =
-                    System.Net.WebUtility.HtmlEncode(
-                        detalle.DetallePersonalizado ?? ""
-                    );
+                var nota = System.Net.WebUtility.HtmlEncode(
+                    detalle.DetallePersonalizado ?? ""
+                );
 
                 html.Append($@"
-
     <div class='producto'>
-
         <div class='producto-principal'>
-
             <div class='producto-nombre'>
-
                 {detalle.Cantidad}× {nombreProducto}
-
             </div>
 
             <div class='producto-total'>
-
                 ${detalle.Subtotal:F2}
-
             </div>
-
         </div>
 
-
         {(string.IsNullOrWhiteSpace(nota)
-                    ? ""
-                    : $@"
-                <div class='producto-nota'>
-                    {nota}
-                </div>
-            ")}
-
+            ? ""
+            : $@"<div class='producto-nota'>{nota}</div>")}
     </div>
 ");
             }
 
-
             html.Append($@"
-
-    <!-- TOTAL INMEDIATAMENTE DESPUÉS DEL ÚLTIMO PLATO -->
-
     <div class='linea-fuerte'></div>
-
 
     <div class='total'>
-
-        <span>
-            TOTAL:
-        </span>
-
-        <span>
-            ${pago.Monto:F2}
-        </span>
-
+        <span>TOTAL:</span>
+        <span>${pago.Monto:F2}</span>
     </div>
 
-
     <div class='linea-fuerte'></div>
-
-
-    <!-- DATOS DEL PAGO -->
 
     <div class='datos-pago'>
 
-
         <div class='fila-pago'>
-
-            <span class='etiqueta'>
-                Forma de pago:
-            </span>
-
-            <span class='valor'>
-                {metodoPago}
-            </span>
-
+            <span class='etiqueta'>Forma de pago:</span>
+            <span class='valor'>{metodoPago}</span>
         </div>
 
-
         <div class='fila-pago'>
-
-            <span class='etiqueta'>
-                Referencia:
-            </span>
-
-            <span class='valor'>
-                {referencia}
-            </span>
-
+            <span class='etiqueta'>Referencia:</span>
+            <span class='valor'>{referencia}</span>
         </div>
 
-
         <div class='fila-pago'>
-
-            <span class='etiqueta'>
-                Fecha pago:
-            </span>
-
-            <span class='valor'>
-                {fechaPagoEcuador:dd/MM/yyyy HH:mm}
-            </span>
-
+            <span class='etiqueta'>Fecha pago:</span>
+            <span class='valor'>{fechaPagoEcuador:dd/MM/yyyy HH:mm}</span>
         </div>
 
-
         <div class='fila-pago'>
-
-            <span class='etiqueta'>
-                Estado:
-            </span>
-
-            <span class='valor'>
-                {estadoPago}
-            </span>
-
+            <span class='etiqueta'>Estado:</span>
+            <span class='valor'>{estadoPago}</span>
         </div>
 
     </div>
-
 
     <div class='pie'>
-
-        ¡Gracias por su preferencia!
-        ·
-        LA SUPER CORVINA
-
+        ¡Gracias por su preferencia! · LA SUPER CORVINA
     </div>
-
 
 </div>
 
-
-<!-- BOTÓN FUERA DEL PAPEL -->
-
 <div class='botones'>
-
     <button
         type='button'
-        onclick='imprimirTicket()'
+        onclick='window.print()'
     >
         Imprimir comprobante
     </button>
-
 </div>
 
-
-<script>
-
-    (function () {{
-
-        function configurarAlturaTicket() {{
-
-            const ticket =
-                document.getElementById('ticket');
-
-            if (!ticket) {{
-                return;
-            }}
-
-            const altoPx =
-                Math.ceil(
-                    ticket.getBoundingClientRect().height
-                );
-
-            const altoMm =
-                (altoPx * 25.4 / 96) + 0.5;
-
-            let style =
-                document.getElementById(
-                    'ticket-page-size'
-                );
-
-            if (!style) {{
-
-                style =
-                    document.createElement('style');
-
-                style.id =
-                    'ticket-page-size';
-
-                document.head.appendChild(style);
-            }}
-
-            style.textContent = `
-                @page {{
-                    size: 58mm ${{altoMm.toFixed(2)}}mm;
-                    margin: 0;
-                }}
-            `;
-        }}
-
-
-        window.imprimirTicket = function () {{
-
-            configurarAlturaTicket();
-
-            requestAnimationFrame(function () {{
-
-                setTimeout(function () {{
-
-                    window.print();
-
-                }}, 150);
-
-            }});
-
-        }};
-
-
-        window.addEventListener(
-            'load',
-            function () {{
-
-                setTimeout(
-                    configurarAlturaTicket,
-                    100
-                );
-
-            }}
-        );
-
-
-        window.addEventListener(
-            'beforeprint',
-            function () {{
-
-                configurarAlturaTicket();
-
-            }}
-        );
-
-
-        window.addEventListener(
-            'resize',
-            function () {{
-
-                configurarAlturaTicket();
-
-            }}
-        );
-
-
-        if (document.fonts) {{
-
-            document.fonts.ready.then(
-                function () {{
-
-                    configurarAlturaTicket();
-
-                }}
-            );
-
-        }}
-
-    }})();
-
-</script>
-
-
 </body>
-
 </html>
 ");
-
 
             return Content(
                 html.ToString(),
