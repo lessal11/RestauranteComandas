@@ -196,6 +196,88 @@
             font-weight: 800;
         }
 
+        .orden-activa-box {
+            display: none;
+            margin: -2px 0 14px;
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 11px 12px;
+            background: #fffbeb;
+            color: #78350f;
+        }
+
+            .orden-activa-box.visible {
+                display: block;
+            }
+
+        .orden-activa-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .orden-activa-titulo {
+            font-size: 15px;
+            font-weight: 900;
+        }
+
+        .orden-activa-estado {
+            flex-shrink: 0;
+            border-radius: 999px;
+            padding: 4px 8px;
+            background: #facc15;
+            color: #713f12;
+            font-size: 11px;
+            font-weight: 900;
+        }
+
+        .orden-activa-resumen {
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .orden-activa-ayuda {
+            margin-top: 7px;
+            font-size: 12px;
+            line-height: 1.25;
+        }
+
+        .orden-activa-box details {
+            margin-top: 8px;
+        }
+
+        .orden-activa-box summary {
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .orden-activa-detalles {
+            margin-top: 7px;
+            border-top: 1px solid #fde68a;
+            padding-top: 6px;
+        }
+
+        .orden-activa-detalle {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 4px 0;
+            font-size: 12px;
+        }
+
+            .orden-activa-detalle span:first-child {
+                min-width: 0;
+                overflow-wrap: anywhere;
+            }
+
+            .orden-activa-detalle span:last-child {
+                flex-shrink: 0;
+                font-weight: 900;
+            }
+
         .buscador-wrap {
             position: relative;
             margin-bottom: 10px;
@@ -693,7 +775,7 @@
 
     <header>
         <div class="header-info">
-            <div class="titulo">Toma de Pedidos</div>
+            <div class="titulo">🍽️ Toma de Pedidos</div>
             <div class="usuario" id="usuarioInfo"></div>
         </div>
 
@@ -718,6 +800,25 @@
                     Mesa no seleccionada
                 </div>
 
+                <div class="orden-activa-box" id="ordenActivaInfo">
+                    <div class="orden-activa-top">
+                        <div class="orden-activa-titulo" id="ordenActivaTitulo"></div>
+                        <div class="orden-activa-estado" id="ordenActivaEstado"></div>
+                    </div>
+
+                    <div class="orden-activa-resumen" id="ordenActivaResumen"></div>
+
+                    <details>
+                        <summary>Ver productos del pedido actual</summary>
+                        <div class="orden-activa-detalles" id="ordenActivaDetalles"></div>
+                    </details>
+
+                    <div class="orden-activa-ayuda">
+                        Los productos que agregues ahora se enviarán a cocina como
+                        <strong>nuevos productos</strong> del mismo pedido.
+                    </div>
+                </div>
+
                 <div class="section-title">
                     <h2>Menú</h2>
                     <span class="helper" id="resultadoMenuTexto"></span>
@@ -730,6 +831,7 @@
                            placeholder="Buscar plato..."
                            autocomplete="off"
                            oninput="actualizarBusqueda(this.value)">
+                    <span class="buscador-icono">🔎</span>
                 </div>
 
                 <div class="categorias" id="contenedorCategorias"></div>
@@ -738,7 +840,7 @@
 
             <aside class="orden-panel" id="ordenPanel" aria-label="Orden actual">
                 <div class="orden-header">
-                    <h2>Orden actual</h2>
+                    <h2 id="tituloOrdenCarrito">🛒 Orden actual</h2>
 
                     <button class="btn-cerrar-carrito"
                             type="button"
@@ -775,7 +877,7 @@
 
     <button class="mobile-cart-bar" type="button" onclick="abrirCarrito()">
         <span class="mobile-cart-main">
-            <span class="mobile-cart-label">Orden actual</span>
+            <span class="mobile-cart-label" id="mobileCartLabel">Orden actual</span>
             <span class="mobile-cart-count" id="mobileCartCount">0 productos</span>
         </span>
 
@@ -802,12 +904,21 @@
         const ordenPanel = document.getElementById("ordenPanel");
         const overlayCarrito = document.getElementById("overlayCarrito");
         const btnEnviarOrden = document.getElementById("btnEnviarOrden");
+        const tituloOrdenCarrito = document.getElementById("tituloOrdenCarrito");
+        const mobileCartLabel = document.getElementById("mobileCartLabel");
+        const ordenActivaInfo = document.getElementById("ordenActivaInfo");
+        const ordenActivaTitulo = document.getElementById("ordenActivaTitulo");
+        const ordenActivaEstado = document.getElementById("ordenActivaEstado");
+        const ordenActivaResumen = document.getElementById("ordenActivaResumen");
+        const ordenActivaDetalles = document.getElementById("ordenActivaDetalles");
 
         let mesas = [];
         let menu = [];
         let categoriaActual = "Todos";
         let busquedaActual = "";
         let mesaSeleccionada = null;
+        let ordenActivaMesa = null;
+        let consultaOrdenActivaOk = true;
         let carrito = [];
         let enviandoOrden = false;
 
@@ -924,15 +1035,42 @@
             });
         }
 
-        function seleccionarMesa(mesa) {
+        async function seleccionarMesa(mesa) {
+            const cambiaDeMesa =
+                mesaSeleccionada &&
+                mesaSeleccionada.id !== mesa.id;
+
+            if (cambiaDeMesa && carrito.length > 0) {
+                const confirmar = window.confirm(
+                    "Tienes productos sin enviar. Si cambias de mesa se vaciará la orden actual. ¿Deseas continuar?"
+                );
+
+                if (!confirmar) {
+                    return;
+                }
+
+                carrito = [];
+                renderizarCarrito();
+            }
+
             mesaSeleccionada = mesa;
+            ordenActivaMesa = null;
+            consultaOrdenActivaOk = false;
+
             const texto = `Mesa seleccionada: ${mesa.numero}`;
 
             mesaSeleccionadaTexto.innerText = texto;
             mesaSeleccionadaCarrito.innerText = texto;
 
+            ocultarOrdenActiva();
+            actualizarModoOrden();
             renderizarMesas();
             limpiarMensaje();
+
+            btnEnviarOrden.disabled = true;
+            btnEnviarOrden.innerText = "Consultando mesa...";
+
+            await cargarOrdenActivaMesa(mesa.id);
 
             if (window.innerWidth < 920) {
                 document.getElementById("buscadorMenu").scrollIntoView({
@@ -940,6 +1078,147 @@
                     block: "center"
                 });
             }
+        }
+
+        async function cargarOrdenActivaMesa(mesaId) {
+            try {
+                const response = await fetch(
+                    `/api/Ordenes/mesa/${mesaId}/activa`,
+                    {
+                        headers: {
+                            "Authorization": `Bearer ${token}`
+                        }
+                    }
+                );
+
+                if (response.status === 401 || response.status === 403) {
+                    localStorage.clear();
+                    window.location.href = "/login.html";
+                    return;
+                }
+
+                if (response.status === 204) {
+                    ordenActivaMesa = null;
+                    consultaOrdenActivaOk = true;
+                    ocultarOrdenActiva();
+                    actualizarModoOrden();
+                    return;
+                }
+
+                if (!response.ok) {
+                    consultaOrdenActivaOk = false;
+                    ordenActivaMesa = null;
+                    ocultarOrdenActiva();
+                    actualizarModoOrden();
+                    mostrarMensaje(
+                        "No se pudo verificar si la mesa tiene un pedido activo. Vuelve a intentarlo.",
+                        "error"
+                    );
+                    return;
+                }
+
+                ordenActivaMesa = await response.json();
+                consultaOrdenActivaOk = true;
+
+                mostrarOrdenActiva();
+                actualizarModoOrden();
+
+            } catch (error) {
+                consultaOrdenActivaOk = false;
+                ordenActivaMesa = null;
+                ocultarOrdenActiva();
+                actualizarModoOrden();
+
+                mostrarMensaje(
+                    "Error al consultar el pedido activo de la mesa",
+                    "error"
+                );
+            }
+        }
+
+        function mostrarOrdenActiva() {
+            if (!ordenActivaMesa) {
+                ocultarOrdenActiva();
+                return;
+            }
+
+            ordenActivaInfo.classList.add("visible");
+
+            ordenActivaTitulo.innerText =
+                `Pedido activo #${ordenActivaMesa.id}`;
+
+            ordenActivaEstado.innerText =
+                ordenActivaMesa.estado;
+
+            ordenActivaResumen.innerText =
+                `Total actual: $${Number(ordenActivaMesa.total).toFixed(2)}`;
+
+            ordenActivaDetalles.innerHTML = "";
+
+            (ordenActivaMesa.detalles || []).forEach(detalle => {
+                const fila = document.createElement("div");
+                fila.className = "orden-activa-detalle";
+
+                fila.innerHTML = `
+                    <span>
+                        ${detalle.cantidad} × ${escaparHtml(detalle.plato)}
+                        ${detalle.detallePersonalizado
+                        ? `<br><small>Detalle: ${escaparHtml(detalle.detallePersonalizado)}</small>`
+                        : ""
+                    }
+                    </span>
+                    <span>$${Number(detalle.subtotal).toFixed(2)}</span>
+                `;
+
+                ordenActivaDetalles.appendChild(fila);
+            });
+        }
+
+        function ocultarOrdenActiva() {
+            ordenActivaInfo.classList.remove("visible");
+            ordenActivaTitulo.innerText = "";
+            ordenActivaEstado.innerText = "";
+            ordenActivaResumen.innerText = "";
+            ordenActivaDetalles.innerHTML = "";
+        }
+
+        function actualizarModoOrden() {
+            if (!mesaSeleccionada) {
+                tituloOrdenCarrito.innerText = "🛒 Orden actual";
+                mobileCartLabel.innerText = "Orden actual";
+                btnEnviarOrden.innerText = "Enviar orden a cocina";
+                btnEnviarOrden.disabled = enviandoOrden;
+                return;
+            }
+
+            if (!consultaOrdenActivaOk) {
+                tituloOrdenCarrito.innerText = "🛒 Orden actual";
+                mobileCartLabel.innerText = `Mesa ${mesaSeleccionada.numero}`;
+                btnEnviarOrden.innerText = "No se pudo verificar la mesa";
+                btnEnviarOrden.disabled = true;
+                return;
+            }
+
+            if (ordenActivaMesa) {
+                tituloOrdenCarrito.innerText = "🛒 Nuevos productos";
+                mobileCartLabel.innerText =
+                    `Nuevos productos · Pedido #${ordenActivaMesa.id}`;
+
+                mesaSeleccionadaCarrito.innerText =
+                    `Mesa ${mesaSeleccionada.numero} · Pedido #${ordenActivaMesa.id}`;
+
+                btnEnviarOrden.innerText =
+                    `Agregar al pedido #${ordenActivaMesa.id}`;
+                btnEnviarOrden.disabled = enviandoOrden;
+                return;
+            }
+
+            tituloOrdenCarrito.innerText = "🛒 Orden nueva";
+            mobileCartLabel.innerText = `Orden nueva · Mesa ${mesaSeleccionada.numero}`;
+            mesaSeleccionadaCarrito.innerText =
+                `Mesa seleccionada: ${mesaSeleccionada.numero}`;
+            btnEnviarOrden.innerText = "Enviar orden a cocina";
+            btnEnviarOrden.disabled = enviandoOrden;
         }
 
         function renderizarCategorias() {
@@ -1247,27 +1526,48 @@
                 return;
             }
 
+            if (!consultaOrdenActivaOk) {
+                mostrarMensaje(
+                    "No se pudo verificar el pedido activo de la mesa. Selecciona nuevamente la mesa e inténtalo otra vez.",
+                    "error"
+                );
+                abrirCarrito();
+                return;
+            }
+
             if (carrito.length === 0) {
                 mostrarMensaje("Debe agregar al menos un plato", "error");
                 abrirCarrito();
                 return;
             }
 
-            const dto = {
-                mesaId: mesaSeleccionada.id,
-                detalles: carrito.map(item => ({
-                    menuItemId: item.menuItemId,
-                    cantidad: item.cantidad,
-                    detallePersonalizado: item.detallePersonalizado
-                }))
-            };
+            const detalles = carrito.map(item => ({
+                menuItemId: item.menuItemId,
+                cantidad: item.cantidad,
+                detallePersonalizado: item.detallePersonalizado
+            }));
+
+            const agregandoAOrdenExistente = Boolean(ordenActivaMesa);
+
+            const url = agregandoAOrdenExistente
+                ? `/api/Ordenes/${ordenActivaMesa.id}/detalles`
+                : "/api/Ordenes";
+
+            const dto = agregandoAOrdenExistente
+                ? { detalles }
+                : {
+                    mesaId: mesaSeleccionada.id,
+                    detalles
+                };
 
             enviandoOrden = true;
             btnEnviarOrden.disabled = true;
-            btnEnviarOrden.innerText = "Enviando...";
+            btnEnviarOrden.innerText = agregandoAOrdenExistente
+                ? "Agregando productos..."
+                : "Enviando...";
 
             try {
-                const response = await fetch("/api/Ordenes", {
+                const response = await fetch(url, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -1285,33 +1585,62 @@
 
                 if (!response.ok) {
                     const error = await response.text();
-                    mostrarMensaje(error || "No se pudo crear la orden", "error");
+                    mostrarMensaje(
+                        error ||
+                        (agregandoAOrdenExistente
+                            ? "No se pudieron agregar los productos"
+                            : "No se pudo crear la orden"),
+                        "error"
+                    );
                     return;
                 }
 
                 const data = await response.json();
 
                 carrito = [];
-                mesaSeleccionada = null;
-
-                mesaSeleccionadaTexto.innerText = "Mesa no seleccionada";
-                mesaSeleccionadaCarrito.innerText = "Mesa no seleccionada";
-
                 renderizarCarrito();
                 cerrarCarrito();
 
-                await cargarMesas();
+                if (agregandoAOrdenExistente) {
+                    const ordenId = ordenActivaMesa.id;
 
-                mostrarMensajeFlotante(
-                    `✓ Orden #${data.ordenId} enviada a cocina`
-                );
+                    await cargarMesas();
+                    await cargarOrdenActivaMesa(mesaSeleccionada.id);
+
+                    mostrarMensajeFlotante(
+                        `✓ Nuevos productos enviados al pedido #${ordenId}`
+                    );
+                } else {
+                    const ordenId = data.ordenId;
+
+                    mesaSeleccionada = null;
+                    ordenActivaMesa = null;
+                    consultaOrdenActivaOk = true;
+
+                    mesaSeleccionadaTexto.innerText =
+                        "Mesa no seleccionada";
+
+                    mesaSeleccionadaCarrito.innerText =
+                        "Mesa no seleccionada";
+
+                    ocultarOrdenActiva();
+                    actualizarModoOrden();
+
+                    await cargarMesas();
+
+                    mostrarMensajeFlotante(
+                        `✓ Orden #${ordenId} enviada a cocina`
+                    );
+                }
 
             } catch (error) {
-                mostrarMensaje("Error de conexión con el servidor", "error");
+                mostrarMensaje(
+                    "Error de conexión con el servidor",
+                    "error"
+                );
             } finally {
                 enviandoOrden = false;
-                btnEnviarOrden.disabled = false;
-                btnEnviarOrden.innerText = "Enviar orden a cocina";
+                actualizarModoOrden();
             }
         }
 

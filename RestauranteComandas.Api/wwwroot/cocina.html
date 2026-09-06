@@ -2,9 +2,14 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Pantalla de Cocina</title>
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
             font-family: Arial, sans-serif;
@@ -62,12 +67,29 @@
             border-radius: 14px;
             padding: 18px;
             box-shadow: 0 8px 18px rgba(0,0,0,0.35);
+            transition: transform .18s ease, box-shadow .18s ease;
         }
 
-            .orden h2 {
-                margin-top: 0;
-                color: #dc2626;
+            .orden.con-novedad {
+                border: 5px solid #f97316;
+                box-shadow: 0 0 0 4px rgba(249,115,22,.20), 0 8px 18px rgba(0,0,0,.35);
+                animation: destacarOrden 1.1s ease 2;
             }
+
+        @keyframes destacarOrden {
+            0%, 100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.015);
+            }
+        }
+
+        .orden h2 {
+            margin-top: 0;
+            color: #dc2626;
+        }
 
         .estado {
             display: inline-block;
@@ -92,6 +114,28 @@
             color: #dc2626;
             font-style: italic;
             margin-top: 4px;
+        }
+
+        .nuevos-productos {
+            margin: 14px 0;
+            border: 4px solid #f97316;
+            border-radius: 12px;
+            padding: 12px;
+            background: #fff7ed;
+        }
+
+        .nuevos-productos-title {
+            margin-bottom: 8px;
+            color: #c2410c;
+            font-size: 19px;
+            font-weight: 900;
+        }
+
+        .nuevos-productos-hora {
+            margin-top: 8px;
+            color: #7c2d12;
+            font-size: 12px;
+            font-weight: 700;
         }
 
         .acciones {
@@ -131,6 +175,26 @@
             color: #fecaca;
             margin-top: 30px;
             font-size: 18px;
+        }
+
+        @media (max-width: 700px) {
+            header {
+                padding: 14px;
+            }
+
+            .titulo {
+                font-size: 22px;
+            }
+
+            .contenedor {
+                grid-template-columns: 1fr;
+                padding: 12px;
+                gap: 14px;
+            }
+
+            .orden {
+                padding: 14px;
+            }
         }
     </style>
 </head>
@@ -184,6 +248,13 @@
             agregarOrden(orden);
         });
 
+        // FASE 2:
+        // Esta notificación contiene únicamente los productos que
+        // fueron agregados después al pedido existente.
+        connection.on("ProductosAgregados", function (data) {
+            mostrarProductosAgregados(data);
+        });
+
         connection.on("EstadoOrdenActualizado", function (data) {
             const estadoElemento = document.getElementById(`estado-${data.id}`);
 
@@ -191,7 +262,11 @@
                 estadoElemento.innerText = data.estado;
             }
 
-            if (data.estado === "Listo" || data.estado === "Pagado" || data.estado === "Cancelado") {
+            if (
+                data.estado === "Listo" ||
+                data.estado === "Pagado" ||
+                data.estado === "Cancelado"
+            ) {
                 const ordenElemento = document.getElementById(`orden-${data.id}`);
 
                 if (ordenElemento) {
@@ -212,6 +287,15 @@
                 alert("No tiene permiso para acceder a la pantalla de cocina");
                 window.location.href = "/login.html";
             }
+        }
+
+        function escaparHtml(texto) {
+            return String(texto ?? "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
         }
 
         async function iniciarConexion() {
@@ -267,8 +351,23 @@
             }
         }
 
+        function crearDetallesHtml(detalles) {
+            return (detalles || []).map(detalle => `
+                    <div class="detalle">
+                        <strong>
+                            ${detalle.cantidad} x ${escaparHtml(detalle.plato)}
+                        </strong>
+                        ${detalle.detallePersonalizado
+                    ? `<div class="nota">Detalle: ${escaparHtml(detalle.detallePersonalizado)}</div>`
+                    : ""
+                }
+                    </div>
+                `).join("");
+        }
+
         function agregarOrden(orden) {
             const mensaje = document.querySelector(".sin-ordenes");
+
             if (mensaje) {
                 mensaje.remove();
             }
@@ -283,24 +382,19 @@
             div.className = "orden";
             div.id = `orden-${orden.id}`;
 
-            let detallesHtml = "";
-
-            orden.detalles.forEach(detalle => {
-                detallesHtml += `
-                        <div class="detalle">
-                            <strong>${detalle.cantidad} x ${detalle.plato}</strong>
-                            ${detalle.detallePersonalizado ? `<div class="nota">Detalle: ${detalle.detallePersonalizado}</div>` : ""}
-                        </div>
-                    `;
-            });
+            const detallesHtml = crearDetallesHtml(orden.detalles);
 
             div.innerHTML = `
                     <h2>Mesa ${orden.mesa}</h2>
-                    <div class="estado" id="estado-${orden.id}">${orden.estado}</div>
+                    <div class="estado" id="estado-${orden.id}">${escaparHtml(orden.estado)}</div>
                     <p><strong>Orden:</strong> #${orden.id}</p>
                     <p><strong>Hora:</strong> ${new Date(orden.fecha).toLocaleTimeString()}</p>
 
-                    ${detallesHtml}
+                    <div class="detalles-orden">
+                        ${detallesHtml}
+                    </div>
+
+                    <div class="novedades-container"></div>
 
                     <div class="acciones">
                         <button class="btn-preparacion" onclick="actualizarEstado(${orden.id}, 'En preparación')">
@@ -314,6 +408,97 @@
                 `;
 
             contenedor.prepend(div);
+            mostrarMensajeSinOrdenes();
+        }
+
+        function mostrarProductosAgregados(data) {
+            const mensaje = document.querySelector(".sin-ordenes");
+
+            if (mensaje) {
+                mensaje.remove();
+            }
+
+            let ordenElemento = document.getElementById(`orden-${data.id}`);
+
+            // Si la orden estaba marcada como "Listo", ya había sido retirada
+            // del monitor. El backend la vuelve a "Pendiente" y aquí la
+            // reinsertamos mostrando SOLO los productos nuevos.
+            if (!ordenElemento) {
+                ordenElemento = document.createElement("div");
+                ordenElemento.className = "orden con-novedad";
+                ordenElemento.id = `orden-${data.id}`;
+
+                ordenElemento.innerHTML = `
+                        <h2>Mesa ${data.mesa}</h2>
+                        <div class="estado" id="estado-${data.id}">${escaparHtml(data.estado)}</div>
+                        <p><strong>Orden:</strong> #${data.id}</p>
+                        <p><strong>Actualización:</strong> ${new Date(data.fecha).toLocaleTimeString()}</p>
+
+                        <div class="detalles-orden"></div>
+                        <div class="novedades-container"></div>
+
+                        <div class="acciones">
+                            <button class="btn-preparacion" onclick="actualizarEstado(${data.id}, 'En preparación')">
+                                En preparación
+                            </button>
+
+                            <button class="btn-listo" onclick="actualizarEstado(${data.id}, 'Listo')">
+                                Listo
+                            </button>
+                        </div>
+                    `;
+
+                contenedor.prepend(ordenElemento);
+            }
+
+            ordenElemento.classList.add("con-novedad");
+
+            const estadoElemento =
+                document.getElementById(`estado-${data.id}`);
+
+            if (estadoElemento) {
+                estadoElemento.innerText = data.estado;
+            }
+
+            let novedadesContainer =
+                ordenElemento.querySelector(".novedades-container");
+
+            if (!novedadesContainer) {
+                novedadesContainer = document.createElement("div");
+                novedadesContainer.className = "novedades-container";
+
+                const acciones = ordenElemento.querySelector(".acciones");
+                ordenElemento.insertBefore(novedadesContainer, acciones);
+            }
+
+            const bloque = document.createElement("div");
+            bloque.className = "nuevos-productos";
+
+            bloque.innerHTML = `
+                    <div class="nuevos-productos-title">
+                        🆕 NUEVOS PRODUCTOS
+                    </div>
+
+                    ${crearDetallesHtml(data.detalles)}
+
+                    <div class="nuevos-productos-hora">
+                        Agregados a las ${new Date(data.fecha).toLocaleTimeString()}
+                    </div>
+                `;
+
+            novedadesContainer.prepend(bloque);
+
+            ordenElemento.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+
+            // El borde permanece para que cocina identifique que hubo una novedad.
+            // Se elimina el efecto de animación después de unos segundos.
+            setTimeout(() => {
+                ordenElemento.style.animation = "none";
+            }, 3000);
+
             mostrarMensajeSinOrdenes();
         }
 
@@ -349,7 +534,10 @@
         function mostrarMensajeSinOrdenes() {
             const ordenes = document.querySelectorAll(".orden");
 
-            if (ordenes.length === 0 && !document.querySelector(".sin-ordenes")) {
+            if (
+                ordenes.length === 0 &&
+                !document.querySelector(".sin-ordenes")
+            ) {
                 contenedor.innerHTML = `
                         <div class="sin-ordenes">
                             No hay órdenes pendientes por preparar.
