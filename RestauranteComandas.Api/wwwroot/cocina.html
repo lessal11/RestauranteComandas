@@ -1,8 +1,13 @@
 ﻿<!DOCTYPE html>
 <html lang="es">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
     <title>Pantalla de Cocina</title>
 
     <style>
@@ -54,10 +59,86 @@
             font-size: 15px;
         }
 
+        /* =============================================
+           ALERTAS IMPORTANTES
+           ============================================= */
+
+        .alertas-cocina {
+            padding: 0 20px;
+        }
+
+        .alerta-cocina {
+            max-width: 760px;
+            margin: 16px auto 0;
+            border-radius: 14px;
+            padding: 16px;
+            color: #111827;
+            box-shadow: 0 8px 22px rgba(0,0,0,.35);
+        }
+
+        .alerta-correccion {
+            border: 5px solid #dc2626;
+            background: #fee2e2;
+            animation: alertaCorreccion 1s ease 3;
+        }
+
+        @keyframes alertaCorreccion {
+            0%, 100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.015);
+            }
+        }
+
+        .alerta-cocina h2 {
+            margin: 0 0 10px;
+            color: #991b1b;
+        }
+
+        .alerta-mesa {
+            margin-bottom: 10px;
+            font-size: 17px;
+        }
+
+        .alerta-producto {
+            margin: 10px 0;
+            border: 2px solid #dc2626;
+            border-radius: 10px;
+            padding: 12px;
+            background: white;
+            color: #991b1b;
+            font-size: 20px;
+            font-weight: 900;
+        }
+
+        .alerta-cantidades {
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+
+        .btn-entendido {
+            width: 100%;
+            margin-top: 12px;
+            border: none;
+            border-radius: 9px;
+            padding: 12px;
+            background: #111827;
+            color: white;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 900;
+        }
+
+        /* =============================================
+           ÓRDENES
+           ============================================= */
+
         .contenedor {
             padding: 20px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-template-columns: repeat( auto-fit, minmax( 320px, 1fr ) );
             gap: 20px;
         }
 
@@ -66,7 +147,7 @@
             color: #111827;
             border-radius: 14px;
             padding: 18px;
-            box-shadow: 0 8px 18px rgba(0,0,0,0.35);
+            box-shadow: 0 8px 18px rgba(0,0,0,.35);
             transition: transform .18s ease, box-shadow .18s ease;
         }
 
@@ -115,6 +196,10 @@
             font-style: italic;
             margin-top: 4px;
         }
+
+        /* =============================================
+           NUEVOS PRODUCTOS
+           ============================================= */
 
         .nuevos-productos {
             margin: 14px 0;
@@ -178,12 +263,17 @@
         }
 
         @media (max-width: 700px) {
+
             header {
                 padding: 14px;
             }
 
             .titulo {
                 font-size: 22px;
+            }
+
+            .alertas-cocina {
+                padding: 0 12px;
             }
 
             .contenedor {
@@ -197,366 +287,851 @@
             }
         }
     </style>
+
 </head>
 
 <body>
+
     <header>
+
         <div>
-            <div class="titulo">Monitor de Cocina</div>
-            <div class="usuario" id="usuarioInfo"></div>
+
+            <div class="titulo">
+                Monitor de Cocina
+            </div>
+
+            <div class="usuario"
+                 id="usuarioInfo"></div>
+
         </div>
 
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <button class="btn-salir" onclick="volverPanel()">Panel</button>
-            <button class="btn-salir" onclick="cerrarSesion()">Cerrar sesión</button>
+        <div style="
+                display:flex;
+                gap:10px;
+                flex-wrap:wrap;
+            ">
+
+            <button class="btn-salir"
+                    onclick="volverPanel()">
+                Panel
+            </button>
+
+            <button class="btn-salir"
+                    onclick="cerrarSesion()">
+                Cerrar sesión
+            </button>
+
         </div>
+
     </header>
 
-    <div class="estado-conexion" id="estadoConexion">
+    <div class="estado-conexion"
+         id="estadoConexion">
         Conectando con cocina...
     </div>
 
-    <div class="contenedor" id="contenedorOrdenes"></div>
+    <!--
+        Las correcciones se muestran FUERA
+        del listado de órdenes.
+
+        De esta forma no desaparecen aunque
+        el pedido estuviera marcado como Listo.
+    -->
+
+    <div class="alertas-cocina"
+         id="alertasCocina"></div>
+
+    <div class="contenedor"
+         id="contenedorOrdenes"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
 
     <script>
-        const token = localStorage.getItem("token");
-        const usuarioNombre = localStorage.getItem("usuarioNombre");
-        const usuarioRol = localStorage.getItem("usuarioRol");
+        const token =
+            localStorage.getItem(
+                "token"
+            );
 
-        const contenedor = document.getElementById("contenedorOrdenes");
-        const estadoConexion = document.getElementById("estadoConexion");
-        const usuarioInfo = document.getElementById("usuarioInfo");
+        const usuarioNombre =
+            localStorage.getItem(
+                "usuarioNombre"
+            );
+
+        const usuarioRol =
+            localStorage.getItem(
+                "usuarioRol"
+            );
+
+        const contenedor =
+            document.getElementById(
+                "contenedorOrdenes"
+            );
+
+        const estadoConexion =
+            document.getElementById(
+                "estadoConexion"
+            );
+
+        const usuarioInfo =
+            document.getElementById(
+                "usuarioInfo"
+            );
+
+        const alertasCocina =
+            document.getElementById(
+                "alertasCocina"
+            );
 
         validarSesion();
 
-        usuarioInfo.innerText = `${usuarioNombre} - ${usuarioRol}`;
+        usuarioInfo.innerText =
+            `${usuarioNombre} - ${usuarioRol}`;
 
-        const connection = new signalR.HubConnectionBuilder()
-            .withUrl("/hubs/cocina", {
-                accessTokenFactory: () => token
-            })
-            .withAutomaticReconnect()
-            .build();
+        const connection =
+            new signalR
+                .HubConnectionBuilder()
+                .withUrl(
+                    "/hubs/cocina",
+                    {
+                        accessTokenFactory:
+                            () => token
+                    }
+                )
+                .withAutomaticReconnect()
+                .build();
 
-        connection.on("ConexionExitosa", function (mensaje) {
-            estadoConexion.innerText = mensaje;
-        });
+        // =============================================
+        // SIGNALR
+        // =============================================
 
-        connection.on("NuevaOrden", function (orden) {
-            agregarOrden(orden);
-        });
+        connection.on(
+            "ConexionExitosa",
+            function (mensaje) {
 
-        // FASE 2:
-        // Esta notificación contiene únicamente los productos que
-        // fueron agregados después al pedido existente.
-        connection.on("ProductosAgregados", function (data) {
-            mostrarProductosAgregados(data);
-        });
-
-        connection.on("EstadoOrdenActualizado", function (data) {
-            const estadoElemento = document.getElementById(`estado-${data.id}`);
-
-            if (estadoElemento) {
-                estadoElemento.innerText = data.estado;
+                estadoConexion.innerText =
+                    mensaje;
             }
+        );
 
-            if (
-                data.estado === "Listo" ||
-                data.estado === "Pagado" ||
-                data.estado === "Cancelado"
-            ) {
-                const ordenElemento = document.getElementById(`orden-${data.id}`);
+        connection.on(
+            "NuevaOrden",
+            function (orden) {
 
-                if (ordenElemento) {
-                    ordenElemento.remove();
+                agregarOrden(
+                    orden
+                );
+            }
+        );
+
+        /*
+         * Cuando llegan productos nuevos:
+         * 1. actualizamos la orden completa;
+         * 2. resaltamos específicamente lo nuevo.
+         */
+        connection.on(
+            "ProductosAgregados",
+            async function (data) {
+
+                await cargarOrdenesPendientes();
+
+                mostrarProductosAgregados(
+                    data
+                );
+            }
+        );
+
+        /*
+         * Corrección de un producto que ya
+         * había sido enviado a Cocina.
+         */
+        connection.on(
+            "OrdenCorregida",
+            async function (data) {
+
+                mostrarCorreccionPedido(
+                    data
+                );
+
+                /*
+                 * Recargamos para que las cantidades
+                 * visibles del pedido coincidan con
+                 * la base de datos.
+                 */
+                await cargarOrdenesPendientes();
+            }
+        );
+
+        connection.on(
+            "EstadoOrdenActualizado",
+            function (data) {
+
+                const estadoElemento =
+                    document.getElementById(
+                        `estado-${data.id}`
+                    );
+
+                if (estadoElemento) {
+
+                    estadoElemento.innerText =
+                        data.estado;
                 }
-            }
 
-            mostrarMensajeSinOrdenes();
-        });
+                if (
+                    data.estado === "Listo" ||
+                    data.estado === "Pagado" ||
+                    data.estado === "Cancelado"
+                ) {
+
+                    const ordenElemento =
+                        document.getElementById(
+                            `orden-${data.id}`
+                        );
+
+                    if (ordenElemento) {
+
+                        ordenElemento.remove();
+                    }
+                }
+
+                mostrarMensajeSinOrdenes();
+            }
+        );
+
+        // =============================================
+        // SESIÓN
+        // =============================================
 
         function validarSesion() {
+
             if (!token) {
-                window.location.href = "/login.html";
+
+                window.location.href =
+                    "/login.html";
+
                 return;
             }
 
-            if (usuarioRol !== "Cocina" && usuarioRol !== "Administrador") {
-                alert("No tiene permiso para acceder a la pantalla de cocina");
-                window.location.href = "/login.html";
+            if (
+                usuarioRol !== "Cocina" &&
+                usuarioRol !== "Administrador"
+            ) {
+
+                alert(
+                    "No tiene permiso para acceder a la pantalla de cocina"
+                );
+
+                window.location.href =
+                    "/login.html";
             }
         }
 
         function escaparHtml(texto) {
+
             return String(texto ?? "")
-                .replaceAll("&", "&amp;")
-                .replaceAll("<", "&lt;")
-                .replaceAll(">", "&gt;")
-                .replaceAll('"', "&quot;")
-                .replaceAll("'", "&#039;");
+                .replaceAll(
+                    "&",
+                    "&amp;"
+                )
+                .replaceAll(
+                    "<",
+                    "&lt;"
+                )
+                .replaceAll(
+                    ">",
+                    "&gt;"
+                )
+                .replaceAll(
+                    '"',
+                    "&quot;"
+                )
+                .replaceAll(
+                    "'",
+                    "&#039;"
+                );
         }
 
+        // =============================================
+        // CONEXIÓN
+        // =============================================
+
         async function iniciarConexion() {
+
             try {
+
                 await connection.start();
-                estadoConexion.innerText = "Conectado a cocina en tiempo real";
+
+                estadoConexion.innerText =
+                    "Conectado a cocina en tiempo real";
+
             } catch (err) {
-                estadoConexion.innerText = "Error de conexión. Reintentando...";
-                setTimeout(iniciarConexion, 3000);
+
+                estadoConexion.innerText =
+                    "Error de conexión. Reintentando...";
+
+                setTimeout(
+                    iniciarConexion,
+                    3000
+                );
             }
         }
 
-        async function cargarOrdenesPendientes() {
-            try {
-                const response = await fetch("/api/Ordenes/pendientes", {
-                    method: "GET",
-                    headers: {
-                        "Authorization": `Bearer ${token}`
-                    }
-                });
+        // =============================================
+        // CARGAR PEDIDOS
+        // =============================================
 
-                if (response.status === 401 || response.status === 403) {
+        async function cargarOrdenesPendientes() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/Ordenes/pendientes",
+                        {
+                            method:
+                                "GET",
+
+                            headers: {
+                                "Authorization":
+                                    `Bearer ${token}`
+                            }
+                        }
+                    );
+
+                if (
+                    response.status === 401 ||
+                    response.status === 403
+                ) {
+
                     localStorage.clear();
-                    window.location.href = "/login.html";
+
+                    window.location.href =
+                        "/login.html";
+
                     return;
                 }
 
                 if (!response.ok) {
+
                     contenedor.innerHTML = `
                             <div class="error">
-                                No se pudieron cargar las órdenes pendientes.
+
+                                No se pudieron cargar
+                                las órdenes pendientes.
+
                             </div>
                         `;
+
                     return;
                 }
 
-                const ordenes = await response.json();
+                const ordenes =
+                    await response.json();
 
-                contenedor.innerHTML = "";
+                contenedor.innerHTML =
+                    "";
 
-                ordenes.forEach(orden => {
-                    agregarOrden(orden);
-                });
+                ordenes.forEach(
+                    orden => {
+
+                        agregarOrden(
+                            orden
+                        );
+                    }
+                );
 
                 mostrarMensajeSinOrdenes();
 
             } catch (error) {
+
                 contenedor.innerHTML = `
                         <div class="error">
-                            Error de conexión con el servidor.
+
+                            Error de conexión
+                            con el servidor.
+
                         </div>
                     `;
             }
         }
 
-        function crearDetallesHtml(detalles) {
-            return (detalles || []).map(detalle => `
-                    <div class="detalle">
-                        <strong>
-                            ${detalle.cantidad} x ${escaparHtml(detalle.plato)}
-                        </strong>
-                        ${detalle.detallePersonalizado
-                    ? `<div class="nota">Detalle: ${escaparHtml(detalle.detallePersonalizado)}</div>`
-                    : ""
-                }
-                    </div>
-                `).join("");
+        // =============================================
+        // CREAR HTML DETALLES
+        // =============================================
+
+        function crearDetallesHtml(
+            detalles
+        ) {
+
+            return (
+                detalles || []
+            )
+                .map(
+                    detalle => `
+                        <div class="detalle">
+
+                            <strong>
+
+                                ${detalle.cantidad}
+                                x
+                                ${escaparHtml(detalle.plato)}
+
+                            </strong>
+
+                            ${detalle.detallePersonalizado
+
+                            ? `
+                                    <div class="nota">
+
+                                        Detalle:
+                                        ${escaparHtml(detalle.detallePersonalizado)}
+
+                                    </div>
+                                  `
+
+                            : ""
+                        }
+
+                        </div>
+                    `
+                )
+                .join("");
         }
 
-        function agregarOrden(orden) {
-            const mensaje = document.querySelector(".sin-ordenes");
+        // =============================================
+        // MOSTRAR ORDEN
+        // =============================================
+
+        function agregarOrden(
+            orden
+        ) {
+
+            const mensaje =
+                document.querySelector(
+                    ".sin-ordenes"
+                );
 
             if (mensaje) {
+
                 mensaje.remove();
             }
 
-            const existente = document.getElementById(`orden-${orden.id}`);
+            const existente =
+                document.getElementById(
+                    `orden-${orden.id}`
+                );
 
             if (existente) {
+
                 existente.remove();
             }
 
-            const div = document.createElement("div");
-            div.className = "orden";
-            div.id = `orden-${orden.id}`;
+            const div =
+                document.createElement(
+                    "div"
+                );
 
-            const detallesHtml = crearDetallesHtml(orden.detalles);
+            div.className =
+                "orden";
+
+            div.id =
+                `orden-${orden.id}`;
+
+            const detallesHtml =
+                crearDetallesHtml(
+                    orden.detalles
+                );
 
             div.innerHTML = `
-                    <h2>Mesa ${orden.mesa}</h2>
-                    <div class="estado" id="estado-${orden.id}">${escaparHtml(orden.estado)}</div>
-                    <p><strong>Orden:</strong> #${orden.id}</p>
-                    <p><strong>Hora:</strong> ${new Date(orden.fecha).toLocaleTimeString()}</p>
+                    <h2>
+                        Mesa ${orden.mesa}
+                    </h2>
+
+                    <div
+                        class="estado"
+                        id="estado-${orden.id}"
+                    >
+                        ${escaparHtml(orden.estado)}
+                    </div>
+
+                    <p>
+                        <strong>
+                            Orden:
+                        </strong>
+
+                        #${orden.id}
+                    </p>
+
+                    <p>
+                        <strong>
+                            Hora:
+                        </strong>
+
+                        ${new Date(orden.fecha).toLocaleTimeString()}
+                    </p>
 
                     <div class="detalles-orden">
+
                         ${detallesHtml}
+
                     </div>
 
                     <div class="novedades-container"></div>
 
                     <div class="acciones">
-                        <button class="btn-preparacion" onclick="actualizarEstado(${orden.id}, 'En preparación')">
+
+                        <button
+                            class="btn-preparacion"
+                            onclick="actualizarEstado(${orden.id}, 'En preparación')"
+                        >
                             En preparación
                         </button>
 
-                        <button class="btn-listo" onclick="actualizarEstado(${orden.id}, 'Listo')">
+                        <button
+                            class="btn-listo"
+                            onclick="actualizarEstado(${orden.id}, 'Listo')"
+                        >
                             Listo
                         </button>
+
                     </div>
                 `;
 
-            contenedor.prepend(div);
+            contenedor.prepend(
+                div
+            );
+
             mostrarMensajeSinOrdenes();
         }
 
-        function mostrarProductosAgregados(data) {
-            const mensaje = document.querySelector(".sin-ordenes");
+        // =============================================
+        // NUEVOS PRODUCTOS
+        // =============================================
 
-            if (mensaje) {
-                mensaje.remove();
-            }
+        function mostrarProductosAgregados(
+            data
+        ) {
 
-            let ordenElemento = document.getElementById(`orden-${data.id}`);
+            const ordenElemento =
+                document.getElementById(
+                    `orden-${data.id}`
+                );
 
-            // Si la orden estaba marcada como "Listo", ya había sido retirada
-            // del monitor. El backend la vuelve a "Pendiente" y aquí la
-            // reinsertamos mostrando SOLO los productos nuevos.
             if (!ordenElemento) {
-                ordenElemento = document.createElement("div");
-                ordenElemento.className = "orden con-novedad";
-                ordenElemento.id = `orden-${data.id}`;
 
-                ordenElemento.innerHTML = `
-                        <h2>Mesa ${data.mesa}</h2>
-                        <div class="estado" id="estado-${data.id}">${escaparHtml(data.estado)}</div>
-                        <p><strong>Orden:</strong> #${data.id}</p>
-                        <p><strong>Actualización:</strong> ${new Date(data.fecha).toLocaleTimeString()}</p>
-
-                        <div class="detalles-orden"></div>
-                        <div class="novedades-container"></div>
-
-                        <div class="acciones">
-                            <button class="btn-preparacion" onclick="actualizarEstado(${data.id}, 'En preparación')">
-                                En preparación
-                            </button>
-
-                            <button class="btn-listo" onclick="actualizarEstado(${data.id}, 'Listo')">
-                                Listo
-                            </button>
-                        </div>
-                    `;
-
-                contenedor.prepend(ordenElemento);
+                /*
+                 * Si por cualquier razón no está,
+                 * no se pierde la información:
+                 * la siguiente recarga lo mostrará.
+                 */
+                return;
             }
 
-            ordenElemento.classList.add("con-novedad");
+            ordenElemento
+                .classList
+                .add(
+                    "con-novedad"
+                );
 
             const estadoElemento =
-                document.getElementById(`estado-${data.id}`);
+                document.getElementById(
+                    `estado-${data.id}`
+                );
 
             if (estadoElemento) {
-                estadoElemento.innerText = data.estado;
+
+                estadoElemento.innerText =
+                    data.estado;
             }
 
             let novedadesContainer =
-                ordenElemento.querySelector(".novedades-container");
+                ordenElemento
+                    .querySelector(
+                        ".novedades-container"
+                    );
 
             if (!novedadesContainer) {
-                novedadesContainer = document.createElement("div");
-                novedadesContainer.className = "novedades-container";
 
-                const acciones = ordenElemento.querySelector(".acciones");
-                ordenElemento.insertBefore(novedadesContainer, acciones);
+                novedadesContainer =
+                    document.createElement(
+                        "div"
+                    );
+
+                novedadesContainer.className =
+                    "novedades-container";
+
+                const acciones =
+                    ordenElemento
+                        .querySelector(
+                            ".acciones"
+                        );
+
+                ordenElemento
+                    .insertBefore(
+                        novedadesContainer,
+                        acciones
+                    );
             }
 
-            const bloque = document.createElement("div");
-            bloque.className = "nuevos-productos";
+            const bloque =
+                document.createElement(
+                    "div"
+                );
+
+            bloque.className =
+                "nuevos-productos";
 
             bloque.innerHTML = `
                     <div class="nuevos-productos-title">
+
                         🆕 NUEVOS PRODUCTOS
+
                     </div>
 
                     ${crearDetallesHtml(data.detalles)}
 
                     <div class="nuevos-productos-hora">
-                        Agregados a las ${new Date(data.fecha).toLocaleTimeString()}
+
+                        Agregados a las
+                        ${new Date(data.fecha).toLocaleTimeString()}
+
                     </div>
                 `;
 
-            novedadesContainer.prepend(bloque);
+            novedadesContainer
+                .prepend(
+                    bloque
+                );
 
-            ordenElemento.scrollIntoView({
-                behavior: "smooth",
-                block: "center"
-            });
+            ordenElemento
+                .scrollIntoView({
+                    behavior:
+                        "smooth",
 
-            // El borde permanece para que cocina identifique que hubo una novedad.
-            // Se elimina el efecto de animación después de unos segundos.
-            setTimeout(() => {
-                ordenElemento.style.animation = "none";
-            }, 3000);
-
-            mostrarMensajeSinOrdenes();
-        }
-
-        async function actualizarEstado(id, estado) {
-            try {
-                const response = await fetch(`/api/Ordenes/${id}/estado`, {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`
-                    },
-                    body: JSON.stringify(estado)
+                    block:
+                        "center"
                 });
 
-                if (response.status === 401 || response.status === 403) {
-                    alert("No tiene permiso o la sesión expiró");
+            setTimeout(
+                () => {
+
+                    ordenElemento.style
+                        .animation =
+                        "none";
+                },
+
+                3000
+            );
+        }
+
+        // =============================================
+        // CORRECCIÓN DE PEDIDO
+        // =============================================
+
+        function mostrarCorreccionPedido(
+            data
+        ) {
+
+            const div =
+                document.createElement(
+                    "div"
+                );
+
+            div.className =
+                "alerta-cocina alerta-correccion";
+
+            const accionTexto =
+                data.accion === "Eliminar"
+
+                    ? "PRODUCTO CANCELADO"
+
+                    : "CORRECCIÓN DE CANTIDAD";
+
+            div.innerHTML = `
+                    <h2>
+
+                        ⚠️ ${accionTexto}
+
+                    </h2>
+
+                    <div class="alerta-mesa">
+
+                        <strong>
+                            Mesa ${data.mesa}
+                        </strong>
+
+                        ·
+
+                        Pedido #${data.id}
+
+                    </div>
+
+                    <div class="alerta-producto">
+
+                        🔴 RETIRAR:
+
+                        ${data.cantidadAfectada}
+                        ×
+                        ${escaparHtml(data.plato)}
+
+                    </div>
+
+                    <div class="alerta-cantidades">
+
+                        Cantidad anterior:
+
+                        <strong>
+                            ${data.cantidadAnterior}
+                        </strong>
+
+                        <br>
+
+                        Cantidad correcta:
+
+                        <strong>
+                            ${data.cantidadNueva}
+                        </strong>
+
+                    </div>
+
+                    <button
+                        class="btn-entendido"
+                        type="button"
+                        onclick="this.parentElement.remove()"
+                    >
+                        Entendido
+                    </button>
+                `;
+
+            alertasCocina
+                .prepend(
+                    div
+                );
+
+            div.scrollIntoView({
+                behavior:
+                    "smooth",
+
+                block:
+                    "center"
+            });
+        }
+
+        // =============================================
+        // ACTUALIZAR ESTADO
+        // =============================================
+
+        async function actualizarEstado(
+            id,
+            estado
+        ) {
+
+            try {
+
+                const response =
+                    await fetch(
+                        `/api/Ordenes/${id}/estado`,
+                        {
+                            method:
+                                "PUT",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json",
+
+                                "Authorization":
+                                    `Bearer ${token}`
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    estado
+                                )
+                        }
+                    );
+
+                if (
+                    response.status === 401 ||
+                    response.status === 403
+                ) {
+
+                    alert(
+                        "No tiene permiso o la sesión expiró"
+                    );
+
                     localStorage.clear();
-                    window.location.href = "/login.html";
+
+                    window.location.href =
+                        "/login.html";
+
                     return;
                 }
 
                 if (!response.ok) {
-                    const error = await response.text();
-                    alert(error || "No se pudo actualizar el estado");
+
+                    const error =
+                        await response.text();
+
+                    alert(
+                        error ||
+                        "No se pudo actualizar el estado"
+                    );
+
                     return;
                 }
 
             } catch (error) {
-                alert("Error de conexión con el servidor");
+
+                alert(
+                    "Error de conexión con el servidor"
+                );
             }
         }
 
         function mostrarMensajeSinOrdenes() {
-            const ordenes = document.querySelectorAll(".orden");
+
+            const ordenes =
+                document.querySelectorAll(
+                    ".orden"
+                );
 
             if (
                 ordenes.length === 0 &&
-                !document.querySelector(".sin-ordenes")
+                !document.querySelector(
+                    ".sin-ordenes"
+                )
             ) {
+
                 contenedor.innerHTML = `
                         <div class="sin-ordenes">
-                            No hay órdenes pendientes por preparar.
+
+                            No hay órdenes pendientes
+                            por preparar.
+
                         </div>
                     `;
             }
         }
 
         function volverPanel() {
-            window.location.href = "/panel.html";
+
+            window.location.href =
+                "/panel.html";
         }
 
         function cerrarSesion() {
+
             localStorage.clear();
-            window.location.href = "/login.html";
+
+            window.location.href =
+                "/login.html";
         }
 
         iniciarConexion();
+
         cargarOrdenesPendientes();
+
     </script>
+
 </body>
+
 </html>
