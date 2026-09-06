@@ -468,6 +468,19 @@ namespace RestauranteComandas.Api.Controllers
             .botones {{
                 display: none !important;
             }}
+
+            .producto,
+            .total,
+            .datos-pago,
+            .pie {{
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }}
+
+            .producto-principal {{
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }}
         }}
     </style>
 </head>
@@ -478,8 +491,14 @@ namespace RestauranteComandas.Api.Controllers
 
     <div class='encabezado'>
         <div class='restaurante'>LA SUPER CORVINA</div>
-        <div class='tipo-documento'>COMPROBANTE DE PAGO</div>
-        <div class='pedido'>PEDIDO #{orden.Id:D3}</div>
+
+        <div class='tipo-documento'>
+            COMPROBANTE DE PAGO
+        </div>
+
+        <div class='pedido'>
+            PEDIDO #{orden.Id:D3}
+        </div>
     </div>
 
     <div class='linea-fuerte'></div>
@@ -487,31 +506,27 @@ namespace RestauranteComandas.Api.Controllers
     <div class='datos'>
 
         <div class='fila-dato'>
-            <span class='etiqueta'>Mesa:</span>
-            <span class='valor'>{(orden.Mesa != null ? orden.Mesa.Numero : 0)}</span>
+            <strong>Mesa:</strong>
+            {(orden.Mesa != null ? orden.Mesa.Numero : 0)}
         </div>
 
         <div class='fila-dato'>
-            <span class='etiqueta'>Mesero:</span>
-            <span class='valor'>{(orden.Usuario != null ? orden.Usuario.Nombre : "No registrado")}</span>
+            <strong>Mesero:</strong>
+            {(orden.Usuario != null ? orden.Usuario.Nombre : "No registrado")}
         </div>
 
         <div class='fila-dato'>
-            <span class='etiqueta'>Fecha:</span>
-            <span class='valor'>{fechaOrdenEcuador:dd/MM/yyyy HH:mm}</span>
+            <strong>Fecha:</strong>
+            {fechaOrdenEcuador:dd/MM/yyyy HH:mm}
         </div>
 
     </div>
 
-    <div class='linea'></div>
-
-    <div class='titulo-detalle'>
-        DETALLE DEL PEDIDO
-    </div>
+    <div class='linea-fuerte'></div>
 
     <div class='cabecera-productos'>
-        <div>Producto</div>
-        <div class='precio'>Total</div>
+        <div>Detalle del Producto</div>
+        <div class='precio'>Precio<br>Total</div>
     </div>
 ");
 
@@ -522,12 +537,13 @@ namespace RestauranteComandas.Api.Controllers
                     : "Producto";
 
                 html.Append($@"
+
     <div class='producto'>
 
         <div class='producto-principal'>
 
             <div class='producto-nombre'>
-                {detalle.Cantidad}x {nombreProducto}
+                {detalle.Cantidad}× {nombreProducto}
             </div>
 
             <div class='producto-total'>
@@ -537,12 +553,16 @@ namespace RestauranteComandas.Api.Controllers
         </div>
 
         <div class='producto-calculo'>
-            {detalle.Cantidad} x ${detalle.PrecioUnitario:F2}
+            {detalle.Cantidad} × ${detalle.PrecioUnitario:F2}
         </div>
 
         {(string.IsNullOrWhiteSpace(detalle.DetallePersonalizado)
-                    ? ""
-                    : $"<div class='producto-nota'>Nota: {detalle.DetallePersonalizado}</div>")}
+                        ? ""
+                        : $@"
+                <div class='producto-nota'>
+                    {detalle.DetallePersonalizado}
+                </div>
+            ")}
 
     </div>
 ");
@@ -553,46 +573,37 @@ namespace RestauranteComandas.Api.Controllers
     <div class='linea-fuerte'></div>
 
     <div class='total'>
-        <span>TOTAL</span>
+        <span>TOTAL:</span>
         <span>${pago.Monto:F2}</span>
     </div>
 
     <div class='linea-fuerte'></div>
 
-    <div class='pago'>
+    <div class='datos-pago'>
 
         <div class='fila-dato'>
-            <span class='etiqueta'>Forma de pago:</span>
-            <span class='valor'>{pago.MetodoPago}</span>
+            <strong>Forma de pago:</strong>
+            {pago.MetodoPago}
         </div>
 
         <div class='fila-dato'>
-            <span class='etiqueta'>Referencia:</span>
-            <span class='valor'>
-                {(string.IsNullOrWhiteSpace(pago.Referencia)
-                            ? "Sin referencia"
-                            : pago.Referencia)}
-            </span>
+            <strong>Referencia:</strong>
+            {(string.IsNullOrWhiteSpace(pago.Referencia)
+                ? "Sin referencia"
+                : pago.Referencia)}
         </div>
 
         <div class='fila-dato'>
-            <span class='etiqueta'>Fecha pago:</span>
-            <span class='valor'>{fechaPagoEcuador:dd/MM/yyyy HH:mm}</span>
+            <strong>Fecha pago:</strong>
+            {fechaPagoEcuador:dd/MM/yyyy HH:mm}
         </div>
 
         <div class='fila-dato'>
-            <span class='etiqueta'>Estado:</span>
-            <span class='valor estado'>{pago.EstadoPago}</span>
-        </div>
-
-        <div class='fila-dato'>
-            <span class='etiqueta'>Comprobante:</span>
-            <span class='valor'>#{pago.Id:D3}</span>
+            <strong>Estado:</strong>
+            {pago.EstadoPago}
         </div>
 
     </div>
-
-    <div class='linea'></div>
 
     <div class='pie'>
         ¡Gracias por su preferencia!<br>

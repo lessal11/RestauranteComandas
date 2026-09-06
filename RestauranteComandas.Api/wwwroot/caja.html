@@ -5,221 +5,239 @@
     <title>Caja - Restaurante Comandas</title>
 
     <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f3f4f6;
-            color: #111827;
-        }
+    * {{
+        box-sizing: border-box;
+    }}
 
-        header {
-            background: #111827;
-            color: white;
-            padding: 18px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
+    @page {{
+        size: 58mm auto;
+        margin: 0;
+    }}
 
-        .titulo {
-            font-size: 26px;
-            font-weight: bold;
-        }
+    html,
+    body {{
+        width: 58mm;
+        margin: 0;
+        padding: 0;
+        background: #fff;
+        color: #000;
+        font-family: Arial, Helvetica, sans-serif;
+    }}
 
-        .usuario {
-            font-size: 14px;
-            color: #d1d5db;
-        }
+    body {{
+        font-size: 14px;
+        line-height: 1.25;
+    }}
 
-        .btn-salir {
-            background: #dc2626;
-            color: white;
-            border: none;
-            padding: 9px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-        }
+    .ticket {{
+        width: 58mm;
+        max-width: 58mm;
+        margin: 0;
+        padding: 2mm 1.5mm;
+    }}
 
-        .contenedor {
-            padding: 20px;
-            display: grid;
-            grid-template-columns: 1fr 390px;
-            gap: 20px;
-        }
+    .encabezado {{
+        width: 100%;
+        text-align: center;
+    }}
 
-        .panel {
-            background: white;
-            border-radius: 14px;
-            padding: 18px;
-            box-shadow: 0 5px 14px rgba(0,0,0,0.12);
-        }
+    .restaurante {{
+        margin: 0;
+        font-size: 21px;
+        line-height: 1.05;
+        font-weight: 900;
+    }}
 
-        h2 {
-            margin-top: 0;
-            color: #dc2626;
-        }
+    .tipo-documento {{
+        margin-top: 5px;
+        font-size: 16px;
+        line-height: 1.1;
+        font-weight: 900;
+    }}
 
-        .ordenes-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 15px;
-        }
+    .pedido {{
+        margin-top: 2px;
+        font-size: 19px;
+        line-height: 1.1;
+        font-weight: 900;
+    }}
 
-        .orden {
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 15px;
-            background: #f9fafb;
-            cursor: pointer;
-        }
+    .linea-fuerte {{
+        width: 100%;
+        border-top: 2px solid #000;
+        margin: 7px 0;
+    }}
 
-            .orden:hover {
-                border-color: #dc2626;
-            }
+    .linea {{
+        width: 100%;
+        border-top: 1.5px dashed #000;
+        margin: 5px 0;
+    }}
 
-            .orden.seleccionada {
-                border-color: #dc2626;
-                background: #fee2e2;
-            }
+    .datos {{
+        width: 100%;
+        font-size: 14px;
+        font-weight: 600;
+    }}
 
-            .orden h3 {
-                margin: 0 0 8px 0;
-                color: #dc2626;
-            }
+    .fila-dato {{
+        width: 100%;
+        margin: 4px 0;
+        overflow-wrap: anywhere;
+    }}
 
-        .estado {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 20px;
-            background: #facc15;
-            color: #111827;
-            font-weight: bold;
-            font-size: 13px;
-            margin-bottom: 8px;
-        }
+    .fila-dato strong {{
+        font-weight: 900;
+    }}
 
-        .total-card {
-            font-size: 20px;
-            font-weight: bold;
-            color: #16a34a;
-            margin-top: 10px;
-        }
+    .cabecera-productos {{
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 17mm;
+        width: 100%;
+        gap: 2mm;
+        padding: 3px 0 5px 0;
+        font-size: 14px;
+        line-height: 1.05;
+        font-weight: 900;
+        border-bottom: 2px solid #000;
+    }}
 
-        .detalle {
-            border-bottom: 1px solid #e5e7eb;
-            padding: 8px 0;
-        }
+    .cabecera-productos .precio {{
+        text-align: right;
+    }}
 
-        .nota {
-            color: #dc2626;
-            font-size: 13px;
-            font-style: italic;
-        }
+    .producto {{
+        width: 100%;
+        padding: 7px 0 5px 0;
+        border-bottom: 1.5px dashed #000;
+        break-inside: avoid;
+    }}
 
-        label {
-            font-weight: bold;
-            display: block;
-            margin-top: 12px;
-            margin-bottom: 5px;
-        }
+    .producto-principal {{
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 17mm;
+        gap: 2mm;
+        width: 100%;
+        align-items: start;
+    }}
 
-        select, input {
-            width: 100%;
-            padding: 11px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            box-sizing: border-box;
-        }
+    .producto-nombre {{
+        min-width: 0;
+        font-size: 15px;
+        line-height: 1.15;
+        font-weight: 900;
+        overflow-wrap: anywhere;
+    }}
 
-        .resumen {
-            background: #f9fafb;
-            border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 12px;
-        }
+    .producto-total {{
+        font-size: 15px;
+        line-height: 1.15;
+        font-weight: 900;
+        text-align: right;
+        white-space: nowrap;
+    }}
 
-            .resumen strong {
-                color: #374151;
-            }
+    .producto-calculo {{
+        margin-top: 3px;
+        font-size: 12px;
+        font-weight: 600;
+    }}
 
-        .total {
-            font-size: 26px;
-            font-weight: bold;
-            text-align: right;
-            color: #16a34a;
-            margin-top: 18px;
-        }
+    .producto-nota {{
+        margin-top: 4px;
+        font-size: 12px;
+        line-height: 1.2;
+        font-weight: 700;
+        overflow-wrap: anywhere;
+    }}
 
-        .btn-pagar {
-            width: 100%;
-            background: #16a34a;
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 10px;
-            font-size: 17px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 15px;
-        }
+    .total {{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        gap: 5px;
+        padding: 7px 0;
+        font-size: 18px;
+        line-height: 1.1;
+        font-weight: 900;
+    }}
 
-            .btn-pagar:disabled {
-                background: #9ca3af;
-                cursor: not-allowed;
-            }
+    .datos-pago {{
+        width: 100%;
+        margin-top: 5px;
+        font-size: 13px;
+    }}
 
-        .btn-comprobante {
-            width: 100%;
-            background: #2563eb;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-        }
+    .datos-pago .fila-dato {{
+        margin: 3px 0;
+    }}
 
-        .btn-recargar {
-            background: #111827;
-            color: white;
-            border: none;
-            padding: 10px 13px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
+    .nota-box {{
+        width: 100%;
+        margin-top: 7px;
+        padding: 6px;
+        border: 1.5px solid #000;
+        font-size: 12px;
+        line-height: 1.2;
+    }}
 
-        .mensaje {
-            margin-top: 12px;
-            text-align: center;
-            font-weight: bold;
-        }
+    .nota-titulo {{
+        font-size: 13px;
+        font-weight: 900;
+        margin-bottom: 3px;
+    }}
 
-        .ok {
-            color: #16a34a;
-        }
+    .pie {{
+        width: 100%;
+        margin-top: 7px;
+        padding-top: 6px;
+        border-top: 1.5px dashed #000;
+        text-align: center;
+        font-size: 12px;
+        line-height: 1.25;
+        font-weight: 700;
+    }}
 
-        .error {
-            color: #dc2626;
-        }
+    .botones {{
+        margin-top: 14px;
+        text-align: center;
+    }}
 
-        .vacio {
-            text-align: center;
-            color: #6b7280;
-            font-size: 18px;
-            margin-top: 25px;
-        }
+    button {{
+        width: 100%;
+        padding: 10px;
+        border: none;
+        background: #000;
+        color: #fff;
+        font-weight: bold;
+        font-size: 14px;
+        cursor: pointer;
+    }}
 
-        @media (max-width: 950px) {
-            .contenedor {
-                grid-template-columns: 1fr;
-            }
-        }
+    @media print {{
+        html,
+        body {{
+            width: 58mm !important;
+            min-width: 58mm !important;
+            max-width: 58mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #fff !important;
+        }}
+
+        .ticket {{
+            width: 58mm !important;
+            min-width: 58mm !important;
+            max-width: 58mm !important;
+            padding: 2mm 1.5mm !important;
+            margin: 0 !important;
+        }}
+
+        .botones {{
+            display: none !important;
+        }}
+    }}
     </style>
 </head>
 
