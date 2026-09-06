@@ -250,239 +250,348 @@ namespace RestauranteComandas.Api.Controllers
     <title>Pedido #{orden.Id:D3}</title>
 
     <style>
-        * {{
-            box-sizing: border-box;
-        }}
+    * {{
+        box-sizing: border-box;
+    }}
 
-        @page {{
-            size: 58mm auto;
-            margin: 2mm;
-        }}
+    @page {{
+        size: auto;
+        margin: 6mm;
+    }}
 
-        html {{
-            margin: 0;
-            padding: 0;
-            width: 58mm;
-            background: white;
-        }}
+    html,
+    body {{
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background: #fff;
+        color: #000;
+        font-family: Arial, Helvetica, sans-serif;
+    }}
 
+    body {{
+        font-size: 18px;
+        line-height: 1.25;
+    }}
+
+    .ticket {{
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 0;
+        background: #fff;
+    }}
+
+    .encabezado {{
+        width: 100%;
+        text-align: center;
+        padding: 0 0 14px 0;
+    }}
+
+    .restaurante {{
+        margin: 0;
+        font-size: 34px;
+        line-height: 1.05;
+        font-weight: 900;
+    }}
+
+    .tipo-documento {{
+        margin-top: 7px;
+        font-size: 22px;
+        font-weight: 900;
+    }}
+
+    .pedido {{
+        margin-top: 6px;
+        font-size: 30px;
+        line-height: 1.05;
+        font-weight: 900;
+    }}
+
+    .linea-fuerte {{
+        width: 100%;
+        border-top: 4px solid #000;
+        margin: 14px 0;
+    }}
+
+    .linea {{
+        width: 100%;
+        border-top: 2px dashed #000;
+        margin: 10px 0;
+    }}
+
+    .datos {{
+        width: 100%;
+        font-size: 20px;
+    }}
+
+    .fila-dato {{
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 15px;
+        margin: 7px 0;
+    }}
+
+    .fila-dato .etiqueta {{
+        font-weight: 900;
+        white-space: nowrap;
+    }}
+
+    .fila-dato .valor {{
+        flex: 1;
+        text-align: right;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }}
+
+    .cabecera-productos {{
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 25%;
+        width: 100%;
+        gap: 15px;
+        padding: 8px 0 10px 0;
+        font-size: 20px;
+        line-height: 1.05;
+        font-weight: 900;
+        border-bottom: 4px solid #000;
+    }}
+
+    .cabecera-productos .precio {{
+        text-align: right;
+    }}
+
+    .producto {{
+        width: 100%;
+        padding: 13px 0;
+        border-bottom: 2px dashed #666;
+
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }}
+
+    .producto-principal {{
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 25%;
+        gap: 15px;
+        width: 100%;
+        align-items: start;
+    }}
+
+    .producto-nombre {{
+        min-width: 0;
+        font-size: 22px;
+        line-height: 1.15;
+        font-weight: 900;
+        overflow-wrap: anywhere;
+    }}
+
+    .producto-total {{
+        font-size: 22px;
+        line-height: 1.15;
+        font-weight: 900;
+        text-align: right;
+        white-space: nowrap;
+    }}
+
+    .producto-calculo {{
+        margin-top: 5px;
+        font-size: 17px;
+        font-weight: 500;
+    }}
+
+    .producto-nota {{
+        margin-top: 7px;
+        padding: 6px 0;
+        font-size: 17px;
+        line-height: 1.2;
+        font-weight: 700;
+        font-style: italic;
+        overflow-wrap: anywhere;
+    }}
+
+    .total {{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        gap: 15px;
+        padding: 14px 0;
+        font-size: 30px;
+        line-height: 1.1;
+        font-weight: 900;
+
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }}
+
+    .pago {{
+        width: 100%;
+        font-size: 18px;
+
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }}
+
+    .estado {{
+        font-weight: 900;
+    }}
+
+    .pie {{
+        width: 100%;
+        margin-top: 15px;
+        padding-top: 12px;
+        border-top: 2px dashed #000;
+        text-align: center;
+        font-size: 18px;
+        line-height: 1.3;
+        font-weight: 700;
+
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }}
+
+    .botones {{
+        margin-top: 20px;
+        text-align: center;
+    }}
+
+    button {{
+        padding: 12px 20px;
+        border: none;
+        background: #000;
+        color: #fff;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+    }}
+
+    @media print {{
+
+        html,
         body {{
-            margin: 0;
-            padding: 0;
-            width: 54mm;
-            background: white;
-            color: #000;
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 10px;
-            line-height: 1.25;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #fff !important;
         }}
 
         .ticket {{
-            width: 54mm;
-            max-width: 54mm;
-            margin: 0;
-            padding: 1mm;
-            background: white;
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
         }}
 
-        .encabezado {{
-            text-align: center;
-            padding-bottom: 5px;
+        .botones {{
+            display: none !important;
+        }}
+
+        .producto,
+        .producto-principal,
+        .total,
+        .pago,
+        .pie {{
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+        }}
+    }}
+
+    @media print and (max-width: 80mm) {{
+
+        @page {{
+            margin: 2mm;
+        }}
+
+        body {{
+            font-size: 10px;
         }}
 
         .restaurante {{
-            font-size: 15px;
-            font-weight: 900;
-            line-height: 1.1;
-            margin: 0 0 3px 0;
+            font-size: 17px;
         }}
 
         .tipo-documento {{
-            font-size: 10px;
-            font-weight: 700;
-            margin: 0;
+            font-size: 11px;
         }}
 
         .pedido {{
-            font-size: 14px;
-            font-weight: 900;
-            margin-top: 3px;
-        }}
-
-        .linea {{
-            width: 100%;
-            border-top: 1px dashed #000;
-            margin: 5px 0;
+            font-size: 15px;
         }}
 
         .linea-fuerte {{
-            width: 100%;
-            border-top: 2px solid #000;
+            border-top-width: 2px;
+            margin: 6px 0;
+        }}
+
+        .linea {{
+            border-top-width: 1px;
             margin: 5px 0;
         }}
 
         .datos {{
-            width: 100%;
+            font-size: 10px;
         }}
 
         .fila-dato {{
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
             gap: 4px;
-            margin: 2px 0;
-        }}
-
-        .fila-dato .etiqueta {{
-            font-weight: 700;
-            white-space: nowrap;
-        }}
-
-        .fila-dato .valor {{
-            text-align: right;
-            overflow-wrap: anywhere;
-        }}
-
-        .titulo-detalle {{
-            font-size: 11px;
-            font-weight: 900;
-            text-align: center;
-            margin: 5px 0;
+            margin: 3px 0;
         }}
 
         .cabecera-productos {{
-            display: grid;
-            grid-template-columns: 1fr 15mm;
+            grid-template-columns: minmax(0, 1fr) 18mm;
             gap: 3px;
-            font-size: 9px;
-            font-weight: 700;
-            padding-bottom: 3px;
-            border-bottom: 1px solid #000;
-        }}
-
-        .cabecera-productos .precio {{
-            text-align: right;
+            font-size: 10px;
+            padding: 4px 0;
+            border-bottom-width: 2px;
         }}
 
         .producto {{
-            padding: 4px 0;
-            border-bottom: 1px dashed #777;
-            break-inside: avoid;
+            padding: 5px 0;
+            border-bottom-width: 1px;
         }}
 
         .producto-principal {{
-            display: grid;
-            grid-template-columns: 1fr 15mm;
+            grid-template-columns: minmax(0, 1fr) 18mm;
             gap: 3px;
-            align-items: start;
         }}
 
         .producto-nombre {{
-            font-size: 10px;
-            font-weight: 700;
-            line-height: 1.2;
-            overflow-wrap: anywhere;
+            font-size: 11px;
         }}
 
         .producto-total {{
-            font-size: 10px;
-            font-weight: 700;
-            text-align: right;
-            white-space: nowrap;
+            font-size: 11px;
         }}
 
         .producto-calculo {{
             margin-top: 2px;
-            font-size: 8.5px;
-        }}
-
-        .producto-nota {{
-            margin-top: 2px;
-            font-size: 8.5px;
-            font-weight: 600;
-            font-style: italic;
-            overflow-wrap: anywhere;
-        }}
-
-        .total {{
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 5px;
-            padding: 6px 0;
-            font-size: 14px;
-            font-weight: 900;
-        }}
-
-        .pago {{
             font-size: 9px;
         }}
 
-        .estado {{
-            font-weight: 700;
+        .producto-nota {{
+            margin-top: 3px;
+            padding: 0;
+            font-size: 9px;
+        }}
+
+        .total {{
+            padding: 6px 0;
+            font-size: 15px;
+        }}
+
+        .pago {{
+            font-size: 10px;
         }}
 
         .pie {{
             margin-top: 7px;
-            text-align: center;
-            font-size: 8.5px;
-            line-height: 1.3;
+            padding-top: 5px;
+            font-size: 9px;
         }}
-
-        .botones {{
-            margin-top: 12px;
-            text-align: center;
-        }}
-
-        button {{
-            padding: 9px 12px;
-            border: none;
-            border-radius: 5px;
-            background: #111;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-        }}
-
-        @media print {{
-            html {{
-                width: 58mm !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }}
-
-            body {{
-                width: 54mm !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                background: white !important;
-            }}
-
-            .ticket {{
-                width: 54mm !important;
-                max-width: 54mm !important;
-                margin: 0 !important;
-                padding: 1mm !important;
-            }}
-
-            .botones {{
-                display: none !important;
-            }}
-
-            .producto,
-            .total,
-            .datos-pago,
-            .pie {{
-                break-inside: avoid;
-                page-break-inside: avoid;
-            }}
-
-            .producto-principal {{
-                break-inside: avoid;
-                page-break-inside: avoid;
-            }}
-        }}
-    </style>
+    }}
+</style>
 </head>
 
 <body>
