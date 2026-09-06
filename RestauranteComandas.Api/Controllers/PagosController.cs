@@ -227,6 +227,7 @@ namespace RestauranteComandas.Api.Controllers
 
             var orden = pago.Orden;
 
+            // Ecuador continental UTC-5
             var ecuadorOffset = TimeSpan.FromHours(-5);
 
             var fechaOrdenEcuador = new DateTimeOffset(
@@ -260,389 +261,703 @@ namespace RestauranteComandas.Api.Controllers
             var html = new StringBuilder();
 
             html.Append($@"
-<!DOCTYPE html>
+<!doctype html>
 <html lang='es'>
+
 <head>
-    <meta charset='UTF-8'>
-    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+
+    <meta charset='utf-8'>
+
+    <meta
+        name='viewport'
+        content='width=device-width, initial-scale=1'
+    >
+
     <title>Pedido #{orden.Id:D3}</title>
 
     <style>
+
+        /*
+         * ==========================================================
+         * PAPEL
+         * ==========================================================
+         *
+         * MISMA ESTRATEGIA DEL EJEMPLO.
+         *
+         * Ancho: 80 mm
+         * Alto: automático
+         * Márgenes: prácticamente nulos
+         */
+
+        @page {{
+            size: 80mm auto;
+            margin: 1mm 1mm;
+        }}
+
+
         * {{
+            color: #000000 !important;
+            border-color: #000000 !important;
             box-sizing: border-box;
         }}
 
-        /*
-         * El navegador usa el tamaño de papel seleccionado.
-         * No se fija 58 mm dentro del HTML.
-         * Así el contenido ocupa todo el ancho del PDF o de la impresora.
-         */
-        @page {{
-            margin: 0;
-        }}
 
-        html,
-        body {{
-            width: 100%;
+        html {{
             margin: 0;
             padding: 0;
-            background: #fff;
-            color: #000;
-            font-family: Arial, Helvetica, sans-serif;
+            background: #ffffff;
         }}
+
 
         body {{
-            font-size: 22px;
-            line-height: 1.08;
-        }}
+            font-family:
+                Arial,
+                ""Helvetica Neue"",
+                sans-serif;
 
-        /*
-         * Márgenes laterales prácticamente nulos.
-         */
-        .ticket {{
+            color: #000000;
+
+            margin: 0;
+            padding: 0;
+
             width: 100%;
-            max-width: none;
-            margin: 0;
-            padding: 3px 5px;
-            background: #fff;
-            overflow: visible;
-        }}
 
-        /*
-         * Encabezado único: solamente existe aquí,
-         * por lo que no se repite al continuar hacia abajo.
-         */
-        .encabezado {{
-            width: 100%;
-            text-align: center;
-            margin: 0;
-            padding: 3px 0 8px 0;
-        }}
-
-        .restaurante {{
-            margin: 0;
-            font-size: 38px;
-            line-height: 1;
-            font-weight: 900;
-        }}
-
-        .tipo-documento {{
-            margin-top: 6px;
-            font-size: 27px;
-            line-height: 1;
-            font-weight: 900;
-        }}
-
-        .pedido {{
-            margin-top: 6px;
             font-size: 34px;
-            line-height: 1;
-            font-weight: 900;
+            line-height: 1.12;
+
+            background: #ffffff;
+
+            font-weight: 900 !important;
         }}
 
-        .linea-fuerte {{
-            width: 100%;
-            margin: 9px 0;
-            border-top: 5px solid #000;
-        }}
-
-        .datos {{
-            width: 100%;
-            font-size: 26px;
-            line-height: 1.08;
-        }}
-
-        .fila-dato {{
-            width: 100%;
-            margin: 5px 0;
-            overflow-wrap: anywhere;
-        }}
-
-        .fila-dato strong {{
-            font-weight: 900;
-        }}
-
-        .cabecera-productos {{
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) 24%;
-            width: 100%;
-            gap: 8px;
-            padding: 5px 0 8px 0;
-            border-bottom: 5px solid #000;
-            font-size: 27px;
-            line-height: 1;
-            font-weight: 900;
-        }}
-
-        .cabecera-precio {{
-            text-align: right;
-        }}
 
         /*
-         * Los platos están en flujo normal:
-         * uno inmediatamente después del otro.
-         * No hay alturas fijas ni saltos forzados.
+         * ==========================================================
+         * ENCABEZADO
+         *
+         * SOLO APARECE UNA VEZ AL INICIO.
+         * ==========================================================
          */
+
+        .header {{
+            width: 100%;
+
+            text-align: center;
+
+            border-bottom:
+                5px
+                solid
+                #000000;
+
+            padding-bottom: 10px;
+
+            margin-bottom: 12px;
+        }}
+
+
+        .header h1 {{
+            font-size: 34px;
+
+            margin:
+                0
+                0
+                6px
+                0;
+
+            color: #000000;
+
+            text-transform: uppercase;
+
+            font-weight: 900 !important;
+
+            letter-spacing: -0.5px;
+        }}
+
+
+        .header h2 {{
+            font-size: 34px;
+
+            margin: 0;
+
+            color: #000000;
+
+            font-weight: 900 !important;
+        }}
+
+
+        /*
+         * ==========================================================
+         * DATOS GENERALES
+         * ==========================================================
+         */
+
+        .info-grid {{
+            width: 100%;
+
+            margin-bottom: 12px;
+
+            border-bottom:
+                5px
+                solid
+                #000000;
+
+            padding-bottom: 10px;
+        }}
+
+
+        .info-cell {{
+            width: 100%;
+
+            font-size: 34px;
+
+            color: #000000;
+
+            margin-bottom: 8px;
+
+            font-weight: 900 !important;
+
+            overflow-wrap: anywhere;
+        }}
+
+
+        /*
+         * ==========================================================
+         * TABLA DE PRODUCTOS
+         *
+         * LOS PRODUCTOS VAN UNO DEBAJO DEL OTRO.
+         * ==========================================================
+         */
+
+        table.items-table {{
+            width: 100%;
+
+            border-collapse: collapse;
+
+            margin-top: 6px;
+
+            margin-bottom: 12px;
+        }}
+
+
+        table.items-table th {{
+            border-bottom:
+                5px
+                solid
+                #000000;
+
+            font-size: 34px;
+
+            text-align: left;
+
+            padding:
+                10px
+                0;
+
+            font-weight: 900 !important;
+        }}
+
+
+        table.items-table td {{
+            padding:
+                10px
+                0;
+
+            border-bottom:
+                3px
+                dashed
+                #000000;
+
+            font-size: 34px;
+
+            color: #000000;
+
+            vertical-align: top;
+
+            font-weight: 900 !important;
+        }}
+
+
         .producto {{
-            width: 100%;
-            margin: 0;
-            padding: 7px 0 6px 0;
-            border-bottom: 2px dashed #000;
-        }}
+            font-size: 34px;
 
-        .producto-principal {{
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) 24%;
-            width: 100%;
-            gap: 8px;
-            align-items: start;
-        }}
+            font-weight: 900 !important;
 
-        .producto-nombre {{
-            min-width: 0;
-            font-size: 29px;
-            line-height: 1.05;
-            font-weight: 900;
+            line-height: 1.08;
+
             overflow-wrap: anywhere;
         }}
 
-        .producto-total {{
-            font-size: 29px;
-            line-height: 1.05;
-            font-weight: 900;
+
+        .precio {{
+            width: 180px;
+
             text-align: right;
+
             white-space: nowrap;
+
+            font-size: 34px;
+
+            font-weight: 900 !important;
         }}
 
-        .producto-nota {{
-            width: 100%;
-            margin-top: 3px;
-            padding: 0;
-            font-size: 21px;
-            line-height: 1.08;
-            font-weight: 700;
-            font-style: italic;
-            overflow-wrap: anywhere;
-        }}
 
-        .total {{
-            display: flex;
-            width: 100%;
-            justify-content: space-between;
-            align-items: center;
-            gap: 8px;
-            margin: 0;
-            padding: 9px 0;
-            font-size: 35px;
-            line-height: 1;
-            font-weight: 900;
-        }}
+        /*
+         * ==========================================================
+         * NOTA POR PRODUCTO
+         * ==========================================================
+         */
 
-        .datos-pago {{
-            width: 100%;
-            font-size: 24px;
-            line-height: 1.08;
-        }}
+        .nota-producto {{
+            display: block;
 
-        .fila-pago {{
-            display: flex;
-            width: 100%;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 8px;
-            margin: 4px 0;
-        }}
+            margin-top: 5px;
 
-        .etiqueta {{
-            flex-shrink: 0;
-            font-weight: 900;
-        }}
+            font-size: 27px;
 
-        .valor {{
-            flex: 1;
-            text-align: right;
-            font-weight: 600;
-            overflow-wrap: anywhere;
-        }}
-
-        .pie {{
-            width: 100%;
-            margin-top: 7px;
-            padding: 7px 0 3px 0;
-            border-top: 2px dashed #000;
-            text-align: center;
-            font-size: 22px;
             line-height: 1.1;
-            font-weight: 700;
+
+            font-weight: 900 !important;
+
+            font-style: italic;
         }}
 
-        .botones {{
+
+        /*
+         * ==========================================================
+         * TOTAL
+         * ==========================================================
+         */
+
+        .total-box {{
             width: 100%;
-            margin: 12px 0 0 0;
-            padding: 0 5px;
+
+            text-align: right;
+
+            font-size: 34px;
+
+            font-weight: 900 !important;
+
+            color: #000000;
+
+            padding:
+                14px
+                0;
+
+            border-top:
+                5px
+                solid
+                #000000;
+
+            border-bottom:
+                5px
+                solid
+                #000000;
+
+            margin-bottom: 16px;
+        }}
+
+
+        /*
+         * ==========================================================
+         * INFORMACIÓN DEL PAGO
+         * ==========================================================
+         */
+
+        .payment-box {{
+            width: 100%;
+
+            border:
+                5px
+                solid
+                #000000;
+
+            background: #ffffff;
+
+            padding: 12px;
+
+            margin-bottom: 16px;
+
+            color: #000000;
+
+            font-weight: 900 !important;
+        }}
+
+
+        .payment-title {{
+            font-size: 30px;
+
+            font-weight: 900 !important;
+
+            text-transform: uppercase;
+
+            margin-bottom: 8px;
+        }}
+
+
+        .payment-row {{
+            width: 100%;
+
+            font-size: 30px;
+
+            line-height: 1.12;
+
+            margin-bottom: 7px;
+
+            font-weight: 900 !important;
+
+            overflow-wrap: anywhere;
+        }}
+
+
+        /*
+         * ==========================================================
+         * PIE
+         * ==========================================================
+         */
+
+        .foot {{
+            width: 100%;
+
+            text-align: center;
+
+            font-size: 28px;
+
+            color: #000000;
+
+            margin-top: 12px;
+
+            border-top:
+                4px
+                dashed
+                #000000;
+
+            padding-top: 10px;
+
+            font-weight: 900 !important;
+        }}
+
+
+        /*
+         * ==========================================================
+         * BOTÓN
+         *
+         * VISIBLE EN PANTALLA.
+         * NO SE IMPRIME.
+         * ==========================================================
+         */
+
+        .acciones {{
+            width: 100%;
+
+            margin-top: 20px;
+
             text-align: center;
         }}
 
-        button {{
+
+        .acciones button {{
             width: 100%;
+
             border: none;
-            padding: 12px;
-            background: #111;
-            color: #fff;
-            font-size: 18px;
-            font-weight: bold;
+
+            padding: 15px;
+
+            background: #000000;
+
+            color: #ffffff !important;
+
+            font-size: 24px;
+
+            font-weight: 900;
+
             cursor: pointer;
         }}
 
+
+        /*
+         * ==========================================================
+         * IMPRESIÓN
+         * ==========================================================
+         */
+
         @media print {{
+
             html,
             body {{
-                width: 100% !important;
                 margin: 0 !important;
                 padding: 0 !important;
-                background: #fff !important;
-                overflow: visible !important;
-            }}
 
-            .ticket {{
                 width: 100% !important;
-                max-width: none !important;
-                margin: 0 !important;
-                padding: 2px 3px !important;
-                overflow: visible !important;
+
+                background:
+                    #ffffff !important;
             }}
 
-            .botones {{
+
+            .acciones {{
                 display: none !important;
             }}
 
-            /*
-             * No se aplican page-break ni break-inside.
-             * Si el controlador de la térmica usa rollo continuo,
-             * los productos continúan hacia abajo.
-             */
         }}
+
     </style>
+
 </head>
+
 
 <body>
 
-<div class='ticket'>
 
-    <div class='encabezado'>
-        <div class='restaurante'>LA SUPER CORVINA</div>
-        <div class='tipo-documento'>COMPROBANTE DE PAGO</div>
-        <div class='pedido'>PEDIDO #{orden.Id:D3}</div>
+    <!-- ======================================================
+         ENCABEZADO
+         SOLO UNA VEZ
+         ====================================================== -->
+
+    <div class='header'>
+
+        <h1>
+            LA SUPER CORVINA
+        </h1>
+
+        <h2>
+            COMPROBANTE DE PAGO #{orden.Id:D3}
+        </h2>
+
     </div>
 
-    <div class='linea-fuerte'></div>
 
-    <div class='datos'>
-        <div class='fila-dato'>
+    <!-- ======================================================
+         INFORMACIÓN GENERAL
+         ====================================================== -->
+
+    <div class='info-grid'>
+
+        <div class='info-cell'>
+
             <strong>Mesa:</strong>
-            {(orden.Mesa != null ? orden.Mesa.Numero : 0)}
+
+            {(orden.Mesa != null
+                        ? orden.Mesa.Numero
+                        : 0)}
+
         </div>
 
-        <div class='fila-dato'>
+
+        <div class='info-cell'>
+
             <strong>Mesero:</strong>
+
             {mesero}
+
         </div>
 
-        <div class='fila-dato'>
+
+        <div class='info-cell'>
+
             <strong>Fecha:</strong>
+
             {fechaOrdenEcuador:dd/MM/yyyy HH:mm}
+
         </div>
+
     </div>
 
-    <div class='linea-fuerte'></div>
 
-    <div class='cabecera-productos'>
-        <div>Detalle del Producto</div>
-        <div class='cabecera-precio'>Precio<br>Total</div>
-    </div>
+    <!-- ======================================================
+         PRODUCTOS
+         ====================================================== -->
+
+    <table class='items-table'>
+
+        <thead>
+
+            <tr>
+
+                <th>
+                    Detalle del Producto
+                </th>
+
+                <th
+                    style='
+                        text-align:right;
+                        width:180px;
+                    '
+                >
+                    Precio Total
+                </th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
 ");
 
             foreach (var detalle in orden.Detalles)
             {
-                var nombreProducto = System.Net.WebUtility.HtmlEncode(
-                    detalle.MenuItem != null
-                        ? detalle.MenuItem.Nombre
-                        : "Producto"
-                );
+                var nombreProducto =
+                    System.Net.WebUtility.HtmlEncode(
+                        detalle.MenuItem != null
+                            ? detalle.MenuItem.Nombre
+                            : "Producto"
+                    );
 
-                var nota = System.Net.WebUtility.HtmlEncode(
-                    detalle.DetallePersonalizado ?? ""
-                );
+                var nota =
+                    System.Net.WebUtility.HtmlEncode(
+                        detalle.DetallePersonalizado ?? ""
+                    );
 
                 html.Append($@"
-    <div class='producto'>
-        <div class='producto-principal'>
-            <div class='producto-nombre'>
-                {detalle.Cantidad}× {nombreProducto}
-            </div>
 
-            <div class='producto-total'>
-                ${detalle.Subtotal:F2}
-            </div>
-        </div>
+            <tr>
 
-        {(string.IsNullOrWhiteSpace(nota)
-            ? ""
-            : $@"<div class='producto-nota'>{nota}</div>")}
-    </div>
+                <td class='producto'>
+
+                    <strong>
+                        {detalle.Cantidad}×
+                    </strong>
+
+                    {nombreProducto}
+
+                    {(string.IsNullOrWhiteSpace(nota)
+                                ? ""
+                                : $@"
+                            <span class='nota-producto'>
+                                {nota}
+                            </span>
+                        ")}
+
+                </td>
+
+
+                <td class='precio'>
+
+                    ${detalle.Subtotal:F2}
+
+                </td>
+
+            </tr>
 ");
             }
 
             html.Append($@"
-    <div class='linea-fuerte'></div>
 
-    <div class='total'>
-        <span>TOTAL:</span>
-        <span>${pago.Monto:F2}</span>
-    </div>
+        </tbody>
 
-    <div class='linea-fuerte'></div>
+    </table>
 
-    <div class='datos-pago'>
 
-        <div class='fila-pago'>
-            <span class='etiqueta'>Forma de pago:</span>
-            <span class='valor'>{metodoPago}</span>
-        </div>
+    <!-- ======================================================
+         TOTAL
+         ====================================================== -->
 
-        <div class='fila-pago'>
-            <span class='etiqueta'>Referencia:</span>
-            <span class='valor'>{referencia}</span>
-        </div>
+    <div class='total-box'>
 
-        <div class='fila-pago'>
-            <span class='etiqueta'>Fecha pago:</span>
-            <span class='valor'>{fechaPagoEcuador:dd/MM/yyyy HH:mm}</span>
-        </div>
-
-        <div class='fila-pago'>
-            <span class='etiqueta'>Estado:</span>
-            <span class='valor'>{estadoPago}</span>
-        </div>
+        TOTAL DEL PEDIDO:
+        ${pago.Monto:F2}
 
     </div>
 
-    <div class='pie'>
-        ¡Gracias por su preferencia! · LA SUPER CORVINA
+
+    <!-- ======================================================
+         INFORMACIÓN DEL PAGO
+         ====================================================== -->
+
+    <div class='payment-box'>
+
+        <div class='payment-title'>
+            INFORMACIÓN DEL PAGO
+        </div>
+
+
+        <div class='payment-row'>
+
+            Forma de pago:
+            {metodoPago}
+
+        </div>
+
+
+        <div class='payment-row'>
+
+            Referencia:
+            {referencia}
+
+        </div>
+
+
+        <div class='payment-row'>
+
+            Fecha de pago:
+            {fechaPagoEcuador:dd/MM/yyyy HH:mm}
+
+        </div>
+
+
+        <div class='payment-row'>
+
+            Estado:
+            {estadoPago}
+
+        </div>
+
     </div>
 
-</div>
 
-<div class='botones'>
-    <button
-        type='button'
-        onclick='window.print()'
-    >
-        Imprimir comprobante
-    </button>
-</div>
+    <!-- ======================================================
+         PIE
+         ====================================================== -->
+
+    <div class='foot'>
+
+        ¡Gracias por su preferencia!
+        ·
+        La Super Corvina
+
+    </div>
+
+
+    <!-- ======================================================
+         BOTÓN MANUAL
+         ====================================================== -->
+
+    <div class='acciones'>
+
+        <button
+            type='button'
+            onclick='window.print()'
+        >
+            Imprimir comprobante
+        </button>
+
+    </div>
+
+
+    <!-- ======================================================
+         MISMO COMPORTAMIENTO DEL EJEMPLO:
+         ABRIR IMPRESIÓN AUTOMÁTICAMENTE
+         ====================================================== -->
+
+    <script>
+
+        window.onload = function() {{
+
+            setTimeout(
+                function() {{
+
+                    window.print();
+
+                }},
+                300
+            );
+
+        }};
+
+    </script>
+
 
 </body>
+
 </html>
 ");
 
