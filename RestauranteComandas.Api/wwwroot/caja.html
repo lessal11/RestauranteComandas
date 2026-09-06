@@ -511,6 +511,24 @@
         }
 
         async function abrirComprobante(ordenId) {
+            const ventana = window.open("", "_blank");
+
+            if (!ventana) {
+                mostrarMensaje(
+                    "El navegador bloqueó la ventana emergente. Permite las ventanas emergentes para imprimir.",
+                    "error"
+                );
+                return;
+            }
+
+            ventana.document.write(`
+        <html>
+            <body style="font-family:Arial;text-align:center;padding:20px">
+                Preparando comprobante...
+            </body>
+        </html>
+    `);
+
             try {
                 const response = await fetch(`/api/Pagos/orden/${ordenId}/comprobante`, {
                     headers: {
@@ -519,7 +537,10 @@
                 });
 
                 if (response.status === 401 || response.status === 403) {
+                    ventana.close();
+
                     alert("No tiene permiso o la sesión expiró");
+
                     localStorage.clear();
                     window.location.href = "/login.html";
                     return;
@@ -527,25 +548,30 @@
 
                 if (!response.ok) {
                     const error = await response.text();
-                    mostrarMensaje(error || "No se pudo generar el comprobante", "error");
+
+                    ventana.close();
+
+                    mostrarMensaje(
+                        error || "No se pudo generar el comprobante",
+                        "error"
+                    );
+
                     return;
                 }
 
                 const html = await response.text();
-
-                const ventana = window.open("", "_blank");
-
-                if (!ventana) {
-                    mostrarMensaje("El navegador bloqueó la ventana emergente", "error");
-                    return;
-                }
 
                 ventana.document.open();
                 ventana.document.write(html);
                 ventana.document.close();
 
             } catch (error) {
-                mostrarMensaje("Error al abrir comprobante", "error");
+                ventana.close();
+
+                mostrarMensaje(
+                    "Error al abrir comprobante",
+                    "error"
+                );
             }
         }
 

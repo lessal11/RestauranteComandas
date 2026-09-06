@@ -369,14 +369,35 @@ namespace RestauranteComandas.Api.Controllers
                     .ThenInclude(d => d.MenuItem)
                 .AsQueryable();
 
+            // Ecuador UTC-5
+            var ecuadorOffset = TimeSpan.FromHours(-5);
+
             if (desde.HasValue)
             {
-                query = query.Where(o => o.Fecha.Date >= desde.Value.Date);
+                var inicioDesdeUtc = new DateTimeOffset(
+                    desde.Value.Year,
+                    desde.Value.Month,
+                    desde.Value.Day,
+                    0, 0, 0,
+                    ecuadorOffset
+                ).UtcDateTime;
+
+                query = query.Where(o => o.Fecha >= inicioDesdeUtc);
             }
 
             if (hasta.HasValue)
             {
-                query = query.Where(o => o.Fecha.Date <= hasta.Value.Date);
+                var finHastaUtc = new DateTimeOffset(
+                    hasta.Value.Year,
+                    hasta.Value.Month,
+                    hasta.Value.Day,
+                    0, 0, 0,
+                    ecuadorOffset
+                )
+                .AddDays(1)
+                .UtcDateTime;
+
+                query = query.Where(o => o.Fecha < finHastaUtc);
             }
 
             if (!string.IsNullOrWhiteSpace(estado))
@@ -426,12 +447,31 @@ namespace RestauranteComandas.Api.Controllers
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> GetResumenAdministrativo()
         {
-            var hoy = DateTime.Today;
-            var manana = hoy.AddDays(1);
+            var ecuadorOffset = TimeSpan.FromHours(-5);
+
+            var ahoraEcuador = DateTimeOffset.UtcNow.ToOffset(ecuadorOffset);
+
+            var inicioHoyUtc = new DateTimeOffset(
+                ahoraEcuador.Year,
+                ahoraEcuador.Month,
+                ahoraEcuador.Day,
+                0, 0, 0,
+                ecuadorOffset
+            ).UtcDateTime;
+
+            var finHoyUtc = new DateTimeOffset(
+                ahoraEcuador.Year,
+                ahoraEcuador.Month,
+                ahoraEcuador.Day,
+                0, 0, 0,
+                ecuadorOffset
+            )
+            .AddDays(1)
+            .UtcDateTime;
 
             var ordenesHoy = await _context.Ordenes
                 .Include(o => o.Pago)
-                .Where(o => o.Fecha >= hoy && o.Fecha < manana)
+                .Where(o => o.Fecha >= inicioHoyUtc && o.Fecha < finHoyUtc)
                 .ToListAsync();
 
             var totalOrdenes = ordenesHoy.Count;
@@ -457,7 +497,7 @@ namespace RestauranteComandas.Api.Controllers
 
             return Ok(new
             {
-                fecha = hoy.ToString("yyyy-MM-dd"),
+                fecha = ahoraEcuador.ToString("yyyy-MM-dd"),
                 totalOrdenes,
                 ordenesPagadas,
                 ordenesPendientes,

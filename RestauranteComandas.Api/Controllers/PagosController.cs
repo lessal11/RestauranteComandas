@@ -227,6 +227,17 @@ namespace RestauranteComandas.Api.Controllers
 
             var orden = pago.Orden;
 
+            // Ecuador continental UTC-5
+            var ecuadorOffset = TimeSpan.FromHours(-5);
+
+            var fechaOrdenEcuador = new DateTimeOffset(
+                DateTime.SpecifyKind(orden.Fecha, DateTimeKind.Utc)
+            ).ToOffset(ecuadorOffset);
+
+            var fechaPagoEcuador = new DateTimeOffset(
+                DateTime.SpecifyKind(pago.FechaPago, DateTimeKind.Utc)
+            ).ToOffset(ecuadorOffset);
+
             var html = new StringBuilder();
 
             html.Append($@"
@@ -234,223 +245,368 @@ namespace RestauranteComandas.Api.Controllers
 <html lang='es'>
 <head>
     <meta charset='UTF-8'>
-    <title>Comprobante Orden #{orden.Id}</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+
+    <title>Pedido #{orden.Id:D3}</title>
 
     <style>
-        body {{
-            font-family: Arial, sans-serif;
-            background: #f3f4f6;
-            margin: 0;
-            padding: 30px;
-            color: #111827;
+        * {{
+            box-sizing: border-box;
         }}
 
-        .comprobante {{
-            max-width: 760px;
-            margin: auto;
+        @page {{
+            size: 58mm auto;
+            margin: 2mm;
+        }}
+
+        html {{
+            margin: 0;
+            padding: 0;
+            width: 58mm;
             background: white;
-            padding: 30px;
-            border-radius: 14px;
-            box-shadow: 0 8px 22px rgba(0,0,0,0.15);
+        }}
+
+        body {{
+            margin: 0;
+            padding: 0;
+            width: 54mm;
+            background: white;
+            color: #000;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 10px;
+            line-height: 1.25;
+        }}
+
+        .ticket {{
+            width: 54mm;
+            max-width: 54mm;
+            margin: 0;
+            padding: 1mm;
+            background: white;
         }}
 
         .encabezado {{
             text-align: center;
-            border-bottom: 2px solid #dc2626;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
+            padding-bottom: 5px;
         }}
 
-        .encabezado h1 {{
+        .restaurante {{
+            font-size: 15px;
+            font-weight: 900;
+            line-height: 1.1;
+            margin: 0 0 3px 0;
+        }}
+
+        .tipo-documento {{
+            font-size: 10px;
+            font-weight: 700;
             margin: 0;
-            color: #dc2626;
-            font-size: 30px;
         }}
 
-        .encabezado p {{
+        .pedido {{
+            font-size: 14px;
+            font-weight: 900;
+            margin-top: 3px;
+        }}
+
+        .linea {{
+            width: 100%;
+            border-top: 1px dashed #000;
             margin: 5px 0;
-            color: #4b5563;
+        }}
+
+        .linea-fuerte {{
+            width: 100%;
+            border-top: 2px solid #000;
+            margin: 5px 0;
         }}
 
         .datos {{
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px 25px;
-            margin-bottom: 25px;
-            font-size: 15px;
-        }}
-
-        .dato {{
-            background: #f9fafb;
-            padding: 10px;
-            border-radius: 8px;
-        }}
-
-        .dato strong {{
-            color: #374151;
-        }}
-
-        table {{
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
         }}
 
-        th {{
-            background: #dc2626;
-            color: white;
-            padding: 10px;
-            text-align: left;
+        .fila-dato {{
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 4px;
+            margin: 2px 0;
         }}
 
-        td {{
-            padding: 10px;
-            border-bottom: 1px solid #e5e7eb;
+        .fila-dato .etiqueta {{
+            font-weight: 700;
+            white-space: nowrap;
+        }}
+
+        .fila-dato .valor {{
+            text-align: right;
+            overflow-wrap: anywhere;
+        }}
+
+        .titulo-detalle {{
+            font-size: 11px;
+            font-weight: 900;
+            text-align: center;
+            margin: 5px 0;
+        }}
+
+        .cabecera-productos {{
+            display: grid;
+            grid-template-columns: 1fr 15mm;
+            gap: 3px;
+            font-size: 9px;
+            font-weight: 700;
+            padding-bottom: 3px;
+            border-bottom: 1px solid #000;
+        }}
+
+        .cabecera-productos .precio {{
+            text-align: right;
+        }}
+
+        .producto {{
+            padding: 4px 0;
+            border-bottom: 1px dashed #777;
+            break-inside: avoid;
+        }}
+
+        .producto-principal {{
+            display: grid;
+            grid-template-columns: 1fr 15mm;
+            gap: 3px;
+            align-items: start;
+        }}
+
+        .producto-nombre {{
+            font-size: 10px;
+            font-weight: 700;
+            line-height: 1.2;
+            overflow-wrap: anywhere;
+        }}
+
+        .producto-total {{
+            font-size: 10px;
+            font-weight: 700;
+            text-align: right;
+            white-space: nowrap;
+        }}
+
+        .producto-calculo {{
+            margin-top: 2px;
+            font-size: 8.5px;
+        }}
+
+        .producto-nota {{
+            margin-top: 2px;
+            font-size: 8.5px;
+            font-weight: 600;
+            font-style: italic;
+            overflow-wrap: anywhere;
         }}
 
         .total {{
-            text-align: right;
-            margin-top: 25px;
-            font-size: 22px;
-            font-weight: bold;
-            color: #111827;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 0;
+            font-size: 14px;
+            font-weight: 900;
+        }}
+
+        .pago {{
+            font-size: 9px;
         }}
 
         .estado {{
-            display: inline-block;
-            padding: 7px 14px;
-            border-radius: 20px;
-            background: #22c55e;
-            color: white;
-            font-weight: bold;
+            font-weight: 700;
+        }}
+
+        .pie {{
+            margin-top: 7px;
+            text-align: center;
+            font-size: 8.5px;
+            line-height: 1.3;
         }}
 
         .botones {{
-            margin-top: 25px;
+            margin-top: 12px;
             text-align: center;
         }}
 
         button {{
-            background: #dc2626;
-            color: white;
+            padding: 9px 12px;
             border: none;
-            padding: 12px 18px;
-            border-radius: 8px;
-            cursor: pointer;
+            border-radius: 5px;
+            background: #111;
+            color: white;
             font-weight: bold;
-        }}
-
-        .pie {{
-            margin-top: 30px;
-            text-align: center;
-            color: #6b7280;
-            font-size: 13px;
+            cursor: pointer;
         }}
 
         @media print {{
-            body {{
-                background: white;
-                padding: 0;
+            html {{
+                width: 58mm !important;
+                margin: 0 !important;
+                padding: 0 !important;
             }}
 
-            .comprobante {{
-                box-shadow: none;
-                border-radius: 0;
+            body {{
+                width: 54mm !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: white !important;
+            }}
+
+            .ticket {{
+                width: 54mm !important;
+                max-width: 54mm !important;
+                margin: 0 !important;
+                padding: 1mm !important;
             }}
 
             .botones {{
-                display: none;
+                display: none !important;
             }}
         }}
     </style>
 </head>
 
 <body>
-    <div class='comprobante'>
-        <div class='encabezado'>
-            <h1>Restaurante Comandas</h1>
-            <p>Comprobante digital de pago</p>
-            <p><strong>Comprobante N.º:</strong> {pago.Id}</p>
+
+<div class='ticket'>
+
+    <div class='encabezado'>
+        <div class='restaurante'>LA SUPER CORVINA</div>
+        <div class='tipo-documento'>COMPROBANTE DE PAGO</div>
+        <div class='pedido'>PEDIDO #{orden.Id:D3}</div>
+    </div>
+
+    <div class='linea-fuerte'></div>
+
+    <div class='datos'>
+
+        <div class='fila-dato'>
+            <span class='etiqueta'>Mesa:</span>
+            <span class='valor'>{(orden.Mesa != null ? orden.Mesa.Numero : 0)}</span>
         </div>
 
-        <div class='datos'>
-            <div class='dato'>
-                <strong>Orden:</strong> #{orden.Id}
-            </div>
-
-            <div class='dato'>
-                <strong>Mesa:</strong> {(orden.Mesa != null ? orden.Mesa.Numero : 0)}
-            </div>
-
-            <div class='dato'>
-                <strong>Mesero:</strong> {(orden.Usuario != null ? orden.Usuario.Nombre : "No registrado")}
-            </div>
-
-            <div class='dato'>
-                <strong>Fecha orden:</strong> {orden.Fecha:dd/MM/yyyy HH:mm}
-            </div>
-
-            <div class='dato'>
-                <strong>Fecha pago:</strong> {pago.FechaPago:dd/MM/yyyy HH:mm}
-            </div>
-
-            <div class='dato'>
-                <strong>Método de pago:</strong> {pago.MetodoPago}
-            </div>
-
-            <div class='dato'>
-                <strong>Referencia:</strong> {(string.IsNullOrWhiteSpace(pago.Referencia) ? "Sin referencia" : pago.Referencia)}
-            </div>
-
-            <div class='dato'>
-                <strong>Estado pago:</strong> <span class='estado'>{pago.EstadoPago}</span>
-            </div>
+        <div class='fila-dato'>
+            <span class='etiqueta'>Mesero:</span>
+            <span class='valor'>{(orden.Usuario != null ? orden.Usuario.Nombre : "No registrado")}</span>
         </div>
 
-        <h2>Detalle de consumo</h2>
+        <div class='fila-dato'>
+            <span class='etiqueta'>Fecha:</span>
+            <span class='valor'>{fechaOrdenEcuador:dd/MM/yyyy HH:mm}</span>
+        </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Producto</th>
-                    <th>Cantidad</th>
-                    <th>Precio unitario</th>
-                    <th>Subtotal</th>
-                    <th>Detalle</th>
-                </tr>
-            </thead>
-            <tbody>
+    </div>
+
+    <div class='linea'></div>
+
+    <div class='titulo-detalle'>
+        DETALLE DEL PEDIDO
+    </div>
+
+    <div class='cabecera-productos'>
+        <div>Producto</div>
+        <div class='precio'>Total</div>
+    </div>
 ");
 
             foreach (var detalle in orden.Detalles)
             {
+                var nombreProducto = detalle.MenuItem != null
+                    ? detalle.MenuItem.Nombre
+                    : "Producto";
+
                 html.Append($@"
-                <tr>
-                    <td>{(detalle.MenuItem != null ? detalle.MenuItem.Nombre : "Producto no encontrado")}</td>
-                    <td>{detalle.Cantidad}</td>
-                    <td>${detalle.PrecioUnitario:F2}</td>
-                    <td>${detalle.Subtotal:F2}</td>
-                    <td>{(string.IsNullOrWhiteSpace(detalle.DetallePersonalizado) ? "-" : detalle.DetallePersonalizado)}</td>
-                </tr>
+    <div class='producto'>
+
+        <div class='producto-principal'>
+
+            <div class='producto-nombre'>
+                {detalle.Cantidad}x {nombreProducto}
+            </div>
+
+            <div class='producto-total'>
+                ${detalle.Subtotal:F2}
+            </div>
+
+        </div>
+
+        <div class='producto-calculo'>
+            {detalle.Cantidad} x ${detalle.PrecioUnitario:F2}
+        </div>
+
+        {(string.IsNullOrWhiteSpace(detalle.DetallePersonalizado)
+                    ? ""
+                    : $"<div class='producto-nota'>Nota: {detalle.DetallePersonalizado}</div>")}
+
+    </div>
 ");
             }
 
             html.Append($@"
-            </tbody>
-        </table>
 
-        <div class='total'>
-            Total pagado: ${pago.Monto:F2}
-        </div>
+    <div class='linea-fuerte'></div>
 
-        <div class='botones'>
-            <button onclick='window.print()'>Imprimir / Guardar PDF</button>
-        </div>
-
-        <div class='pie'>
-            Gracias por su compra. Este comprobante fue generado digitalmente por el sistema.
-        </div>
+    <div class='total'>
+        <span>TOTAL</span>
+        <span>${pago.Monto:F2}</span>
     </div>
+
+    <div class='linea-fuerte'></div>
+
+    <div class='pago'>
+
+        <div class='fila-dato'>
+            <span class='etiqueta'>Forma de pago:</span>
+            <span class='valor'>{pago.MetodoPago}</span>
+        </div>
+
+        <div class='fila-dato'>
+            <span class='etiqueta'>Referencia:</span>
+            <span class='valor'>
+                {(string.IsNullOrWhiteSpace(pago.Referencia)
+                            ? "Sin referencia"
+                            : pago.Referencia)}
+            </span>
+        </div>
+
+        <div class='fila-dato'>
+            <span class='etiqueta'>Fecha pago:</span>
+            <span class='valor'>{fechaPagoEcuador:dd/MM/yyyy HH:mm}</span>
+        </div>
+
+        <div class='fila-dato'>
+            <span class='etiqueta'>Estado:</span>
+            <span class='valor estado'>{pago.EstadoPago}</span>
+        </div>
+
+        <div class='fila-dato'>
+            <span class='etiqueta'>Comprobante:</span>
+            <span class='valor'>#{pago.Id:D3}</span>
+        </div>
+
+    </div>
+
+    <div class='linea'></div>
+
+    <div class='pie'>
+        ¡Gracias por su preferencia!<br>
+        LA SUPER CORVINA
+    </div>
+
+    <div class='botones'>
+        <button onclick='window.print()'>
+            Imprimir comprobante
+        </button>
+    </div>
+
+</div>
+
 </body>
 </html>
 ");
