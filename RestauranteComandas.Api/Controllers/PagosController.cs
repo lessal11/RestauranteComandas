@@ -987,42 +987,18 @@ namespace RestauranteComandas.Api.Controllers
                 return;
             }}
 
-
-            /*
-             * Altura REAL de todo:
-             *
-             * encabezado
-             * +
-             * datos
-             * +
-             * todos los platos
-             * +
-             * total
-             * +
-             * pago
-             * +
-             * pie
-             */
-
             const altoPx =
                 Math.ceil(
                     ticket.getBoundingClientRect().height
                 );
 
-
-            /*
-             * Conversión px -> mm
-             */
-
             const altoMm =
                 (altoPx * 25.4 / 96) + 0.5;
-
 
             let style =
                 document.getElementById(
                     'ticket-page-size'
                 );
-
 
             if (!style) {{
 
@@ -1033,15 +1009,7 @@ namespace RestauranteComandas.Api.Controllers
                     'ticket-page-size';
 
                 document.head.appendChild(style);
-
             }}
-
-
-            /*
-             * Una página:
-             *
-             * 58mm × altura real.
-             */
 
             style.textContent = `
                 @page {{
@@ -1049,29 +1017,25 @@ namespace RestauranteComandas.Api.Controllers
                     margin: 0;
                 }}
             `;
-
         }}
 
 
-        window.imprimirTicket =
-            function () {{
+        window.imprimirTicket = function () {{
 
-                configurarAlturaTicket();
+            configurarAlturaTicket();
 
-                requestAnimationFrame(
-                    function () {{
+            requestAnimationFrame(function () {{
 
-                        setTimeout(
-                            function () {{
+                setTimeout(function () {{
 
-                                window.print();
+                    window.print();
 
-                            }},
-                            150
-                        );
+                }}, 150);
 
-                    }}
-                );
+            }});
+
+        }};
+
 
         window.addEventListener(
             'load',
@@ -1088,20 +1052,32 @@ namespace RestauranteComandas.Api.Controllers
 
         window.addEventListener(
             'beforeprint',
-            configurarAlturaTicket
+            function () {{
+
+                configurarAlturaTicket();
+
+            }}
         );
 
 
         window.addEventListener(
             'resize',
-            configurarAlturaTicket
+            function () {{
+
+                configurarAlturaTicket();
+
+            }}
         );
 
 
         if (document.fonts) {{
 
             document.fonts.ready.then(
-                configurarAlturaTicket
+                function () {{
+
+                    configurarAlturaTicket();
+
+                }}
             );
 
         }}
