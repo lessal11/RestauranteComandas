@@ -1,0 +1,487 @@
+/* ==========================================================
+   LA SUPER CORVINA - TEMA ELEGANTE
+   Archivo: wwwroot/css/theme.css
+   ========================================================== */
+
+:root {
+    --rojo: #b8322b;
+    --rojo-oscuro: #7f1f1b;
+    --verde: #238b62;
+    --amarillo: #d69b3c;
+    --fondo: #f8efe2;
+    --panel: #fffaf1;
+    --texto: #12202e;
+    --texto-suave: #6f5b48;
+    --borde: #ead8b8;
+    --sombra: 0 12px 30px rgba(34, 20, 10, .13);
+
+    --brand-navy: #0d1b2a;
+    --brand-navy-2: #132f43;
+    --brand-red: #b8322b;
+    --brand-red-2: #dc493a;
+    --brand-gold: #d69b3c;
+    --brand-gold-soft: #f2d39a;
+    --brand-cream: #fff7e8;
+    --brand-sand: #f6e7cf;
+    --brand-wood: #5f3720;
+    --brand-ocean: #287f9e;
+    --radius: 18px;
+}
+
+* {
+    scroll-behavior: smooth;
+}
+
+html {
+    background: var(--brand-navy);
+}
+
+body {
+    font-family: "Segoe UI", Arial, Helvetica, sans-serif !important;
+    background:
+        radial-gradient(circle at top left, rgba(214,155,60,.18), transparent 34%),
+        radial-gradient(circle at top right, rgba(40,127,158,.15), transparent 30%),
+        linear-gradient(135deg, #fff8ec 0%, #f7ead6 42%, #efe0ca 100%) !important;
+    color: var(--texto) !important;
+    min-height: 100vh;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    background-image:
+        linear-gradient(rgba(95,55,32,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(95,55,32,.035) 1px, transparent 1px);
+    background-size: 34px 34px;
+}
+
+/* ==========================================================
+   ENCABEZADOS
+   ========================================================== */
+
+header {
+    background:
+        linear-gradient(120deg, rgba(13,27,42,.98), rgba(19,47,67,.96) 55%, rgba(95,55,32,.94)) !important;
+    color: #fff7e8 !important;
+    border-bottom: 3px solid var(--brand-gold) !important;
+    box-shadow: 0 10px 26px rgba(13, 27, 42, .26) !important;
+}
+
+header::before {
+    content: "";
+    width: 58px;
+    height: 58px;
+    flex: 0 0 58px;
+    border-radius: 16px;
+    background: url('/images/logo.jpeg') center / cover no-repeat;
+    box-shadow:
+        0 0 0 2px rgba(255, 247, 232, .22),
+        0 8px 18px rgba(0,0,0,.34);
+}
+
+.titulo {
+    color: #fff7e8 !important;
+    letter-spacing: .2px;
+    text-shadow: 0 2px 10px rgba(0,0,0,.35);
+}
+
+.usuario {
+    color: #f2d39a !important;
+}
+
+/* ==========================================================
+   BOTONES
+   ========================================================== */
+
+button {
+    transition: transform .16s ease, box-shadow .16s ease, filter .16s ease, background .16s ease;
+}
+
+button:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.03);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+.btn-salir,
+.btn-header,
+.btn-panel,
+.btn-recargar {
+    background: linear-gradient(135deg, var(--brand-navy), var(--brand-navy-2)) !important;
+    color: #fff7e8 !important;
+    border: 1px solid rgba(214,155,60,.55) !important;
+    box-shadow: 0 6px 15px rgba(13,27,42,.20);
+}
+
+.btn-guardar,
+.btn-pagar,
+.btn-buscar,
+.btn-listo,
+.btn-agregar,
+.btn-activar {
+    background: linear-gradient(135deg, #238b62, #2fba7c) !important;
+    color: white !important;
+    box-shadow: 0 8px 18px rgba(35,139,98,.18);
+}
+
+.btn-enviar,
+.categoria.activa,
+.tab.activa,
+.mesa.seleccionada,
+.btn-comprobante {
+    background: linear-gradient(135deg, var(--brand-red), var(--brand-red-2)) !important;
+    color: #fff !important;
+    border-color: transparent !important;
+    box-shadow: 0 9px 22px rgba(184,50,43,.22);
+}
+
+.btn-preparacion,
+.btn-desactivar {
+    background: linear-gradient(135deg, #c26818, #ed8f25) !important;
+    color: white !important;
+}
+
+.btn-limpiar,
+.btn-cerrar-carrito {
+    background: #efe2cd !important;
+    color: var(--brand-navy) !important;
+}
+
+/* ==========================================================
+   TARJETAS Y PANELES
+   ========================================================== */
+
+.panel,
+.card,
+.bienvenida,
+.login-container,
+.orden,
+.card-resumen,
+.plato,
+.orden-panel,
+.resumen,
+.mesa-seleccionada {
+    background: rgba(255,250,241,.96) !important;
+    border: 1px solid rgba(214,155,60,.22) !important;
+    box-shadow: var(--sombra) !important;
+}
+
+.panel,
+.card,
+.bienvenida,
+.login-container,
+.orden,
+.plato,
+.orden-panel {
+    border-radius: var(--radius) !important;
+}
+
+h1,
+h2,
+.orden h3,
+.card h2,
+.bienvenida h1,
+.section-title h2,
+.orden-header h2 {
+    color: var(--brand-red) !important;
+}
+
+.card,
+.orden,
+.plato,
+.mesa,
+.card-resumen {
+    position: relative;
+    overflow: hidden;
+}
+
+.card::after,
+.plato::after,
+.orden::after,
+.card-resumen::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 82px;
+    height: 82px;
+    background: radial-gradient(circle at top right, rgba(214,155,60,.20), transparent 68%);
+    pointer-events: none;
+}
+
+.card:hover,
+.orden:hover,
+.plato:hover {
+    border-color: rgba(184,50,43,.45) !important;
+    box-shadow: 0 14px 34px rgba(34,20,10,.18) !important;
+}
+
+/* ==========================================================
+   FORMULARIOS
+   ========================================================== */
+
+input,
+select,
+.buscador,
+.detalle-input {
+    background: #fffdf8 !important;
+    color: var(--texto) !important;
+    border: 1.5px solid rgba(95,55,32,.20) !important;
+    border-radius: 12px !important;
+}
+
+input:focus,
+select:focus,
+.buscador:focus,
+.detalle-input:focus {
+    outline: none !important;
+    border-color: var(--brand-gold) !important;
+    box-shadow: 0 0 0 4px rgba(214,155,60,.16) !important;
+}
+
+label {
+    color: #3a2c20 !important;
+}
+
+.helper,
+.plato-categoria,
+.carrito-item-meta,
+.vacio,
+.vacio-menu,
+.carrito-vacio {
+    color: var(--texto-suave) !important;
+}
+
+/* ==========================================================
+   LOGIN
+   ========================================================== */
+
+body:has(.login-container) {
+    background:
+        linear-gradient(rgba(13,27,42,.74), rgba(13,27,42,.84)),
+        url('/images/logo.jpeg') center / cover fixed no-repeat !important;
+}
+
+.login-container {
+    position: relative;
+    width: min(380px, calc(100vw - 34px)) !important;
+    padding: 28px 28px 30px !important;
+    background: rgba(13,27,42,.88) !important;
+    border: 1px solid rgba(214,155,60,.55) !important;
+    backdrop-filter: blur(10px);
+}
+
+.login-container::before {
+    content: "";
+    display: block;
+    width: 138px;
+    height: 138px;
+    margin: -6px auto 16px;
+    border-radius: 50%;
+    background: url('/images/logo.jpeg') center / cover no-repeat;
+    box-shadow:
+        0 0 0 4px rgba(214,155,60,.55),
+        0 12px 30px rgba(0,0,0,.38);
+}
+
+.login-container h1 {
+    margin: 0 0 4px !important;
+    color: #fff7e8 !important;
+    font-size: 30px;
+    line-height: 1.05;
+}
+
+.login-subtitle {
+    margin: 0 0 22px;
+    text-align: center;
+    color: var(--brand-gold-soft);
+    font-weight: 700;
+}
+
+.login-container label {
+    color: #fff7e8 !important;
+}
+
+.login-container input {
+    border: 1px solid rgba(255,247,232,.20) !important;
+}
+
+.login-container button {
+    background: linear-gradient(135deg, var(--brand-red), #e35d3f) !important;
+    color: white !important;
+    box-shadow: 0 10px 22px rgba(184,50,43,.28);
+}
+
+/* ==========================================================
+   PANEL PRINCIPAL
+   ========================================================== */
+
+.bienvenida {
+    background:
+        linear-gradient(135deg, rgba(255,250,241,.96), rgba(255,247,232,.90)),
+        radial-gradient(circle at top right, rgba(40,127,158,.12), transparent 34%) !important;
+}
+
+.badge {
+    background: #f3dfba !important;
+    color: #7b381c !important;
+    border: 1px solid rgba(214,155,60,.28);
+}
+
+/* ==========================================================
+   MESERO
+   ========================================================== */
+
+.mesa {
+    background: #fffdf8 !important;
+    border-color: rgba(95,55,32,.20) !important;
+    color: var(--brand-navy) !important;
+}
+
+.mesa.ocupada {
+    background: #fff4cc !important;
+    border-color: var(--brand-gold) !important;
+}
+
+.mesa.seleccionada,
+.mesa.seleccionada.ocupada {
+    color: white !important;
+}
+
+.categoria {
+    background: #efe2cd !important;
+    color: #3f3328 !important;
+}
+
+.precio,
+.total,
+.total-card,
+.orden-activa-total,
+.carrito-item-precio,
+.producto-enviado-precio,
+.card-resumen strong {
+    color: var(--verde) !important;
+}
+
+.orden-activa-box {
+    background: #fff5d8 !important;
+    border-color: var(--brand-gold) !important;
+    color: #6c3f13 !important;
+}
+
+.orden-activa-estado,
+.estado {
+    background: #f1cd70 !important;
+    color: #392513 !important;
+}
+
+.mobile-cart-bar {
+    background:
+        linear-gradient(135deg, var(--brand-navy), var(--brand-navy-2)) !important;
+    border: 1px solid rgba(214,155,60,.48) !important;
+    box-shadow: 0 12px 28px rgba(13,27,42,.35) !important;
+}
+
+.mobile-cart-total {
+    color: var(--brand-gold-soft) !important;
+}
+
+/* ==========================================================
+   COCINA
+   ========================================================== */
+
+body:has(#contenedorOrdenes):has(#estadoConexion) {
+    background:
+        radial-gradient(circle at top left, rgba(214,155,60,.15), transparent 30%),
+        linear-gradient(135deg, #0d1b2a, #101827 55%, #1d140f) !important;
+}
+
+.estado-conexion {
+    background: rgba(13,27,42,.90) !important;
+    color: #fff7e8 !important;
+    border-bottom: 1px solid rgba(214,155,60,.22);
+}
+
+.nuevos-productos {
+    background: #fff3dc !important;
+    border-color: #d98122 !important;
+}
+
+.alerta-correccion {
+    background: #fff0e8 !important;
+    border-color: var(--brand-red) !important;
+}
+
+/* ==========================================================
+   CAJA / HISTORIAL / ADMIN
+   ========================================================== */
+
+.tab {
+    background: #efe2cd !important;
+    color: var(--brand-navy) !important;
+}
+
+.tabla th {
+    background: linear-gradient(135deg, var(--brand-red), var(--brand-red-2)) !important;
+    color: white !important;
+}
+
+.tabla td {
+    border-bottom-color: rgba(95,55,32,.12) !important;
+}
+
+.ok-badge {
+    background: #dff3e6 !important;
+    color: #145c3b !important;
+}
+
+.no-badge {
+    background: #fde5df !important;
+    color: #8e241f !important;
+}
+
+.warn-badge {
+    background: #fff1c7 !important;
+    color: #765016 !important;
+}
+
+.orden.seleccionada {
+    background: #fff0e8 !important;
+    border-color: var(--brand-red) !important;
+}
+
+.nota {
+    color: var(--brand-red) !important;
+}
+
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
+
+@media (max-width: 700px) {
+    header::before {
+        width: 46px;
+        height: 46px;
+        flex-basis: 46px;
+        border-radius: 13px;
+    }
+
+    .titulo {
+        font-size: 20px !important;
+    }
+
+    .usuario {
+        max-width: 46vw;
+    }
+
+    .login-container::before {
+        width: 116px;
+        height: 116px;
+    }
+}
