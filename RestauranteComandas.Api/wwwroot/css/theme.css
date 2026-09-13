@@ -543,3 +543,501 @@ body:has(#estadoConexion) .orden {
         background-position: center top !important;
     }
 }
+
+
+/* ==========================================================
+   V3 RESPONSIVE + FLUIDO
+   Se agrega al final para respetar la lógica actual y mejorar
+   visualmente cualquier tamaño de pantalla.
+   ========================================================== */
+
+:root {
+    --fluid-page-x: clamp(12px, 3vw, 34px);
+    --fluid-page-y: clamp(14px, 2.4vw, 36px);
+    --fluid-card-pad: clamp(14px, 2vw, 28px);
+    --fluid-radius: clamp(14px, 1.8vw, 24px);
+    --header-logo: clamp(48px, 5.2vw, 72px);
+    --text-base: clamp(14px, .92vw, 17px);
+    --text-small: clamp(12px, .8vw, 14px);
+    --title-page: clamp(24px, 3vw, 42px);
+    --title-card: clamp(20px, 2vw, 30px);
+    --touch: 44px;
+}
+
+html {
+    width: 100%;
+    min-height: 100%;
+    overflow-x: hidden;
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    width: 100%;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    font-size: var(--text-base) !important;
+    line-height: 1.45;
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 12% 8%, rgba(214,155,60,.22), transparent 24%),
+        radial-gradient(circle at 88% 16%, rgba(40,127,158,.18), transparent 24%),
+        linear-gradient(rgba(13,27,42,.18), rgba(13,27,42,.34));
+}
+
+/* Fondo con mejor comportamiento en móviles */
+body,
+body.page-login,
+body.page-panel,
+body.page-mesero,
+body.page-cocina,
+body.page-caja,
+body.page-historial,
+body.page-admin {
+    background:
+        linear-gradient(rgba(13, 27, 42, .76), rgba(13, 27, 42, .86)),
+        url('/images/logo.jpeg') center center / cover fixed no-repeat !important;
+}
+
+/* Contenedores fluidos */
+.contenedor,
+.app {
+    width: min(100% - calc(var(--fluid-page-x) * 2), 1320px) !important;
+    max-width: 1320px !important;
+    margin-inline: auto !important;
+    padding: var(--fluid-page-y) 0 clamp(82px, 8vw, 120px) !important;
+}
+
+.page-login {
+    padding: var(--fluid-page-x) !important;
+}
+
+.page-login .login-container {
+    width: min(440px, 100%) !important;
+    padding: clamp(24px, 4vw, 38px) !important;
+    border-radius: clamp(18px, 2.2vw, 28px) !important;
+}
+
+.page-login .login-container::before {
+    width: clamp(104px, 16vw, 150px) !important;
+    height: clamp(104px, 16vw, 150px) !important;
+}
+
+.page-login h1,
+.login-container h1 {
+    font-size: clamp(28px, 4vw, 38px) !important;
+}
+
+/* Header más adaptable */
+header {
+    min-height: clamp(76px, 8vw, 105px) !important;
+    padding: clamp(12px, 2vw, 22px) var(--fluid-page-x) !important;
+    gap: clamp(10px, 2vw, 22px) !important;
+}
+
+header::before {
+    width: var(--header-logo) !important;
+    height: var(--header-logo) !important;
+    flex: 0 0 var(--header-logo) !important;
+    border-radius: clamp(12px, 1.4vw, 18px) !important;
+}
+
+header > div:first-of-type,
+.header-info {
+    min-width: 0 !important;
+    flex: 1 1 260px !important;
+}
+
+.titulo {
+    font-size: clamp(22px, 2.8vw, 34px) !important;
+    line-height: 1.05 !important;
+    overflow-wrap: anywhere;
+}
+
+.usuario {
+    font-size: var(--text-small) !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+}
+
+.acciones-header,
+.header-actions,
+header > div[style*="display:flex"] {
+    display: flex !important;
+    gap: 10px !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-end !important;
+}
+
+button,
+.btn-salir,
+.btn-panel,
+.btn-header,
+.btn-recargar,
+.btn-pagar,
+.btn-comprobante,
+.btn-enviar,
+.btn-agregar,
+.btn-guardar,
+.btn-limpiar,
+.btn-buscar {
+    min-height: var(--touch) !important;
+    border-radius: clamp(10px, 1.2vw, 15px) !important;
+    font-size: clamp(13px, .95vw, 16px) !important;
+}
+
+/* Paneles y tarjetas fluidas */
+.panel,
+.card,
+.bienvenida,
+.orden,
+.plato,
+.orden-panel,
+.resumen,
+.card-resumen,
+.login-container {
+    border-radius: var(--fluid-radius) !important;
+    padding: var(--fluid-card-pad) !important;
+}
+
+h1,
+h2,
+.bienvenida h1,
+.section-title h2,
+.orden-header h2 {
+    font-size: var(--title-page) !important;
+    line-height: 1.08 !important;
+}
+
+.card h2,
+.orden h2,
+.orden h3,
+.plato h3 {
+    font-size: var(--title-card) !important;
+    line-height: 1.12 !important;
+}
+
+.bienvenida {
+    margin-bottom: clamp(18px, 2.4vw, 32px) !important;
+}
+
+.grid,
+.ordenes-grid,
+.resumen {
+    gap: clamp(14px, 2vw, 24px) !important;
+}
+
+.grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 245px), 1fr)) !important;
+}
+
+.card {
+    min-height: clamp(180px, 18vw, 245px);
+    display: flex;
+    flex-direction: column;
+}
+
+.card p {
+    flex: 1;
+}
+
+.badge {
+    width: fit-content;
+}
+
+/* Mesero: más cómodo en tablet y celular */
+.page-mesero .app {
+    max-width: 1440px !important;
+}
+
+.page-mesero .main-layout {
+    gap: clamp(14px, 2vw, 24px) !important;
+}
+
+.page-mesero .menu-grid {
+    gap: clamp(12px, 1.5vw, 20px) !important;
+}
+
+.mesas,
+.categorias {
+    scroll-snap-type: x proximity;
+    overscroll-behavior-x: contain;
+}
+
+.mesa,
+.categoria {
+    scroll-snap-align: start;
+}
+
+.mesa {
+    min-width: clamp(90px, 12vw, 124px) !important;
+    min-height: clamp(54px, 5.4vw, 68px) !important;
+}
+
+.categoria {
+    min-height: 44px !important;
+    padding-inline: clamp(13px, 1.4vw, 18px) !important;
+}
+
+.plato-controles {
+    grid-template-columns: minmax(118px, 150px) minmax(0, 1fr) !important;
+}
+
+.stepper,
+.detalle-input {
+    min-height: 46px !important;
+}
+
+/* Cocina: tarjetas legibles a distancia */
+.page-cocina .contenedor {
+    width: min(100% - calc(var(--fluid-page-x) * 2), 1560px) !important;
+    max-width: 1560px !important;
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr)) !important;
+    gap: clamp(14px, 2vw, 24px) !important;
+}
+
+.page-cocina .orden {
+    min-height: 280px;
+}
+
+.estado-conexion {
+    font-size: clamp(14px, 1.1vw, 18px) !important;
+    padding: clamp(9px, 1vw, 14px) !important;
+}
+
+/* Caja: panel derecho se adapta mejor */
+.page-caja .contenedor {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 420px) !important;
+    gap: clamp(14px, 2vw, 24px) !important;
+}
+
+.page-caja .ordenes-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)) !important;
+}
+
+/* Admin e historial: tablas usables en pantallas pequeñas */
+.page-admin .panel,
+.page-historial .panel,
+.page-caja .panel {
+    overflow-x: auto;
+}
+
+.tabla {
+    width: 100% !important;
+}
+
+.tabs,
+.filtros,
+.form-grid {
+    gap: clamp(10px, 1.4vw, 18px) !important;
+}
+
+.filtros,
+.form-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)) !important;
+}
+
+input,
+select,
+.buscador,
+.detalle-input {
+    min-height: var(--touch) !important;
+    font-size: max(16px, var(--text-base)) !important;
+}
+
+/* Tablet */
+@media (max-width: 1100px) {
+    .page-caja .contenedor {
+        grid-template-columns: 1fr !important;
+    }
+
+    .page-mesero .main-layout {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* Celular */
+@media (max-width: 760px) {
+    :root {
+        --fluid-page-x: 12px;
+        --fluid-page-y: 14px;
+        --fluid-card-pad: 14px;
+        --touch: 46px;
+    }
+
+    body,
+    body.page-login,
+    body.page-panel,
+    body.page-mesero,
+    body.page-cocina,
+    body.page-caja,
+    body.page-historial,
+    body.page-admin {
+        background-attachment: scroll !important;
+        background-position: center top !important;
+    }
+
+    header {
+        display: grid !important;
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: center !important;
+    }
+
+    header::before {
+        width: 48px !important;
+        height: 48px !important;
+        flex-basis: 48px !important;
+    }
+
+    header > div:first-of-type,
+    .header-info {
+        flex-basis: auto !important;
+    }
+
+    .acciones-header,
+    .header-actions,
+    header > div[style*="display:flex"] {
+        grid-column: 1 / -1;
+        width: 100%;
+        justify-content: stretch !important;
+    }
+
+    .acciones-header button,
+    .header-actions button,
+    header > div[style*="display:flex"] button {
+        flex: 1 1 120px;
+    }
+
+    .titulo {
+        font-size: 22px !important;
+    }
+
+    .usuario {
+        max-width: 100% !important;
+    }
+
+    .grid,
+    .ordenes-grid,
+    .resumen,
+    .form-grid,
+    .filtros {
+        grid-template-columns: 1fr !important;
+    }
+
+    .card {
+        min-height: auto;
+    }
+
+    .panel,
+    .card,
+    .bienvenida,
+    .orden,
+    .plato,
+    .resumen,
+    .card-resumen {
+        box-shadow: 0 8px 24px rgba(13,27,42,.18) !important;
+    }
+
+    .page-panel .bienvenida {
+        text-align: left;
+    }
+
+    .page-login .login-container {
+        margin-block: auto;
+    }
+
+    .plato-controles {
+        grid-template-columns: 1fr !important;
+    }
+
+    .stepper {
+        grid-template-columns: 1fr 1.2fr 1fr !important;
+    }
+
+    .mobile-cart-bar {
+        min-height: 68px !important;
+        border-radius: 18px !important;
+    }
+
+    .orden-panel {
+        max-height: 86dvh !important;
+    }
+
+    .tabla {
+        min-width: 680px !important;
+        font-size: 13px !important;
+    }
+
+    .tabs {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .tab {
+        width: 100%;
+    }
+}
+
+/* Celular pequeño */
+@media (max-width: 430px) {
+    .page-login .login-container {
+        padding: 22px 18px 24px !important;
+    }
+
+    .page-login .login-container::before {
+        width: 96px !important;
+        height: 96px !important;
+    }
+
+    .titulo {
+        font-size: 20px !important;
+    }
+
+    h1,
+    h2,
+    .bienvenida h1,
+    .section-title h2,
+    .orden-header h2 {
+        font-size: 24px !important;
+    }
+
+    .card h2,
+    .orden h2,
+    .orden h3,
+    .plato h3 {
+        font-size: 20px !important;
+    }
+
+    .mesas,
+    .categorias {
+        margin-inline: -14px !important;
+        padding-inline: 14px !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+    }
+
+    .tabs {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* Pantallas grandes */
+@media (min-width: 1500px) {
+    .contenedor,
+    .app {
+        max-width: 1480px !important;
+    }
+
+    .page-cocina .contenedor {
+        max-width: 1680px !important;
+    }
+}
