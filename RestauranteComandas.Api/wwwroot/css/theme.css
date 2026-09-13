@@ -485,3 +485,61 @@ body:has(#contenedorOrdenes):has(#estadoConexion) {
         height: 116px;
     }
 }
+
+/* ==========================================================
+   FONDO GLOBAL CON EL LOGO
+   Este bloque va al FINAL del archivo para que aplique sobre
+   todas las pantallas: panel, mesero, cocina, caja, historial
+   y administración.
+   ========================================================== */
+
+html {
+    min-height: 100%;
+    background: #0d1b2a !important;
+}
+
+body,
+body:has(.login-container),
+body:has(#contenedorOrdenes):has(#estadoConexion) {
+    background:
+        linear-gradient(rgba(13, 27, 42, .74), rgba(13, 27, 42, .84)),
+        url('/images/logo.jpeg') center center / cover fixed no-repeat !important;
+    background-attachment: fixed !important;
+}
+
+/* Para que las pantallas internas no se vean demasiado oscuras,
+   dejamos las tarjetas en tono crema/translúcido. */
+.panel,
+.card,
+.bienvenida,
+.orden,
+.card-resumen,
+.plato,
+.orden-panel,
+.resumen,
+.mesa-seleccionada {
+    background: rgba(255, 250, 241, .94) !important;
+    backdrop-filter: blur(6px);
+}
+
+/* Las tablas también reciben un fondo claro para que se lean bien
+   sobre el logo de fondo. */
+.tabla,
+.tabla tbody,
+.tabla td {
+    background-color: rgba(255, 250, 241, .88) !important;
+}
+
+/* En cocina mantenemos contraste fuerte para que las comandas
+   se sigan viendo rápido desde lejos. */
+body:has(#estadoConexion) .orden {
+    background: rgba(255, 250, 241, .96) !important;
+}
+
+@media (max-width: 700px) {
+    body,
+    body:has(.login-container),
+    body:has(#contenedorOrdenes):has(#estadoConexion) {
+        background-position: center top !important;
+    }
+}
