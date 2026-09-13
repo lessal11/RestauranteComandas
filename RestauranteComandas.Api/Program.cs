@@ -131,7 +131,30 @@ if (app.Environment.IsDevelopment())
 
 //app.UseHttpsRedirection();
 
-app.UseStaticFiles();
+app.UseDefaultFiles(new DefaultFilesOptions
+{
+    DefaultFileNames =
+    {
+        "login.html"
+    }
+});
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        var fileName = ctx.File.Name.ToLower();
+
+        if (fileName.EndsWith(".html") ||
+            fileName.EndsWith(".js") ||
+            fileName.EndsWith(".css"))
+        {
+            ctx.Context.Response.Headers.CacheControl = "no-cache, no-store, must-revalidate";
+            ctx.Context.Response.Headers.Pragma = "no-cache";
+            ctx.Context.Response.Headers.Expires = "0";
+        }
+    }
+});
 
 app.UseCors("PermitirTodo");
 
