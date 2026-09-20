@@ -19,5 +19,7 @@
         public decimal Subtotal { get; set; }
 
         public string? DetallePersonalizado { get; set; }
+
+        public ICollection<PagoDetalle> PagoDetalles { get; set; } = new List<PagoDetalle>();
     }
 }

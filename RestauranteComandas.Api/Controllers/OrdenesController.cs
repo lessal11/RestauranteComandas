@@ -32,6 +32,34 @@ namespace RestauranteComandas.Api.Controllers
             _hubContext = hubContext;
         }
 
+
+        // =========================================================
+        // CANTIDADES / PAGOS
+        // =========================================================
+
+        private async Task<int> ObtenerCantidadPagadaDetalleAsync(
+            int ordenDetalleId)
+        {
+            return await _context.PagoDetalles
+                .Where(pd =>
+                    pd.OrdenDetalleId == ordenDetalleId &&
+                    pd.Pago != null &&
+                    pd.Pago.EstadoPago == "Confirmado")
+                .SumAsync(pd => (int?)pd.Cantidad)
+                ?? 0;
+        }
+
+        private async Task<decimal> ObtenerTotalPagadoOrdenAsync(
+            int ordenId)
+        {
+            return await _context.Pagos
+                .Where(p =>
+                    p.OrdenId == ordenId &&
+                    p.EstadoPago == "Confirmado")
+                .SumAsync(p => (decimal?)p.Monto)
+                ?? 0m;
+        }
+
         // =========================================================
         // TODAS LAS ÓRDENES
         // =========================================================
@@ -202,6 +230,26 @@ namespace RestauranteComandas.Api.Controllers
                                 : "Producto",
 
                             d.Cantidad,
+
+                            CantidadPagada =
+                                d.PagoDetalles
+                                    .Where(pd =>
+                                        pd.Pago != null &&
+                                        pd.Pago.EstadoPago == "Confirmado")
+                                    .Sum(pd => (int?)pd.Cantidad)
+                                ?? 0,
+
+                            CantidadPendiente =
+                                d.Cantidad -
+                                (
+                                    d.PagoDetalles
+                                        .Where(pd =>
+                                            pd.Pago != null &&
+                                            pd.Pago.EstadoPago == "Confirmado")
+                                        .Sum(pd => (int?)pd.Cantidad)
+                                    ?? 0
+                                ),
+
                             d.PrecioUnitario,
                             d.Subtotal,
                             d.DetallePersonalizado
@@ -848,6 +896,25 @@ namespace RestauranteComandas.Api.Controllers
             var cantidadNueva =
                 dto.Cantidad;
 
+            var nombreProducto =
+                detalle.MenuItem != null
+                    ? detalle.MenuItem.Nombre
+                    : "Producto";
+
+            var cantidadPagada =
+                await ObtenerCantidadPagadaDetalleAsync(
+                    detalle.Id
+                );
+
+                        if (cantidadNueva < cantidadPagada)
+                        {
+                            return BadRequest(
+                                $"No se puede reducir {nombreProducto} a {cantidadNueva} " +
+                                $"porque ya se pagaron {cantidadPagada} unidad(es). " +
+                                $"La cantidad mínima permitida es {cantidadPagada}."
+                            );
+                        }
+
             if (
                 cantidadAnterior ==
                 cantidadNueva
@@ -865,12 +932,7 @@ namespace RestauranteComandas.Api.Controllers
                         orden.Total
                 });
             }
-
-            var nombreProducto =
-                detalle.MenuItem != null
-                    ? detalle.MenuItem.Nombre
-                    : "Producto";
-
+                        
             // =============================================
             // AUMENTAR CANTIDAD
             // =============================================
@@ -1018,7 +1080,40 @@ namespace RestauranteComandas.Api.Controllers
                         d => d.Subtotal
                     );
 
+            var totalPagado =
+                await ObtenerTotalPagadoOrdenAsync(
+                    orden.Id
+                );
+
+                        var quedaTotalmentePagada =
+                            totalPagado > 0 &&
+                            totalPagado >= orden.Total;
+
+                        if (quedaTotalmentePagada)
+                        {
+                            orden.Estado = "Pagado";
+
+                            if (orden.Mesa != null)
+                            {
+                                orden.Mesa.Estado =
+                                    "Disponible";
+                            }
+                        }
+
             await _context.SaveChangesAsync();
+
+            if (quedaTotalmentePagada)
+            {
+                await _hubContext.Clients.All
+                    .SendAsync(
+                        "EstadoOrdenActualizado",
+                        new
+                        {
+                            id = orden.Id,
+                            estado = orden.Estado
+                        }
+                    );
+            }
 
             await _hubContext
                 .Clients.All
@@ -1132,6 +1227,20 @@ namespace RestauranteComandas.Api.Controllers
                 );
             }
 
+            var cantidadPagada =
+                await ObtenerCantidadPagadaDetalleAsync(
+                    detalle.Id
+                );
+
+                        if (cantidadPagada > 0)
+                        {
+                            return BadRequest(
+                                $"No se puede eliminar {detalle.MenuItem?.Nombre ?? "el producto"} " +
+                                $"porque ya existen {cantidadPagada} unidad(es) pagada(s). " +
+                                $"Solo pueden modificarse las unidades pendientes."
+                            );
+                        }
+
             var nombreProducto =
                 detalle.MenuItem != null
                     ? detalle.MenuItem.Nombre
@@ -1160,13 +1269,34 @@ namespace RestauranteComandas.Api.Controllers
                         d => d.Subtotal
                     );
 
-            var ordenCancelada =
-                !orden.Detalles.Any();
+            var ordenSinProductos =
+    !orden.Detalles.Any();
 
-            if (ordenCancelada)
+            var totalPagado =
+                await ObtenerTotalPagadoOrdenAsync(
+                    orden.Id
+                );
+
+            var quedaTotalmentePagada =
+                !ordenSinProductos &&
+                totalPagado > 0 &&
+                totalPagado >= orden.Total;
+
+            if (ordenSinProductos)
             {
                 orden.Estado =
                     "Cancelado";
+
+                if (orden.Mesa != null)
+                {
+                    orden.Mesa.Estado =
+                        "Disponible";
+                }
+            }
+            else if (quedaTotalmentePagada)
+            {
+                orden.Estado =
+                    "Pagado";
 
                 if (orden.Mesa != null)
                 {
@@ -1223,7 +1353,10 @@ namespace RestauranteComandas.Api.Controllers
                     }
                 );
 
-            if (ordenCancelada)
+            if (
+                ordenSinProductos ||
+                quedaTotalmentePagada
+            )
             {
                 await _hubContext
                     .Clients.All
@@ -1351,6 +1484,24 @@ namespace RestauranteComandas.Api.Controllers
                 );
             }
 
+            if (nuevoEstado == "Pagado")
+            {
+                var totalPagado =
+                    await ObtenerTotalPagadoOrdenAsync(
+                        orden.Id
+                    );
+
+                if (totalPagado < orden.Total)
+                {
+                    return BadRequest(
+                        $"La orden todavía tiene saldo pendiente. " +
+                        $"Total: ${orden.Total:F2} - " +
+                        $"Pagado: ${totalPagado:F2} - " +
+                        $"Pendiente: ${(orden.Total - totalPagado):F2}"
+                    );
+                }
+            }
+
             orden.Estado =
                 nuevoEstado;
 
@@ -1473,7 +1624,7 @@ namespace RestauranteComandas.Api.Controllers
                 _context.Ordenes
                     .Include(o => o.Mesa)
                     .Include(o => o.Usuario)
-                    .Include(o => o.Pago)
+                    .Include(o => o.Pagos)
                     .Include(o => o.Detalles)
                         .ThenInclude(
                             d => d.MenuItem
@@ -1579,17 +1730,18 @@ namespace RestauranteComandas.Api.Controllers
                         o.Total,
 
                         Pago =
-                            o.Pago == null
-                                ? null
-                                : new
+                            o.Pagos
+                                .OrderByDescending(p => p.FechaPago)
+                                .Select(p => new
                                 {
-                                    o.Pago.Id,
-                                    o.Pago.MetodoPago,
-                                    o.Pago.Monto,
-                                    o.Pago.Referencia,
-                                    o.Pago.FechaPago,
-                                    o.Pago.EstadoPago
-                                },
+                                    p.Id,
+                                    p.MetodoPago,
+                                    p.Monto,
+                                    p.Referencia,
+                                    p.FechaPago,
+                                    p.EstadoPago
+                                })
+                                .FirstOrDefault(),
 
                         Detalles =
                             o.Detalles
@@ -1659,7 +1811,7 @@ namespace RestauranteComandas.Api.Controllers
 
             var ordenesHoy =
                 await _context.Ordenes
-                    .Include(o => o.Pago)
+                    .Include(o => o.Pagos)
                     .Where(o =>
                         o.Fecha >=
                             inicioHoyUtc &&
@@ -1706,37 +1858,28 @@ namespace RestauranteComandas.Api.Controllers
                     );
 
             var pagosEfectivo =
-                ordenesHoy
-                    .Where(o =>
-                        o.Pago != null &&
-                        o.Pago.MetodoPago ==
-                            "Efectivo"
-                    )
-                    .Sum(
-                        o => o.Pago!.Monto
-                    );
+                 ordenesHoy
+                     .SelectMany(o => o.Pagos)
+                     .Where(p =>
+                         p.MetodoPago == "Efectivo"
+                     )
+                     .Sum(p => p.Monto);
 
-            var pagosTransferencia =
-                ordenesHoy
-                    .Where(o =>
-                        o.Pago != null &&
-                        o.Pago.MetodoPago ==
-                            "Transferencia"
-                    )
-                    .Sum(
-                        o => o.Pago!.Monto
-                    );
+                        var pagosTransferencia =
+                            ordenesHoy
+                                .SelectMany(o => o.Pagos)
+                                .Where(p =>
+                                    p.MetodoPago == "Transferencia"
+                                )
+                                .Sum(p => p.Monto);
 
-            var pagosD1 =
-                ordenesHoy
-                    .Where(o =>
-                        o.Pago != null &&
-                        o.Pago.MetodoPago ==
-                            "D1"
-                    )
-                    .Sum(
-                        o => o.Pago!.Monto
-                    );
+                        var pagosD1 =
+                            ordenesHoy
+                                .SelectMany(o => o.Pagos)
+                                .Where(p =>
+                                    p.MetodoPago == "D1"
+                                )
+                                .Sum(p => p.Monto);
 
             return Ok(new
             {

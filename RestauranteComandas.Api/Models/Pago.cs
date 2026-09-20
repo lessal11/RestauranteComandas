@@ -14,8 +14,10 @@
 
         public string? Referencia { get; set; }
 
-        public DateTime FechaPago { get; set; } = DateTime.Now;
+        public DateTime FechaPago { get; set; } = DateTime.UtcNow;
 
         public string EstadoPago { get; set; } = "Confirmado";
+
+        public ICollection<PagoDetalle> Detalles { get; set; } = new List<PagoDetalle>();
     }
 }

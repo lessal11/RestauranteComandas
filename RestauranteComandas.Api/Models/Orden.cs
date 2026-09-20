@@ -12,7 +12,7 @@
 
         public Usuario? Usuario { get; set; }
 
-        public DateTime Fecha { get; set; } = DateTime.Now;
+        public DateTime Fecha { get; set; } = DateTime.UtcNow;
 
         public string Estado { get; set; } = "Pendiente";
 
@@ -20,6 +20,6 @@
 
         public ICollection<OrdenDetalle> Detalles { get; set; } = new List<OrdenDetalle>();
 
-        public Pago? Pago { get; set; }
+        public ICollection<Pago> Pagos { get; set; } = new List<Pago>();
     }
 }

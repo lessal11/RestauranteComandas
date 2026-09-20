@@ -228,6 +228,251 @@
             font-size: 18px;
             margin-top: 25px;
         }
+        /* =========================================
+   CUENTAS SEPARADAS
+   ========================================= */
+
+        .resumen-pago-box {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0,1fr));
+            gap: 9px;
+            margin: 14px 0;
+        }
+
+        .resumen-pago-card {
+            border: 1px solid rgba(148, 111, 55, .22);
+            border-radius: 12px;
+            padding: 11px;
+            background: rgba(255,255,255,.62);
+        }
+
+            .resumen-pago-card span {
+                display: block;
+                margin-bottom: 5px;
+                font-size: 11px;
+                opacity: .75;
+            }
+
+            .resumen-pago-card strong {
+                display: block;
+                font-size: 18px;
+            }
+
+            .resumen-pago-card.pagado strong {
+                color: #15803d;
+            }
+
+            .resumen-pago-card.pendiente strong {
+                color: #b91c1c;
+            }
+
+        .estado-pago-texto {
+            width: fit-content;
+            margin: 10px 0 16px;
+            border: 1px solid #e8bd73;
+            border-radius: 999px;
+            padding: 6px 11px;
+            background: #fff3d6;
+            color: #7c3d12;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .selector-header {
+            margin-top: 18px;
+        }
+
+            .selector-header h3 {
+                margin: 0 0 4px;
+            }
+
+            .selector-header small {
+                opacity: .7;
+            }
+
+        .acciones-seleccion {
+            display: flex;
+            gap: 8px;
+            margin: 12px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn-seleccion {
+            border: 0;
+            border-radius: 9px;
+            padding: 9px 12px;
+            background: #123047;
+            color: white;
+            cursor: pointer;
+            font-weight: 800;
+        }
+
+            .btn-seleccion.secundario {
+                background: #eee5d7;
+                color: #543820;
+            }
+
+        .producto-pago {
+            margin-bottom: 10px;
+            border: 1px solid rgba(148, 111, 55, .22);
+            border-radius: 13px;
+            padding: 12px;
+            background: rgba(255,255,255,.68);
+        }
+
+            .producto-pago.pagado-completo {
+                opacity: .65;
+            }
+
+        .producto-pago-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .producto-pago-nombre {
+            min-width: 0;
+            font-weight: 900;
+            overflow-wrap: anywhere;
+        }
+
+        .producto-pago-precio {
+            flex-shrink: 0;
+            color: #15803d;
+            font-weight: 900;
+        }
+
+        .producto-pago-info {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+            margin-top: 7px;
+            font-size: 12px;
+        }
+
+            .producto-pago-info span {
+                border-radius: 999px;
+                padding: 4px 8px;
+                background: #eee5d7;
+            }
+
+            .producto-pago-info .pagado {
+                background: #dcfce7;
+                color: #166534;
+            }
+
+            .producto-pago-info .pendiente {
+                background: #fee2e2;
+                color: #991b1b;
+            }
+
+        .producto-pago-controles {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 7px;
+            margin-top: 10px;
+        }
+
+        .btn-cantidad {
+            width: 38px;
+            height: 38px;
+            border: 1px solid #d6c5ad;
+            border-radius: 9px;
+            background: white;
+            color: #102536;
+            cursor: pointer;
+            font-size: 19px;
+            font-weight: 900;
+        }
+
+            .btn-cantidad:disabled {
+                opacity: .35;
+                cursor: not-allowed;
+            }
+
+        .cantidad-pago {
+            display: grid;
+            place-items: center;
+            min-width: 43px;
+            height: 38px;
+            border: 1px solid #d6c5ad;
+            border-radius: 9px;
+            background: #fffaf2;
+            font-weight: 900;
+        }
+
+        .sin-pendiente {
+            margin-top: 10px;
+            text-align: right;
+            color: #15803d;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .total-cuenta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-top: 20px;
+            border-top: 2px solid rgba(148,111,55,.25);
+            padding-top: 15px;
+        }
+
+            .total-cuenta span {
+                font-weight: 800;
+            }
+
+            .total-cuenta strong {
+                color: #b52b25;
+                font-size: 27px;
+            }
+
+        .panel-pago {
+            align-self: start;
+            position: sticky;
+            top: 18px;
+        }
+
+        @media (max-width: 1100px) {
+
+            .resumen-pago-box {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 950px) {
+
+            .panel-pago {
+                position: static;
+            }
+
+            .resumen-pago-box {
+                grid-template-columns: repeat(3, minmax(0,1fr));
+            }
+        }
+
+        @media (max-width: 520px) {
+
+            .resumen-pago-box {
+                grid-template-columns: 1fr;
+            }
+
+            .producto-pago-controles {
+                justify-content: space-between;
+            }
+
+            .btn-cantidad {
+                width: 44px;
+                height: 44px;
+            }
+
+            .cantidad-pago {
+                height: 44px;
+                min-width: 50px;
+            }
+        }
 
         @media (max-width: 950px) {
             .contenedor {
@@ -265,354 +510,1272 @@
             <div class="ordenes-grid" id="contenedorOrdenes"></div>
         </div>
 
-        <div class="panel">
-            <h2>Registrar pago</h2>
+        <div class="panel panel-pago">
+
+            <h2>Cuenta de la orden</h2>
 
             <div id="resumenOrden" class="resumen">
-                Seleccione una orden para registrar el pago.
+                Seleccione una orden para comenzar.
             </div>
 
-            <label for="metodoPago">Método de pago</label>
-            <select id="metodoPago">
-                <option value="Efectivo">Efectivo</option>
-                <option value="Transferencia">Transferencia</option>
-                <option value="D1">D1</option>
-            </select>
+            <!-- TOTALES -->
 
-            <label for="monto">Monto pagado</label>
-            <input type="number" id="monto" min="0" step="0.01" placeholder="0.00">
+            <div id="resumenPagoBox"
+                 class="resumen-pago-box"
+                 style="display:none;">
 
-            <label for="referencia">Referencia</label>
-            <input type="text" id="referencia" placeholder="Ej: Pago en caja, TRX-123, D1-456">
+                <div class="resumen-pago-card">
+                    <span>Total pedido</span>
+                    <strong id="totalOrdenResumen">$0.00</strong>
+                </div>
 
-            <div class="total" id="totalTexto">
-                Total: $0.00
+                <div class="resumen-pago-card pagado">
+                    <span>Ya pagado</span>
+                    <strong id="totalPagadoResumen">$0.00</strong>
+                </div>
+
+                <div class="resumen-pago-card pendiente">
+                    <span>Pendiente</span>
+                    <strong id="totalPendienteResumen">$0.00</strong>
+                </div>
+
             </div>
 
-            <button class="btn-pagar" onclick="registrarPago()">
-                Confirmar pago
-            </button>
+            <div id="estadoPagoTexto"
+                 class="estado-pago-texto"
+                 style="display:none;">
+            </div>
 
-            <button class="btn-comprobante" id="btnComprobante" onclick="abrirComprobanteUltimoPago()" style="display:none;">
-                Ver comprobante
-            </button>
+            <!-- PRODUCTOS -->
 
-            <div class="mensaje" id="mensaje"></div>
+            <div id="seccionProductosPago"
+                 style="display:none;">
+
+                <div class="selector-header">
+
+                    <div>
+                        <h3>Seleccionar productos</h3>
+                        <small>
+                            Escoge qué productos y cantidades pagará esta cuenta.
+                        </small>
+                    </div>
+
+                </div>
+
+                <div class="acciones-seleccion">
+
+                    <button type="button"
+                            class="btn-seleccion"
+                            onclick="seleccionarTodoPendiente()">
+                        Seleccionar todo
+                    </button>
+
+                    <button type="button"
+                            class="btn-seleccion secundario"
+                            onclick="limpiarSeleccionPago()">
+                        Limpiar
+                    </button>
+
+                </div>
+
+                <div id="productosPago"></div>
+
+            </div>
+
+            <!-- DATOS DEL PAGO -->
+
+            <div id="datosPago"
+                 style="display:none;">
+
+                <label for="metodoPago">
+                    Método de pago
+                </label>
+
+                <select id="metodoPago">
+                    <option value="Efectivo">
+                        Efectivo
+                    </option>
+
+                    <option value="Transferencia">
+                        Transferencia
+                    </option>
+
+                    <option value="D1">
+                        D1
+                    </option>
+                </select>
+
+                <label for="referencia">
+                    Referencia
+                </label>
+
+                <input type="text"
+                       id="referencia"
+                       placeholder="Ej: Persona 1, TRX-123, D1-456">
+
+                <div class="total-cuenta">
+
+                    <span>
+                        Cuenta seleccionada
+                    </span>
+
+                    <strong id="totalSeleccionado">
+                        $0.00
+                    </strong>
+
+                </div>
+
+                <button class="btn-pagar"
+                        id="btnRegistrarPago"
+                        type="button"
+                        onclick="registrarPagoParcial()"
+                        disabled>
+
+                    Registrar este pago
+
+                </button>
+
+            </div>
+
+            <div class="mensaje"
+                 id="mensaje"></div>
+
         </div>
     </div>
 
     <script>
-        const token = localStorage.getItem("token");
-        const usuarioNombre = localStorage.getItem("usuarioNombre");
-        const usuarioRol = localStorage.getItem("usuarioRol");
 
-        const usuarioInfo = document.getElementById("usuarioInfo");
-        const contenedorOrdenes = document.getElementById("contenedorOrdenes");
-        const resumenOrden = document.getElementById("resumenOrden");
-        const metodoPago = document.getElementById("metodoPago");
-        const monto = document.getElementById("monto");
-        const referencia = document.getElementById("referencia");
-        const totalTexto = document.getElementById("totalTexto");
-        const mensaje = document.getElementById("mensaje");
-        const btnComprobante = document.getElementById("btnComprobante");
+        const token =
+            localStorage.getItem("token");
+
+        const usuarioNombre =
+            localStorage.getItem("usuarioNombre");
+
+        const usuarioRol =
+            localStorage.getItem("usuarioRol");
+
+
+        const usuarioInfo =
+            document.getElementById("usuarioInfo");
+
+        const contenedorOrdenes =
+            document.getElementById("contenedorOrdenes");
+
+        const resumenOrden =
+            document.getElementById("resumenOrden");
+
+        const resumenPagoBox =
+            document.getElementById("resumenPagoBox");
+
+        const totalOrdenResumen =
+            document.getElementById("totalOrdenResumen");
+
+        const totalPagadoResumen =
+            document.getElementById("totalPagadoResumen");
+
+        const totalPendienteResumen =
+            document.getElementById("totalPendienteResumen");
+
+        const estadoPagoTexto =
+            document.getElementById("estadoPagoTexto");
+
+        const seccionProductosPago =
+            document.getElementById("seccionProductosPago");
+
+        const productosPago =
+            document.getElementById("productosPago");
+
+        const datosPago =
+            document.getElementById("datosPago");
+
+        const metodoPago =
+            document.getElementById("metodoPago");
+
+        const referencia =
+            document.getElementById("referencia");
+
+        const totalSeleccionado =
+            document.getElementById("totalSeleccionado");
+
+        const btnRegistrarPago =
+            document.getElementById("btnRegistrarPago");
+
+        const mensaje =
+            document.getElementById("mensaje");
+
 
         let ordenes = [];
+
         let ordenSeleccionada = null;
-        let ultimoOrdenPagadaId = null;
+
+        let resumenPagoActual = null;
+
+        let cantidadesSeleccionadas = {};
+
+        let registrandoPago = false;
+
 
         validarSesion();
 
-        usuarioInfo.innerText = `${usuarioNombre} - ${usuarioRol}`;
+
+        usuarioInfo.innerText =
+            `${usuarioNombre || ""} - ${usuarioRol || ""}`;
+
+
+        // =========================================
+        // SESIÓN
+        // =========================================
 
         function validarSesion() {
+
             if (!token) {
-                window.location.href = "/login.html";
+
+                window.location.href =
+                    "/login.html";
+
                 return;
             }
 
-            if (usuarioRol !== "Caja" && usuarioRol !== "Administrador") {
-                alert("No tiene permiso para acceder a la pantalla de caja");
-                window.location.href = "/login.html";
+            if (
+                usuarioRol !== "Caja" &&
+                usuarioRol !== "Administrador"
+            ) {
+
+                alert(
+                    "No tiene permiso para acceder a la pantalla de caja"
+                );
+
+                window.location.href =
+                    "/login.html";
             }
         }
+
+
+        function manejarNoAutorizado(response) {
+
+            if (
+                response.status === 401 ||
+                response.status === 403
+            ) {
+
+                alert(
+                    "No tiene permiso o la sesión expiró"
+                );
+
+                localStorage.clear();
+
+                window.location.href =
+                    "/login.html";
+
+                return true;
+            }
+
+            return false;
+        }
+
+
+        function escaparHtml(texto) {
+
+            return String(texto ?? "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+
+        // =========================================
+        // CARGAR ÓRDENES
+        // =========================================
 
         async function cargarOrdenes() {
+
             limpiarMensaje();
-            btnComprobante.style.display = "none";
+
+            const ordenIdAnterior =
+                ordenSeleccionada
+                    ? ordenSeleccionada.id
+                    : null;
 
             try {
-                const response = await fetch("/api/Ordenes/por-cobrar", {
-                    headers: {
-                        "Authorization": `Bearer ${token}`
-                    }
-                });
 
-                if (response.status === 401 || response.status === 403) {
-                    localStorage.clear();
-                    window.location.href = "/login.html";
+                const response =
+                    await fetch(
+                        "/api/Ordenes/por-cobrar",
+                        {
+                            headers: {
+                                "Authorization":
+                                    `Bearer ${token}`
+                            }
+                        }
+                    );
+
+                if (
+                    manejarNoAutorizado(
+                        response
+                    )
+                ) {
                     return;
                 }
 
                 if (!response.ok) {
-                    mostrarMensaje("No se pudieron cargar las órdenes", "error");
-                    return;
-                }
-
-                const data = await response.json();
-
-                ordenes = data;
-
-                renderizarOrdenes();
-
-            } catch (error) {
-                mostrarMensaje("Error de conexión con el servidor", "error");
-            }
-        }
-
-        function renderizarOrdenes() {
-            contenedorOrdenes.innerHTML = "";
-
-            if (ordenes.length === 0) {
-                contenedorOrdenes.innerHTML = `
-                        <div class="vacio">
-                            No hay órdenes pendientes de pago.
-                        </div>
-                    `;
-                return;
-            }
-
-            ordenes.forEach(orden => {
-                const div = document.createElement("div");
-                div.className = "orden";
-
-                if (ordenSeleccionada && ordenSeleccionada.id === orden.id) {
-                    div.classList.add("seleccionada");
-                }
-
-                let detallesHtml = "";
-
-                orden.detalles.forEach(detalle => {
-                    detallesHtml += `
-                            <div class="detalle">
-                                <strong>${detalle.cantidad} x ${detalle.plato}</strong>
-                                <div>Subtotal: $${Number(detalle.subtotal).toFixed(2)}</div>
-                                ${detalle.detallePersonalizado ? `<div class="nota">Detalle: ${detalle.detallePersonalizado}</div>` : ""}
-                            </div>
-                        `;
-                });
-
-                div.innerHTML = `
-                        <h3>Mesa ${orden.mesa}</h3>
-                        <div class="estado">${orden.estado}</div>
-                        <div><strong>Orden:</strong> #${orden.id}</div>
-                        <div><strong>Mesero:</strong> ${orden.mesero}</div>
-                        <div><strong>Hora:</strong> ${new Date(orden.fecha).toLocaleTimeString()}</div>
-                        ${detallesHtml}
-                        <div class="total-card">Total: $${Number(orden.total).toFixed(2)}</div>
-                    `;
-
-                div.onclick = function () {
-                    seleccionarOrden(orden);
-                };
-
-                contenedorOrdenes.appendChild(div);
-            });
-        }
-
-        function seleccionarOrden(orden) {
-            ordenSeleccionada = orden;
-            ultimoOrdenPagadaId = null;
-            btnComprobante.style.display = "none";
-
-            resumenOrden.innerHTML = `
-                    <div><strong>Orden:</strong> #${orden.id}</div>
-                    <div><strong>Mesa:</strong> ${orden.mesa}</div>
-                    <div><strong>Estado:</strong> ${orden.estado}</div>
-                    <div><strong>Total a pagar:</strong> $${Number(orden.total).toFixed(2)}</div>
-                `;
-
-            monto.value = Number(orden.total).toFixed(2);
-            referencia.value = "";
-
-            totalTexto.innerText = `Total: $${Number(orden.total).toFixed(2)}`;
-
-            renderizarOrdenes();
-            limpiarMensaje();
-        }
-
-        async function registrarPago() {
-            limpiarMensaje();
-
-            if (!ordenSeleccionada) {
-                mostrarMensaje("Debe seleccionar una orden", "error");
-                return;
-            }
-
-            const metodo = metodoPago.value;
-            const montoPagado = parseFloat(monto.value);
-            const ref = referencia.value.trim();
-
-            if (!metodo) {
-                mostrarMensaje("Debe seleccionar método de pago", "error");
-                return;
-            }
-
-            if (isNaN(montoPagado) || montoPagado <= 0) {
-                mostrarMensaje("El monto debe ser mayor a 0", "error");
-                return;
-            }
-
-            if (montoPagado < Number(ordenSeleccionada.total)) {
-                mostrarMensaje("El monto no puede ser menor al total de la orden", "error");
-                return;
-            }
-
-            const dto = {
-                ordenId: ordenSeleccionada.id,
-                metodoPago: metodo,
-                monto: montoPagado,
-                referencia: ref || "Sin referencia"
-            };
-
-            try {
-                const response = await fetch("/api/Pagos", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`
-                    },
-                    body: JSON.stringify(dto)
-                });
-
-                if (response.status === 401 || response.status === 403) {
-                    alert("No tiene permiso o la sesión expiró");
-                    localStorage.clear();
-                    window.location.href = "/login.html";
-                    return;
-                }
-
-                if (!response.ok) {
-                    const error = await response.text();
-                    mostrarMensaje(error || "No se pudo registrar el pago", "error");
-                    return;
-                }
-
-                const data = await response.json();
-
-                mostrarMensaje(`Pago registrado correctamente para la orden #${data.ordenId}`, "ok");
-
-                ultimoOrdenPagadaId = data.ordenId;
-                btnComprobante.style.display = "block";
-
-                ordenSeleccionada = null;
-                resumenOrden.innerHTML = "Seleccione una orden para registrar el pago.";
-                monto.value = "";
-                referencia.value = "";
-                totalTexto.innerText = "Total: $0.00";
-
-                await cargarOrdenes();
-
-                btnComprobante.style.display = "block";
-
-            } catch (error) {
-                mostrarMensaje("Error de conexión con el servidor", "error");
-            }
-        }
-
-        async function abrirComprobanteUltimoPago() {
-            if (!ultimoOrdenPagadaId) {
-                mostrarMensaje("No hay comprobante disponible", "error");
-                return;
-            }
-
-            await abrirComprobante(ultimoOrdenPagadaId);
-        }
-
-        async function abrirComprobante(ordenId) {
-            const ventana = window.open("", "_blank");
-
-            if (!ventana) {
-                mostrarMensaje(
-                    "El navegador bloqueó la ventana emergente. Permite las ventanas emergentes para imprimir.",
-                    "error"
-                );
-                return;
-            }
-
-            ventana.document.write(`
-            <html>
-                <body style="font-family:Arial;text-align:center;padding:20px">
-                    Preparando comprobante...
-                </body>
-            </html>
-        `);
-
-            try {
-                const response = await fetch(`/api/Pagos/orden/${ordenId}/comprobante`, {
-                    headers: {
-                        "Authorization": `Bearer ${token}`
-                    }
-                });
-
-                if (response.status === 401 || response.status === 403) {
-                    ventana.close();
-
-                    alert("No tiene permiso o la sesión expiró");
-
-                    localStorage.clear();
-                    window.location.href = "/login.html";
-                    return;
-                }
-
-                if (!response.ok) {
-                    const error = await response.text();
-
-                    ventana.close();
 
                     mostrarMensaje(
-                        error || "No se pudo generar el comprobante",
+                        "No se pudieron cargar las órdenes",
                         "error"
                     );
 
                     return;
                 }
 
-                const html = await response.text();
+                ordenes =
+                    await response.json();
 
-                ventana.document.open();
-                ventana.document.write(html);
-                ventana.document.close();
+                /*
+                 * Si había una orden seleccionada
+                 * intentamos conservarla después
+                 * de refrescar la lista.
+                 */
+                if (ordenIdAnterior) {
+
+                    ordenSeleccionada =
+                        ordenes.find(
+                            o =>
+                                o.id ===
+                                ordenIdAnterior
+                        ) || null;
+                }
+
+                renderizarOrdenes();
 
             } catch (error) {
-                ventana.close();
 
                 mostrarMensaje(
-                    "Error al abrir comprobante",
+                    "Error de conexión con el servidor",
                     "error"
                 );
             }
         }
 
-        function mostrarMensaje(texto, tipo) {
-            mensaje.innerText = texto;
-            mensaje.className = `mensaje ${tipo}`;
+
+        function renderizarOrdenes() {
+
+            contenedorOrdenes.innerHTML =
+                "";
+
+            if (ordenes.length === 0) {
+
+                contenedorOrdenes.innerHTML = `
+                    <div class="vacio">
+                        No hay órdenes pendientes de pago.
+                    </div>
+                `;
+
+                return;
+            }
+
+            ordenes.forEach(
+                orden => {
+
+                    const div =
+                        document.createElement(
+                            "div"
+                        );
+
+                    div.className =
+                        "orden";
+
+                    if (
+                        ordenSeleccionada &&
+                        ordenSeleccionada.id ===
+                        orden.id
+                    ) {
+
+                        div.classList.add(
+                            "seleccionada"
+                        );
+                    }
+
+                    let detallesHtml =
+                        "";
+
+                    orden.detalles.forEach(
+                        detalle => {
+
+                            detallesHtml += `
+                                <div class="detalle">
+
+                                    <strong>
+                                        ${detalle.cantidad}
+                                        ×
+                                        ${escaparHtml(detalle.plato)}
+                                    </strong>
+
+                                    <div>
+                                        Subtotal:
+                                        $${Number(detalle.subtotal).toFixed(2)}
+                                    </div>
+
+                                    ${detalle.detallePersonalizado
+
+                                    ? `
+                                                <div class="nota">
+                                                    Detalle:
+                                                    ${escaparHtml(detalle.detallePersonalizado)}
+                                                </div>
+                                              `
+
+                                    : ""
+                                }
+
+                                </div>
+                            `;
+                        }
+                    );
+
+                    div.innerHTML = `
+                        <h3>
+                            Mesa ${orden.mesa}
+                        </h3>
+
+                        <div class="estado">
+                            ${escaparHtml(orden.estado)}
+                        </div>
+
+                        <div>
+                            <strong>Orden:</strong>
+                            #${orden.id}
+                        </div>
+
+                        <div>
+                            <strong>Mesero:</strong>
+                            ${escaparHtml(orden.mesero)}
+                        </div>
+
+                        <div>
+                            <strong>Hora:</strong>
+                            ${new Date(orden.fecha).toLocaleTimeString()}
+                        </div>
+
+                        ${detallesHtml}
+
+                        <div class="total-card">
+                            Total:
+                            $${Number(orden.total).toFixed(2)}
+                        </div>
+                    `;
+
+                    div.onclick =
+                        function () {
+
+                            seleccionarOrden(
+                                orden
+                            );
+                        };
+
+                    contenedorOrdenes
+                        .appendChild(
+                            div
+                        );
+                }
+            );
         }
+
+
+        // =========================================
+        // SELECCIONAR ORDEN
+        // =========================================
+
+        async function seleccionarOrden(
+            orden
+        ) {
+
+            ordenSeleccionada =
+                orden;
+
+            resumenPagoActual =
+                null;
+
+            cantidadesSeleccionadas =
+                {};
+
+            limpiarMensaje();
+
+            resumenOrden.innerHTML = `
+                <div>
+                    <strong>Pedido:</strong>
+                    #${orden.id}
+                </div>
+
+                <div>
+                    <strong>Mesa:</strong>
+                    ${orden.mesa}
+                </div>
+
+                <div>
+                    <strong>Estado:</strong>
+                    ${escaparHtml(orden.estado)}
+                </div>
+
+                <div>
+                    Cargando información de pagos...
+                </div>
+            `;
+
+            resumenPagoBox.style.display =
+                "none";
+
+            estadoPagoTexto.style.display =
+                "none";
+
+            seccionProductosPago.style.display =
+                "none";
+
+            datosPago.style.display =
+                "none";
+
+            productosPago.innerHTML =
+                "";
+
+            actualizarTotalSeleccionado();
+
+            renderizarOrdenes();
+
+            await cargarResumenPagoOrden(
+                orden.id
+            );
+        }
+
+
+        // =========================================
+        // RESUMEN DE PAGO
+        // =========================================
+
+        async function cargarResumenPagoOrden(
+            ordenId
+        ) {
+
+            try {
+
+                const response =
+                    await fetch(
+                        `/api/Pagos/orden/${ordenId}/resumen`,
+                        {
+                            headers: {
+                                "Authorization":
+                                    `Bearer ${token}`
+                            }
+                        }
+                    );
+
+                if (
+                    manejarNoAutorizado(
+                        response
+                    )
+                ) {
+                    return;
+                }
+
+                if (!response.ok) {
+
+                    const error =
+                        await response.text();
+
+                    mostrarMensaje(
+                        error ||
+                        "No se pudo cargar el estado de pago",
+                        "error"
+                    );
+
+                    return;
+                }
+
+                resumenPagoActual =
+                    await response.json();
+
+                /*
+                 * Reiniciamos la selección cada vez
+                 * que consultamos el estado real
+                 * de la orden.
+                 */
+                cantidadesSeleccionadas =
+                    {};
+
+                (
+                    resumenPagoActual.detalles ||
+                    []
+                )
+                    .forEach(
+                        detalle => {
+
+                            cantidadesSeleccionadas[
+                                detalle.id
+                            ] = 0;
+                        }
+                    );
+
+                renderizarResumenPago();
+
+            } catch (error) {
+
+                mostrarMensaje(
+                    "Error al consultar el estado del pago",
+                    "error"
+                );
+            }
+        }
+
+
+        function renderizarResumenPago() {
+
+            if (!resumenPagoActual) {
+                return;
+            }
+
+            const r =
+                resumenPagoActual;
+
+            resumenOrden.innerHTML = `
+                <div>
+                    <strong>Pedido:</strong>
+                    #${r.ordenId}
+                </div>
+
+                <div>
+                    <strong>Mesa:</strong>
+                    ${r.mesa}
+                </div>
+
+                <div>
+                    <strong>Estado del pedido:</strong>
+                    ${escaparHtml(r.estadoOrden)}
+                </div>
+            `;
+
+
+            totalOrdenResumen.innerText =
+                `$${Number(r.total).toFixed(2)}`;
+
+            totalPagadoResumen.innerText =
+                `$${Number(r.totalPagado).toFixed(2)}`;
+
+            totalPendienteResumen.innerText =
+                `$${Number(r.pendiente).toFixed(2)}`;
+
+            resumenPagoBox.style.display =
+                "grid";
+
+
+            estadoPagoTexto.innerText =
+                r.estadoPago;
+
+            estadoPagoTexto.style.display =
+                "block";
+
+
+            seccionProductosPago.style.display =
+                "block";
+
+            datosPago.style.display =
+                Number(r.pendiente) > 0
+                    ? "block"
+                    : "none";
+
+
+            renderizarProductosPago();
+
+            actualizarTotalSeleccionado();
+        }
+
+
+        // =========================================
+        // PRODUCTOS DEL PAGO
+        // =========================================
+
+        function renderizarProductosPago() {
+
+            productosPago.innerHTML =
+                "";
+
+            if (
+                !resumenPagoActual ||
+                !resumenPagoActual.detalles
+            ) {
+                return;
+            }
+
+
+            resumenPagoActual.detalles.forEach(
+                detalle => {
+
+                    const pendiente =
+                        Number(
+                            detalle.cantidadPendiente
+                        );
+
+                    const seleccionado =
+                        cantidadesSeleccionadas[
+                        detalle.id
+                        ] || 0;
+
+
+                    const div =
+                        document.createElement(
+                            "div"
+                        );
+
+                    div.className =
+                        "producto-pago";
+
+                    if (pendiente <= 0) {
+
+                        div.classList.add(
+                            "pagado-completo"
+                        );
+                    }
+
+
+                    div.innerHTML = `
+                        <div class="producto-pago-top">
+
+                            <div class="producto-pago-nombre">
+
+                                ${escaparHtml(detalle.plato)}
+
+                                ${detalle.detallePersonalizado
+                            ? `
+                                            <div class="nota">
+                                                ${escaparHtml(detalle.detallePersonalizado)}
+                                            </div>
+                                          `
+                            : ""
+                        }
+
+                            </div>
+
+                            <div class="producto-pago-precio">
+
+                                $${Number(detalle.precioUnitario).toFixed(2)}
+                                c/u
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="producto-pago-info">
+
+                            <span>
+                                Pedido:
+                                ${detalle.cantidad}
+                            </span>
+
+                            <span class="pagado">
+                                Pagado:
+                                ${detalle.cantidadPagada}
+                            </span>
+
+                            <span class="pendiente">
+                                Pendiente:
+                                ${detalle.cantidadPendiente}
+                            </span>
+
+                        </div>
+
+
+                        ${pendiente > 0
+
+                            ? `
+                                    <div class="producto-pago-controles">
+
+                                        <button
+                                            type="button"
+                                            class="btn-cantidad"
+                                            onclick="cambiarCantidadPago(${detalle.id}, -1)"
+                                            ${seleccionado <= 0 ? "disabled" : ""}
+                                        >
+                                            −
+                                        </button>
+
+                                        <span class="cantidad-pago">
+
+                                            ${seleccionado}
+
+                                        </span>
+
+                                        <button
+                                            type="button"
+                                            class="btn-cantidad"
+                                            onclick="cambiarCantidadPago(${detalle.id}, 1)"
+                                            ${seleccionado >= pendiente ? "disabled" : ""}
+                                        >
+                                            +
+                                        </button>
+
+                                    </div>
+                                  `
+
+                            : `
+                                    <div class="sin-pendiente">
+                                        ✓ Producto completamente pagado
+                                    </div>
+                                  `
+                        }
+
+                    `;
+
+                    productosPago
+                        .appendChild(
+                            div
+                        );
+                }
+            );
+        }
+
+
+        function cambiarCantidadPago(
+            detalleId,
+            cambio
+        ) {
+
+            if (!resumenPagoActual) {
+                return;
+            }
+
+            const detalle =
+                resumenPagoActual.detalles
+                    .find(
+                        d =>
+                            d.id ===
+                            detalleId
+                    );
+
+            if (!detalle) {
+                return;
+            }
+
+
+            const maximo =
+                Number(
+                    detalle.cantidadPendiente
+                );
+
+            const actual =
+                cantidadesSeleccionadas[
+                detalleId
+                ] || 0;
+
+
+            const nuevo =
+                Math.max(
+                    0,
+                    Math.min(
+                        maximo,
+                        actual + cambio
+                    )
+                );
+
+
+            cantidadesSeleccionadas[
+                detalleId
+            ] = nuevo;
+
+
+            renderizarProductosPago();
+
+            actualizarTotalSeleccionado();
+        }
+
+
+        function seleccionarTodoPendiente() {
+
+            if (!resumenPagoActual) {
+                return;
+            }
+
+            resumenPagoActual.detalles
+                .forEach(
+                    detalle => {
+
+                        cantidadesSeleccionadas[
+                            detalle.id
+                        ] =
+                            Number(
+                                detalle.cantidadPendiente
+                            );
+                    }
+                );
+
+            renderizarProductosPago();
+
+            actualizarTotalSeleccionado();
+        }
+
+
+        function limpiarSeleccionPago() {
+
+            Object.keys(
+                cantidadesSeleccionadas
+            )
+                .forEach(
+                    id => {
+
+                        cantidadesSeleccionadas[
+                            id
+                        ] = 0;
+                    }
+                );
+
+            renderizarProductosPago();
+
+            actualizarTotalSeleccionado();
+        }
+
+
+        // =========================================
+        // TOTAL DE ESTA CUENTA
+        // =========================================
+
+        function calcularTotalSeleccionado() {
+
+            if (!resumenPagoActual) {
+                return 0;
+            }
+
+            return resumenPagoActual.detalles
+                .reduce(
+                    (
+                        total,
+                        detalle
+                    ) => {
+
+                        const cantidad =
+                            cantidadesSeleccionadas[
+                            detalle.id
+                            ] || 0;
+
+                        return (
+                            total +
+                            (
+                                cantidad *
+                                Number(
+                                    detalle.precioUnitario
+                                )
+                            )
+                        );
+
+                    },
+                    0
+                );
+        }
+
+
+        function actualizarTotalSeleccionado() {
+
+            const total =
+                calcularTotalSeleccionado();
+
+            totalSeleccionado.innerText =
+                `$${total.toFixed(2)}`;
+
+            btnRegistrarPago.disabled =
+                registrandoPago ||
+                total <= 0;
+        }
+
+
+        // =========================================
+        // REGISTRAR PAGO PARCIAL
+        // =========================================
+
+        async function registrarPagoParcial() {
+
+            limpiarMensaje();
+
+            if (
+                !ordenSeleccionada ||
+                !resumenPagoActual
+            ) {
+
+                mostrarMensaje(
+                    "Debe seleccionar una orden",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            const detalles =
+                resumenPagoActual.detalles
+                    .map(
+                        detalle => ({
+                            ordenDetalleId:
+                                detalle.id,
+
+                            cantidad:
+                                cantidadesSeleccionadas[
+                                detalle.id
+                                ] || 0
+                        })
+                    )
+                    .filter(
+                        detalle =>
+                            detalle.cantidad > 0
+                    );
+
+
+            if (
+                detalles.length === 0
+            ) {
+
+                mostrarMensaje(
+                    "Seleccione al menos un producto para esta cuenta",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            const total =
+                calcularTotalSeleccionado();
+
+
+            const confirmar =
+                window.confirm(
+                    `Se registrará un pago por $${total.toFixed(2)}.\n\n¿Desea continuar?`
+                );
+
+            if (!confirmar) {
+                return;
+            }
+
+
+            const dto = {
+
+                ordenId:
+                    ordenSeleccionada.id,
+
+                metodoPago:
+                    metodoPago.value,
+
+                referencia:
+                    referencia.value.trim() ||
+                    "Sin referencia",
+
+                detalles
+            };
+
+
+            registrandoPago =
+                true;
+
+            actualizarTotalSeleccionado();
+
+            btnRegistrarPago.innerText =
+                "Registrando pago...";
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/Pagos/parcial",
+                        {
+                            method:
+                                "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json",
+
+                                "Authorization":
+                                    `Bearer ${token}`
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    dto
+                                )
+                        }
+                    );
+
+
+                if (
+                    manejarNoAutorizado(
+                        response
+                    )
+                ) {
+                    return;
+                }
+
+
+                if (!response.ok) {
+
+                    const error =
+                        await response.text();
+
+                    mostrarMensaje(
+                        error ||
+                        "No se pudo registrar el pago",
+                        "error"
+                    );
+
+                    return;
+                }
+
+
+                const data =
+                    await response.json();
+
+
+                mostrarMensaje(
+                    data.mensaje ||
+                    "Pago registrado correctamente",
+                    "ok"
+                );
+
+
+                referencia.value =
+                    "";
+
+
+                /*
+                 * Si terminó de pagar la orden,
+                 * desaparece de "por cobrar".
+                 */
+                if (
+                    Number(data.pendiente) <= 0
+                ) {
+
+                    ordenSeleccionada =
+                        null;
+
+                    resumenPagoActual =
+                        null;
+
+                    cantidadesSeleccionadas =
+                        {};
+
+                    reiniciarPanelPago();
+
+                    await cargarOrdenes();
+
+                    return;
+                }
+
+
+                /*
+                 * Todavía queda saldo.
+                 * Actualizamos productos, cantidades
+                 * y saldo sin salir de la orden.
+                 */
+
+                await cargarResumenPagoOrden(
+                    data.ordenId
+                );
+
+                await cargarOrdenes();
+
+            } catch (error) {
+
+                mostrarMensaje(
+                    "Error de conexión con el servidor",
+                    "error"
+                );
+
+            } finally {
+
+                registrandoPago =
+                    false;
+
+                btnRegistrarPago.innerText =
+                    "Registrar este pago";
+
+                actualizarTotalSeleccionado();
+            }
+        }
+
+
+        // =========================================
+        // RESET
+        // =========================================
+
+        function reiniciarPanelPago() {
+
+            resumenOrden.innerHTML =
+                "Seleccione una orden para comenzar.";
+
+            resumenPagoBox.style.display =
+                "none";
+
+            estadoPagoTexto.style.display =
+                "none";
+
+            seccionProductosPago.style.display =
+                "none";
+
+            datosPago.style.display =
+                "none";
+
+            productosPago.innerHTML =
+                "";
+
+            totalSeleccionado.innerText =
+                "$0.00";
+
+            referencia.value =
+                "";
+        }
+
+
+        // =========================================
+        // MENSAJES / NAVEGACIÓN
+        // =========================================
+
+        function mostrarMensaje(
+            texto,
+            tipo
+        ) {
+
+            mensaje.innerText =
+                texto;
+
+            mensaje.className =
+                `mensaje ${tipo}`;
+        }
+
 
         function limpiarMensaje() {
-            mensaje.innerText = "";
-            mensaje.className = "mensaje";
+
+            mensaje.innerText =
+                "";
+
+            mensaje.className =
+                "mensaje";
         }
+
 
         function volverPanel() {
-            window.location.href = "/panel.html";
+
+            window.location.href =
+                "/panel.html";
         }
+
 
         function cerrarSesion() {
+
             localStorage.clear();
-            window.location.href = "/login.html";
+
+            window.location.href =
+                "/login.html";
         }
 
+
         cargarOrdenes();
+
     </script>
 </body>
 </html>

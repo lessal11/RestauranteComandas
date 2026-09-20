@@ -102,6 +102,505 @@ namespace RestauranteComandas.Api.Controllers
             return Ok(pago);
         }
 
+        // =========================================================
+        // RESUMEN DE PAGO DE UNA ORDEN
+        // =========================================================
+
+        [HttpGet("orden/{ordenId}/resumen")]
+        [Authorize(Roles = "Administrador,Caja")]
+        public async Task<IActionResult> GetResumenPagoOrden(int ordenId)
+        {
+            var orden = await _context.Ordenes
+                .Include(o => o.Mesa)
+                .Include(o => o.Detalles)
+                    .ThenInclude(d => d.MenuItem)
+                .FirstOrDefaultAsync(o => o.Id == ordenId);
+
+            if (orden == null)
+            {
+                return NotFound("Orden no encontrada");
+            }
+
+            var cantidadesPagadas = await _context.PagoDetalles
+                .Where(pd =>
+                    pd.OrdenDetalle != null &&
+                    pd.OrdenDetalle.OrdenId == ordenId &&
+                    pd.Pago != null &&
+                    pd.Pago.EstadoPago == "Confirmado")
+                .GroupBy(pd => pd.OrdenDetalleId)
+                .Select(g => new
+                {
+                    OrdenDetalleId = g.Key,
+                    CantidadPagada = g.Sum(x => x.Cantidad)
+                })
+                .ToDictionaryAsync(
+                    x => x.OrdenDetalleId,
+                    x => x.CantidadPagada
+                );
+
+            var totalPagado = await _context.Pagos
+                .Where(p =>
+                    p.OrdenId == ordenId &&
+                    p.EstadoPago == "Confirmado")
+                .SumAsync(p => (decimal?)p.Monto) ?? 0;
+
+            var pendiente = Math.Max(
+                0,
+                orden.Total - totalPagado
+            );
+
+            string estadoPago;
+
+            if (totalPagado <= 0)
+            {
+                estadoPago = "Sin pago";
+            }
+            else if (pendiente > 0)
+            {
+                estadoPago = "Pago parcial";
+            }
+            else
+            {
+                estadoPago = "Pagado";
+            }
+
+            var detalles = orden.Detalles
+                .OrderBy(d => d.Id)
+                .Select(d =>
+                {
+                    var cantidadPagada =
+                        cantidadesPagadas.TryGetValue(
+                            d.Id,
+                            out var pagada)
+                            ? pagada
+                            : 0;
+
+                    var cantidadPendiente =
+                        Math.Max(
+                            0,
+                            d.Cantidad - cantidadPagada
+                        );
+
+                    return new
+                    {
+                        d.Id,
+
+                        d.MenuItemId,
+
+                        Plato =
+                            d.MenuItem != null
+                                ? d.MenuItem.Nombre
+                                : "Producto",
+
+                        d.Cantidad,
+
+                        cantidadPagada,
+
+                        cantidadPendiente,
+
+                        d.PrecioUnitario,
+
+                        d.Subtotal,
+
+                        subtotalPagado =
+                            cantidadPagada *
+                            d.PrecioUnitario,
+
+                        subtotalPendiente =
+                            cantidadPendiente *
+                            d.PrecioUnitario,
+
+                        d.DetallePersonalizado
+                    };
+                })
+                .ToList();
+
+            return Ok(new
+            {
+                ordenId = orden.Id,
+
+                mesa =
+                    orden.Mesa != null
+                        ? orden.Mesa.Numero
+                        : 0,
+
+                estadoOrden = orden.Estado,
+
+                estadoPago,
+
+                total = orden.Total,
+
+                totalPagado,
+
+                pendiente,
+
+                detalles
+            });
+        }
+
+        // =========================================================
+        // REGISTRAR PAGO PARCIAL / CUENTA SEPARADA
+        // =========================================================
+
+        [HttpPost("parcial")]
+        [Authorize(Roles = "Administrador,Caja")]
+        public async Task<IActionResult> RegistrarPagoParcial(
+            RegistrarPagoParcialDto dto)
+        {
+            if (dto.OrdenId <= 0)
+            {
+                return BadRequest(
+                    "Debe seleccionar una orden"
+                );
+            }
+
+            if (
+                dto.Detalles == null ||
+                !dto.Detalles.Any()
+            )
+            {
+                return BadRequest(
+                    "Debe seleccionar al menos un producto para pagar"
+                );
+            }
+
+            var metodosPermitidos =
+                new[]
+                {
+            "Efectivo",
+            "Transferencia",
+            "D1"
+                };
+
+            if (
+                string.IsNullOrWhiteSpace(dto.MetodoPago) ||
+                !metodosPermitidos.Contains(dto.MetodoPago)
+            )
+            {
+                return BadRequest(
+                    "Método de pago no permitido"
+                );
+            }
+
+            if (
+                dto.Detalles.Any(
+                    d => d.Cantidad <= 0
+                )
+            )
+            {
+                return BadRequest(
+                    "Las cantidades a pagar deben ser mayores a cero"
+                );
+            }
+
+            /*
+             * Evitamos que el frontend mande dos veces
+             * el mismo OrdenDetalle dentro del pago.
+             */
+            var idsDuplicados =
+                dto.Detalles
+                    .GroupBy(d => d.OrdenDetalleId)
+                    .Any(g => g.Count() > 1);
+
+            if (idsDuplicados)
+            {
+                return BadRequest(
+                    "Un mismo producto no puede aparecer dos veces en el pago"
+                );
+            }
+
+            await using var transaccion =
+                await _context.Database
+                    .BeginTransactionAsync();
+
+            try
+            {
+                var orden =
+                    await _context.Ordenes
+                        .Include(o => o.Mesa)
+                        .Include(o => o.Detalles)
+                            .ThenInclude(d => d.MenuItem)
+                        .FirstOrDefaultAsync(
+                            o => o.Id == dto.OrdenId
+                        );
+
+                if (orden == null)
+                {
+                    return NotFound(
+                        "Orden no encontrada"
+                    );
+                }
+
+                if (orden.Estado == "Cancelado")
+                {
+                    return BadRequest(
+                        "No se puede pagar una orden cancelada"
+                    );
+                }
+
+                if (orden.Estado == "Pagado")
+                {
+                    return BadRequest(
+                        "Esta orden ya está completamente pagada"
+                    );
+                }
+
+                var detalleIds =
+                    dto.Detalles
+                        .Select(d => d.OrdenDetalleId)
+                        .ToList();
+
+                var detallesOrden =
+                    orden.Detalles
+                        .Where(d =>
+                            detalleIds.Contains(d.Id)
+                        )
+                        .ToDictionary(d => d.Id);
+
+                if (
+                    detallesOrden.Count !=
+                    detalleIds.Count
+                )
+                {
+                    return BadRequest(
+                        "Uno o más productos no pertenecen a esta orden"
+                    );
+                }
+
+                var pagadoAnterior =
+                    await _context.PagoDetalles
+                        .Where(pd =>
+                            detalleIds.Contains(
+                                pd.OrdenDetalleId
+                            ) &&
+                            pd.Pago != null &&
+                            pd.Pago.EstadoPago ==
+                                "Confirmado"
+                        )
+                        .GroupBy(
+                            pd => pd.OrdenDetalleId
+                        )
+                        .Select(g => new
+                        {
+                            OrdenDetalleId = g.Key,
+
+                            Cantidad =
+                                g.Sum(x => x.Cantidad)
+                        })
+                        .ToDictionaryAsync(
+                            x => x.OrdenDetalleId,
+                            x => x.Cantidad
+                        );
+
+                decimal montoPago = 0;
+
+                var pagoDetalles =
+                    new List<PagoDetalle>();
+
+                foreach (
+                    var detalleDto in dto.Detalles
+                )
+                {
+                    var detalle =
+                        detallesOrden[
+                            detalleDto.OrdenDetalleId
+                        ];
+
+                    var cantidadYaPagada =
+                        pagadoAnterior.TryGetValue(
+                            detalle.Id,
+                            out var pagada
+                        )
+                            ? pagada
+                            : 0;
+
+                    var cantidadDisponible =
+                        detalle.Cantidad -
+                        cantidadYaPagada;
+
+                    if (
+                        detalleDto.Cantidad >
+                        cantidadDisponible
+                    )
+                    {
+                        return BadRequest(
+                            $"No se pueden pagar {detalleDto.Cantidad} unidades de " +
+                            $"{detalle.MenuItem?.Nombre ?? "Producto"}. " +
+                            $"Solo quedan {cantidadDisponible} pendientes."
+                        );
+                    }
+
+                    var subtotal =
+                        detalle.PrecioUnitario *
+                        detalleDto.Cantidad;
+
+                    montoPago += subtotal;
+
+                    pagoDetalles.Add(
+                        new PagoDetalle
+                        {
+                            OrdenDetalleId =
+                                detalle.Id,
+
+                            Cantidad =
+                                detalleDto.Cantidad,
+
+                            PrecioUnitario =
+                                detalle.PrecioUnitario,
+
+                            Subtotal =
+                                subtotal
+                        }
+                    );
+                }
+
+                if (montoPago <= 0)
+                {
+                    return BadRequest(
+                        "El pago no tiene un monto válido"
+                    );
+                }
+
+                var pago =
+                    new Pago
+                    {
+                        OrdenId =
+                            orden.Id,
+
+                        MetodoPago =
+                            dto.MetodoPago,
+
+                        Monto =
+                            montoPago,
+
+                        Referencia =
+                            string.IsNullOrWhiteSpace(
+                                dto.Referencia
+                            )
+                                ? "Sin referencia"
+                                : dto.Referencia.Trim(),
+
+                        FechaPago =
+                            DateTime.UtcNow,
+
+                        EstadoPago =
+                            "Confirmado",
+
+                        Detalles =
+                            pagoDetalles
+                    };
+
+                _context.Pagos.Add(
+                    pago
+                );
+
+                await _context.SaveChangesAsync();
+
+                var totalPagado =
+                    await _context.Pagos
+                        .Where(p =>
+                            p.OrdenId ==
+                                orden.Id &&
+                            p.EstadoPago ==
+                                "Confirmado"
+                        )
+                        .SumAsync(
+                            p => (decimal?)p.Monto
+                        ) ?? 0;
+
+                var pendiente =
+                    Math.Max(
+                        0,
+                        orden.Total - totalPagado
+                    );
+
+                var pagoCompleto =
+                    pendiente <= 0.001m;
+
+                /*
+                 * IMPORTANTE:
+                 *
+                 * Si es un pago parcial NO cambiamos
+                 * Pendiente / En preparación / Listo.
+                 *
+                 * Solo cuando se termina de pagar
+                 * toda la orden pasa a Pagado.
+                 */
+                if (pagoCompleto)
+                {
+                    orden.Estado =
+                        "Pagado";
+
+                    if (orden.Mesa != null)
+                    {
+                        orden.Mesa.Estado =
+                            "Disponible";
+                    }
+
+                    await _context.SaveChangesAsync();
+                }
+
+                await transaccion
+                    .CommitAsync();
+
+                if (pagoCompleto)
+                {
+                    await _hubContext
+                        .Clients.All
+                        .SendAsync(
+                            "EstadoOrdenActualizado",
+                            new
+                            {
+                                id =
+                                    orden.Id,
+
+                                estado =
+                                    orden.Estado
+                            }
+                        );
+                }
+
+                return Ok(new
+                {
+                    mensaje =
+                        pagoCompleto
+                            ? "Pago registrado. La orden quedó completamente pagada."
+                            : "Pago parcial registrado correctamente.",
+
+                    pagoId =
+                        pago.Id,
+
+                    ordenId =
+                        orden.Id,
+
+                    montoPago =
+                        pago.Monto,
+
+                    totalOrden =
+                        orden.Total,
+
+                    totalPagado,
+
+                    pendiente,
+
+                    estadoPago =
+                        pagoCompleto
+                            ? "Pagado"
+                            : "Pago parcial",
+
+                    estadoOrden =
+                        orden.Estado
+                });
+            }
+            catch
+            {
+                await transaccion
+                    .RollbackAsync();
+
+                throw;
+            }
+        }
+
         [HttpPost]
         [Authorize(Roles = "Administrador,Caja")]
         public async Task<IActionResult> RegistrarPago(RegistrarPagoDto dto)
@@ -135,7 +634,7 @@ namespace RestauranteComandas.Api.Controllers
 
             var orden = await _context.Ordenes
                 .Include(o => o.Mesa)
-                .Include(o => o.Pago)
+                .Include(o => o.Pagos)
                 .FirstOrDefaultAsync(o => o.Id == dto.OrdenId);
 
             if (orden == null)
@@ -143,7 +642,7 @@ namespace RestauranteComandas.Api.Controllers
                 return NotFound("La orden seleccionada no existe");
             }
 
-            if (orden.Pago != null)
+            if (orden.Pagos.Any())
             {
                 return BadRequest("Esta orden ya tiene un pago registrado");
             }
@@ -205,6 +704,22 @@ namespace RestauranteComandas.Api.Controllers
         [Authorize(Roles = "Administrador,Caja")]
         public async Task<IActionResult> GenerarComprobantePorOrden(int ordenId)
         {
+            var cantidadPagosConfirmados =
+                await _context.Pagos
+                    .CountAsync(p =>
+                        p.OrdenId == ordenId &&
+                        p.EstadoPago == "Confirmado"
+                    );
+
+                        if (cantidadPagosConfirmados > 1)
+                        {
+                            return Conflict(
+                                "Esta orden tiene cuentas separadas. " +
+                                "La generación de comprobantes para pagos múltiples " +
+                                "se habilitará en la siguiente fase."
+                            );
+                        }
+
             var pago = await _context.Pagos
                 .Include(p => p.Orden)
                     .ThenInclude(o => o!.Mesa)

@@ -16,6 +16,7 @@ namespace RestauranteComandas.Api.Data
         public DbSet<Orden> Ordenes { get; set; }
         public DbSet<OrdenDetalle> OrdenDetalles { get; set; }
         public DbSet<Pago> Pagos { get; set; }
+        public DbSet<PagoDetalle> PagoDetalles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -51,8 +52,19 @@ namespace RestauranteComandas.Api.Data
 
             modelBuilder.Entity<Pago>()
                 .HasOne(p => p.Orden)
-                .WithOne(o => o.Pago)
-                .HasForeignKey<Pago>(p => p.OrdenId);
+                .WithMany(o => o.Pagos)
+                .HasForeignKey(p => p.OrdenId);
+
+            modelBuilder.Entity<PagoDetalle>()
+                .HasOne(pd => pd.Pago)
+                .WithMany(p => p.Detalles)
+                .HasForeignKey(pd => pd.PagoId);
+
+            modelBuilder.Entity<PagoDetalle>()
+                .HasOne(pd => pd.OrdenDetalle)
+                .WithMany(od => od.PagoDetalles)
+                .HasForeignKey(pd => pd.OrdenDetalleId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<MenuItem>()
                 .Property(m => m.Precio)
@@ -72,6 +84,14 @@ namespace RestauranteComandas.Api.Data
 
             modelBuilder.Entity<Pago>()
                 .Property(p => p.Monto)
+                .HasPrecision(10, 2);
+
+            modelBuilder.Entity<PagoDetalle>()
+                .Property(pd => pd.PrecioUnitario)
+                .HasPrecision(10, 2);
+
+            modelBuilder.Entity<PagoDetalle>()
+                .Property(pd => pd.Subtotal)
                 .HasPrecision(10, 2);
         }
     }
