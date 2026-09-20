@@ -859,6 +859,58 @@
                 grid-template-columns: repeat( 3, minmax(0,1fr) );
             }
         }
+
+        /* =============================================
+   FIX RESPONSIVE - PANEL DE ORDEN
+   Mantiene Total + Botón siempre visibles
+   ============================================= */
+
+        .orden-panel {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #contenedorCarrito {
+            flex: 1 1 auto;
+            min-height: 0;
+            max-height: none;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+        }
+
+        .orden-panel .total,
+        .orden-panel .btn-enviar,
+        .orden-panel .mensaje,
+        .orden-panel .mesa-seleccionada {
+            flex-shrink: 0;
+        }
+
+        /* Laptop / escritorio */
+        @media (min-width: 920px) {
+
+            .orden-panel {
+                max-height: calc(100dvh - 100px);
+            }
+
+            #contenedorCarrito {
+                max-height: none;
+                overflow-y: auto;
+            }
+        }
+
+        /* Celulares y tablets */
+        @media (max-width: 919px) {
+
+            .orden-panel {
+                max-height: 88dvh;
+            }
+
+            #contenedorCarrito {
+                max-height: none;
+                overflow-y: auto;
+            }
+        }
     </style>
 
     <link rel="icon" type="image/jpeg" href="/images/logo.jpeg">
