@@ -8,16 +8,29 @@
 
         public Orden? Orden { get; set; }
 
-        public string MetodoPago { get; set; } = string.Empty;
+
+        public string MetodoPago { get; set; } =
+            string.Empty;
 
         public decimal Monto { get; set; }
 
         public string? Referencia { get; set; }
 
-        public DateTime FechaPago { get; set; } = DateTime.UtcNow;
+        public DateTime FechaPago { get; set; } =
+            DateTime.UtcNow;
 
-        public string EstadoPago { get; set; } = "Confirmado";
+        public string EstadoPago { get; set; } =
+            "Confirmado";
 
-        public ICollection<PagoDetalle> Detalles { get; set; } = new List<PagoDetalle>();
+        public int? CajaSesionId { get; set; }
+
+        public CajaSesion? CajaSesion { get; set; }
+
+        public int? UsuarioRegistroId { get; set; }
+
+        public Usuario? UsuarioRegistro { get; set; }
+
+        public ICollection<PagoDetalle> Detalles { get; set; } =
+            new List<PagoDetalle>();
     }
 }

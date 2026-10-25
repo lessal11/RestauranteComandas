@@ -20,6 +20,9 @@
 
         public string? DetallePersonalizado { get; set; }
 
-        public ICollection<PagoDetalle> PagoDetalles { get; set; } = new List<PagoDetalle>();
+        public int CantidadEntregada { get; set; } = 0;
+
+        public ICollection<PagoDetalle> PagoDetalles { get; set; } =
+            new List<PagoDetalle>();
     }
 }

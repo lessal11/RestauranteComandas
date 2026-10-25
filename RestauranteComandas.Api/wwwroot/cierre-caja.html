@@ -1,0 +1,2390 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <link rel="manifest"
+          href="/manifest.webmanifest?v=4">
+
+    <link rel="apple-touch-icon"
+          sizes="180x180"
+          href="/icons/apple-touch-icon.png?v=4">
+
+    <link rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href="/icons/icon-32x32.png?v=4">
+
+    <link rel="icon"
+          type="image/png"
+          sizes="192x192"
+          href="/icons/icon-192x192.png?v=4">
+
+    <meta name="apple-mobile-web-app-capable"
+          content="yes">
+
+    <meta name="apple-mobile-web-app-title"
+          content="La Super Corvina">
+
+    <meta name="mobile-web-app-capable"
+          content="yes">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+    <meta name="theme-color"
+          content="#0d1b2a">
+
+    <title>
+        Cierre de Caja - La Super Corvina
+    </title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --rojo: #dc2626;
+            --verde: #16a34a;
+            --amarillo: #f59e0b;
+            --azul: #2563eb;
+            --oscuro: #111827;
+            --gris: #6b7280;
+            --fondo: #f3f4f6;
+            --borde: #e5e7eb;
+        }
+
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--fondo);
+            color: var(--oscuro);
+        }
+
+
+        button,
+        input,
+        textarea {
+            font: inherit;
+        }
+
+
+        /* =============================================
+           HEADER
+           ============================================= */
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            flex-wrap: wrap;
+            padding: 18px 25px;
+            background: var(--oscuro);
+            color: white;
+        }
+
+        .titulo {
+            font-size: 26px;
+            font-weight: 900;
+        }
+
+        .usuario {
+            margin-top: 4px;
+            color: #d1d5db;
+            font-size: 14px;
+        }
+
+        .acciones-header {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .btn-header {
+            border: none;
+            border-radius: 9px;
+            padding: 10px 14px;
+            background: var(--rojo);
+            color: white;
+            cursor: pointer;
+            font-weight: 900;
+        }
+
+
+        /* =============================================
+           CONTENIDO
+           ============================================= */
+
+        .contenedor {
+            width: min(100%, 1200px);
+            margin: auto;
+            padding: 24px 18px 50px;
+        }
+
+        .panel {
+            margin-bottom: 20px;
+            border-radius: 15px;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,.10);
+        }
+
+            .panel h2 {
+                margin: 0 0 15px;
+                color: var(--rojo);
+            }
+
+
+        /* =============================================
+           ESTADO DE CAJA
+           ============================================= */
+
+        .estado-caja {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 16px;
+            border-radius: 999px;
+            padding: 7px 12px;
+            font-size: 13px;
+            font-weight: 900;
+        }
+
+            .estado-caja.abierta {
+                background: #dcfce7;
+                color: #166534;
+            }
+
+            .estado-caja.cerrada {
+                background: #fee2e2;
+                color: #991b1b;
+            }
+
+
+        /* =============================================
+           APERTURA
+           ============================================= */
+
+        .form-grupo {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 900;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            border: 1px solid #d1d5db;
+            border-radius: 9px;
+            padding: 11px;
+            outline: none;
+        }
+
+            input:focus,
+            textarea:focus {
+                border-color: var(--rojo);
+                box-shadow: 0 0 0 3px rgba(220,38,38,.10);
+            }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .ayuda {
+            margin-top: 5px;
+            color: var(--gris);
+            font-size: 12px;
+        }
+
+
+        /* =============================================
+           RESUMEN
+           ============================================= */
+
+        .resumen-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .resumen-card {
+            border: 1px solid var(--borde);
+            border-radius: 12px;
+            padding: 14px;
+            background: #f9fafb;
+        }
+
+            .resumen-card span {
+                display: block;
+                margin-bottom: 6px;
+                color: var(--gris);
+                font-size: 12px;
+                font-weight: 800;
+            }
+
+            .resumen-card strong {
+                display: block;
+                font-size: 23px;
+            }
+
+            .resumen-card.efectivo strong {
+                color: #15803d;
+            }
+
+            .resumen-card.transferencia strong {
+                color: #1d4ed8;
+            }
+
+            .resumen-card.d1 strong {
+                color: #7c3aed;
+            }
+
+            .resumen-card.total strong {
+                color: var(--rojo);
+            }
+
+
+        /* =============================================
+           INFORMACIÓN GENERAL
+           ============================================= */
+
+        .info-caja {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .info-item {
+            border-radius: 10px;
+            padding: 11px 13px;
+            background: #f3f4f6;
+        }
+
+            .info-item span {
+                display: block;
+                margin-bottom: 3px;
+                color: var(--gris);
+                font-size: 12px;
+            }
+
+            .info-item strong {
+                font-size: 15px;
+            }
+
+
+        /* =============================================
+           CUADRE
+           ============================================= */
+
+        .cuadre-box {
+            margin-top: 18px;
+            border: 2px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 16px;
+        }
+
+        .fila-cuadre {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+            .fila-cuadre:last-child {
+                border-bottom: none;
+            }
+
+            .fila-cuadre.destacada {
+                margin-top: 5px;
+                border-top: 2px solid var(--oscuro);
+                font-size: 18px;
+                font-weight: 900;
+            }
+
+        .resultado-diferencia {
+            margin: 15px 0;
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 900;
+        }
+
+            .resultado-diferencia.cuadrada {
+                background: #dcfce7;
+                color: #166534;
+            }
+
+            .resultado-diferencia.faltante {
+                background: #fee2e2;
+                color: #991b1b;
+            }
+
+            .resultado-diferencia.sobrante {
+                background: #fef3c7;
+                color: #92400e;
+            }
+
+
+        /* =============================================
+           BOTONES
+           ============================================= */
+
+        .btn-principal {
+            width: 100%;
+            min-height: 50px;
+            border: none;
+            border-radius: 10px;
+            padding: 13px;
+            background: var(--verde);
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 900;
+        }
+
+            .btn-principal.cerrar {
+                background: var(--rojo);
+            }
+
+            .btn-principal:disabled {
+                background: #9ca3af;
+                cursor: not-allowed;
+            }
+
+        .btn-secundario {
+            border: none;
+            border-radius: 9px;
+            padding: 10px 13px;
+            background: var(--oscuro);
+            color: white;
+            cursor: pointer;
+            font-weight: 900;
+        }
+
+
+        /* =============================================
+           HISTORIAL
+           ============================================= */
+
+        .historial-header {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+
+        .filtro {
+            flex: 1 1 180px;
+        }
+
+        .cierre-card {
+            margin-bottom: 13px;
+            border: 1px solid var(--borde);
+            border-radius: 13px;
+            padding: 15px;
+            background: #f9fafb;
+        }
+
+        .cierre-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .cierre-titulo {
+            font-weight: 900;
+            color: var(--rojo);
+        }
+
+        .badge-cuadre {
+            border-radius: 999px;
+            padding: 5px 10px;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+            .badge-cuadre.cuadrada {
+                background: #dcfce7;
+                color: #166534;
+            }
+
+            .badge-cuadre.faltante {
+                background: #fee2e2;
+                color: #991b1b;
+            }
+
+            .badge-cuadre.sobrante {
+                background: #fef3c7;
+                color: #92400e;
+            }
+
+        .cierre-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+            gap: 8px;
+        }
+
+        .cierre-dato {
+            padding: 8px;
+            border-radius: 8px;
+            background: white;
+        }
+
+            .cierre-dato span {
+                display: block;
+                color: var(--gris);
+                font-size: 11px;
+            }
+
+            .cierre-dato strong {
+                font-size: 14px;
+            }
+
+        .observacion {
+            margin-top: 10px;
+            border-left: 4px solid var(--amarillo);
+            padding: 9px 11px;
+            background: #fffbeb;
+            color: #78350f;
+            font-size: 13px;
+        }
+
+
+        /* =============================================
+           MENSAJES
+           ============================================= */
+
+        .mensaje {
+            min-height: 22px;
+            margin-top: 13px;
+            text-align: center;
+            font-weight: 900;
+        }
+
+            .mensaje.ok {
+                color: var(--verde);
+            }
+
+            .mensaje.error {
+                color: var(--rojo);
+            }
+
+        .vacio {
+            padding: 20px;
+            text-align: center;
+            color: var(--gris);
+        }
+
+
+        @media (max-width: 600px) {
+
+            header {
+                padding: 14px;
+            }
+
+            .titulo {
+                font-size: 21px;
+            }
+
+            .contenedor {
+                padding: 15px 12px 40px;
+            }
+
+            .panel {
+                padding: 15px;
+            }
+
+            .resumen-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+
+        @media (max-width: 420px) {
+
+            .resumen-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+
+    <link rel="icon"
+          type="image/jpeg"
+          href="/images/logo.jpeg">
+
+    <link rel="stylesheet"
+          href="/css/theme.css?v=4">
+
+</head>
+
+
+<body>
+
+    <header>
+
+        <div>
+
+            <div class="titulo">
+                Apertura y Cierre de Caja
+            </div>
+
+            <div class="usuario"
+                 id="usuarioInfo">
+            </div>
+
+        </div>
+
+
+        <div class="acciones-header">
+
+            <button class="btn-header"
+                    onclick="volverPanel()">
+                Panel
+            </button>
+
+            <button class="btn-header"
+                    onclick="cerrarSesion()">
+                Cerrar sesión
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <main class="contenedor">
+
+
+        <!-- =============================================
+             APERTURA
+             ============================================= -->
+
+        <section class="panel"
+                 id="panelApertura">
+
+            <h2>
+                Abrir caja
+            </h2>
+
+            <div class="estado-caja cerrada">
+                🔴 Caja cerrada
+            </div>
+
+            <p>
+                No existe una sesión de caja abierta.
+                Ingrese el fondo inicial para comenzar.
+            </p>
+
+
+            <div class="form-grupo">
+
+                <label for="fondoInicial">
+                    Fondo inicial
+                </label>
+
+                <input id="fondoInicial"
+                       type="number"
+                       min="0"
+                       step="0.01"
+                       value="0.00"
+                       inputmode="decimal">
+
+                <div class="ayuda">
+                    Dinero disponible físicamente al comenzar el turno.
+                </div>
+
+            </div>
+
+
+            <button class="btn-principal"
+                    id="btnAbrirCaja"
+                    type="button"
+                    onclick="abrirCaja()">
+
+                Abrir caja
+
+            </button>
+
+
+            <div class="mensaje"
+                 id="mensajeApertura">
+            </div>
+
+        </section>
+
+
+        <!-- =============================================
+             CAJA ACTIVA
+             ============================================= -->
+
+        <section class="panel"
+                 id="panelCajaActiva"
+                 style="display:none;">
+
+            <h2>
+                Caja actual
+            </h2>
+
+            <div class="estado-caja abierta">
+                🟢 Caja abierta
+            </div>
+
+
+            <div class="info-caja">
+
+                <div class="info-item">
+
+                    <span>
+                        Sesión
+                    </span>
+
+                    <strong id="cajaId">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <span>
+                        Abierta por
+                    </span>
+
+                    <strong id="usuarioApertura">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <span>
+                        Fecha de apertura
+                    </span>
+
+                    <strong id="fechaApertura">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="info-item">
+
+                    <span>
+                        Pagos registrados
+                    </span>
+
+                    <strong id="cantidadPagos">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="resumen-grid">
+
+                <div class="resumen-card">
+
+                    <span>
+                        Fondo inicial
+                    </span>
+
+                    <strong id="resumenFondo">
+                        $0.00
+                    </strong>
+
+                </div>
+
+
+                <div class="resumen-card efectivo">
+
+                    <span>
+                        Efectivo cobrado
+                    </span>
+
+                    <strong id="resumenEfectivo">
+                        $0.00
+                    </strong>
+
+                </div>
+
+
+                <div class="resumen-card transferencia">
+
+                    <span>
+                        Transferencias
+                    </span>
+
+                    <strong id="resumenTransferencia">
+                        $0.00
+                    </strong>
+
+                </div>
+
+
+                <div class="resumen-card d1">
+
+                    <span>
+                        D1
+                    </span>
+
+                    <strong id="resumenD1">
+                        $0.00
+                    </strong>
+
+                </div>
+
+
+                <div class="resumen-card total">
+
+                    <span>
+                        Total cobrado
+                    </span>
+
+                    <strong id="resumenTotal">
+                        $0.00
+                    </strong>
+
+                </div>
+
+
+                <div class="resumen-card efectivo">
+
+                    <span>
+                        Efectivo esperado
+                    </span>
+
+                    <strong id="resumenEsperado">
+                        $0.00
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div style="
+                    margin-top:15px;
+                    text-align:right;
+                ">
+
+                <button class="btn-secundario"
+                        type="button"
+                        onclick="cargarResumenCaja()">
+
+                    Actualizar valores
+
+                </button>
+
+            </div>
+
+
+            <!-- CUADRE -->
+
+            <div class="cuadre-box">
+
+                <h3>
+                    Cuadre de caja
+                </h3>
+
+
+                <div class="fila-cuadre">
+
+                    <span>
+                        Fondo inicial
+                    </span>
+
+                    <strong id="cuadreFondo">
+                        $0.00
+                    </strong>
+
+                </div>
+
+
+                <div class="fila-cuadre">
+
+                    <span>
+                        + Ventas en efectivo
+                    </span>
+
+                    <strong id="cuadreEfectivo">
+                        $0.00
+                    </strong>
+
+                </div>
+
+
+                <div class="fila-cuadre destacada">
+
+                    <span>
+                        Efectivo esperado
+                    </span>
+
+                    <strong id="cuadreEsperado">
+                        $0.00
+                    </strong>
+
+                </div>
+
+
+                <div class="form-grupo"
+                     style="margin-top:18px;">
+
+                    <label for="efectivoContado">
+                        Efectivo contado físicamente
+                    </label>
+
+                    <input id="efectivoContado"
+                           type="number"
+                           min="0"
+                           step="0.01"
+                           placeholder="0.00"
+                           inputmode="decimal"
+                           oninput="calcularDiferenciaVisual()">
+
+                </div>
+
+
+                <div id="resultadoDiferencia"
+                     class="resultado-diferencia cuadrada">
+
+                    Diferencia: $0.00
+
+                </div>
+
+
+                <div class="form-grupo">
+
+                    <label for="observacionCierre">
+                        Observación
+                    </label>
+
+                    <textarea id="observacionCierre"
+                              placeholder="Opcional si la caja cuadra. Obligatoria si existe faltante o sobrante."></textarea>
+
+                </div>
+
+
+                <button class="btn-principal cerrar"
+                        id="btnCerrarCaja"
+                        type="button"
+                        onclick="cerrarCaja()">
+
+                    Cerrar y cuadrar caja
+
+                </button>
+
+
+                <div class="mensaje"
+                     id="mensajeCierre">
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =============================================
+             HISTORIAL
+             ============================================= -->
+
+        <section class="panel">
+
+            <h2>
+                Historial de cierres
+            </h2>
+
+
+            <div class="historial-header">
+
+
+                <div class="filtro">
+
+                    <label for="desde">
+                        Desde
+                    </label>
+
+                    <input id="desde"
+                           type="date">
+
+                </div>
+
+
+                <div class="filtro">
+
+                    <label for="hasta">
+                        Hasta
+                    </label>
+
+                    <input id="hasta"
+                           type="date">
+
+                </div>
+
+
+                <button class="btn-secundario"
+                        type="button"
+                        onclick="cargarHistorial()">
+
+                    Buscar
+
+                </button>
+
+            </div>
+
+
+            <div id="contenedorHistorial">
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script>
+
+        // =============================================
+        // SESIÓN
+        // =============================================
+
+        const token =
+            localStorage.getItem(
+                "token"
+            );
+
+        const usuarioNombre =
+            localStorage.getItem(
+                "usuarioNombre"
+            );
+
+        const usuarioRol =
+            localStorage.getItem(
+                "usuarioRol"
+            );
+
+
+        const usuarioInfo =
+            document.getElementById(
+                "usuarioInfo"
+            );
+
+
+        // =============================================
+        // ELEMENTOS
+        // =============================================
+
+        const panelApertura =
+            document.getElementById(
+                "panelApertura"
+            );
+
+        const panelCajaActiva =
+            document.getElementById(
+                "panelCajaActiva"
+            );
+
+
+        const fondoInicial =
+            document.getElementById(
+                "fondoInicial"
+            );
+
+        const btnAbrirCaja =
+            document.getElementById(
+                "btnAbrirCaja"
+            );
+
+        const mensajeApertura =
+            document.getElementById(
+                "mensajeApertura"
+            );
+
+
+        const efectivoContado =
+            document.getElementById(
+                "efectivoContado"
+            );
+
+        const observacionCierre =
+            document.getElementById(
+                "observacionCierre"
+            );
+
+        const btnCerrarCaja =
+            document.getElementById(
+                "btnCerrarCaja"
+            );
+
+        const mensajeCierre =
+            document.getElementById(
+                "mensajeCierre"
+            );
+
+
+        const resultadoDiferencia =
+            document.getElementById(
+                "resultadoDiferencia"
+            );
+
+
+        const contenedorHistorial =
+            document.getElementById(
+                "contenedorHistorial"
+            );
+
+
+        let resumenActual =
+            null;
+
+        let procesandoApertura =
+            false;
+
+        let procesandoCierre =
+            false;
+
+
+        validarSesion();
+
+
+        usuarioInfo.innerText =
+            `${usuarioNombre || ""} - ${usuarioRol || ""}`;
+
+
+        // =============================================
+        // VALIDAR SESIÓN
+        // =============================================
+
+        function validarSesion() {
+
+            if (!token) {
+
+                window.location.href =
+                    "/login.html";
+
+                return;
+            }
+
+
+            if (
+                usuarioRol !== "Caja" &&
+                usuarioRol !== "Administrador"
+            ) {
+
+                alert(
+                    "No tiene permiso para acceder al módulo de cierre de caja"
+                );
+
+                window.location.href =
+                    "/panel.html";
+            }
+        }
+
+
+        function manejarNoAutorizado(
+            response
+        ) {
+
+            if (
+                response.status === 401 ||
+                response.status === 403
+            ) {
+
+                alert(
+                    "No tiene permiso o la sesión expiró"
+                );
+
+                localStorage.clear();
+
+                window.location.href =
+                    "/login.html";
+
+                return true;
+            }
+
+            return false;
+        }
+
+
+        // =============================================
+        // UTILIDADES
+        // =============================================
+
+        function dinero(
+            valor
+        ) {
+
+            return `$${Number(valor || 0).toFixed(2)}`;
+        }
+
+
+        function escaparHtml(
+            texto
+        ) {
+
+            return String(texto ?? "")
+                .replaceAll(
+                    "&",
+                    "&amp;"
+                )
+                .replaceAll(
+                    "<",
+                    "&lt;"
+                )
+                .replaceAll(
+                    ">",
+                    "&gt;"
+                )
+                .replaceAll(
+                    '"',
+                    "&quot;"
+                )
+                .replaceAll(
+                    "'",
+                    "&#039;"
+                );
+        }
+
+
+        function fechaLocal(
+            fecha
+        ) {
+
+            if (!fecha) {
+                return "-";
+            }
+
+            return new Date(
+                fecha
+            )
+                .toLocaleString();
+        }
+
+
+        function fechaHoyInput() {
+
+            const ahora =
+                new Date();
+
+            const anio =
+                ahora.getFullYear();
+
+            const mes =
+                String(
+                    ahora.getMonth() + 1
+                )
+                    .padStart(
+                        2,
+                        "0"
+                    );
+
+            const dia =
+                String(
+                    ahora.getDate()
+                )
+                    .padStart(
+                        2,
+                        "0"
+                    );
+
+            return `${anio}-${mes}-${dia}`;
+        }
+
+
+        // =============================================
+        // CARGAR ESTADO DE CAJA
+        // =============================================
+
+        async function cargarCaja() {
+
+            limpiarMensajes();
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/Caja/activa",
+                        {
+                            headers: {
+                                "Authorization":
+                                    `Bearer ${token}`
+                            }
+                        }
+                    );
+
+
+                if (
+                    manejarNoAutorizado(
+                        response
+                    )
+                ) {
+                    return;
+                }
+
+
+                if (
+                    response.status === 204
+                ) {
+
+                    resumenActual =
+                        null;
+
+                    panelApertura.style.display =
+                        "block";
+
+                    panelCajaActiva.style.display =
+                        "none";
+
+                    return;
+                }
+
+
+                if (!response.ok) {
+
+                    mostrarMensaje(
+                        mensajeApertura,
+                        "No se pudo consultar el estado de la caja.",
+                        "error"
+                    );
+
+                    return;
+                }
+
+
+                panelApertura.style.display =
+                    "none";
+
+                panelCajaActiva.style.display =
+                    "block";
+
+
+                await cargarResumenCaja();
+
+            } catch (error) {
+
+                mostrarMensaje(
+                    mensajeApertura,
+                    "Error de conexión con el servidor.",
+                    "error"
+                );
+            }
+        }
+
+
+        // =============================================
+        // ABRIR CAJA
+        // =============================================
+
+        async function abrirCaja() {
+
+            if (
+                procesandoApertura
+            ) {
+                return;
+            }
+
+
+            limpiarMensajes();
+
+
+            const fondo =
+                Number(
+                    fondoInicial.value
+                );
+
+
+            if (
+                Number.isNaN(fondo) ||
+                fondo < 0
+            ) {
+
+                mostrarMensaje(
+                    mensajeApertura,
+                    "Ingrese un fondo inicial válido.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            const confirmar =
+                window.confirm(
+                    `Se abrirá la caja con un fondo inicial de ${dinero(fondo)}.\n\n¿Desea continuar?`
+                );
+
+
+            if (!confirmar) {
+                return;
+            }
+
+
+            procesandoApertura =
+                true;
+
+            btnAbrirCaja.disabled =
+                true;
+
+            btnAbrirCaja.innerText =
+                "Abriendo caja...";
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/Caja/abrir",
+                        {
+                            method:
+                                "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json",
+
+                                "Authorization":
+                                    `Bearer ${token}`
+                            },
+
+                            body:
+                                JSON.stringify({
+                                    fondoInicial:
+                                        fondo
+                                })
+                        }
+                    );
+
+
+                if (
+                    manejarNoAutorizado(
+                        response
+                    )
+                ) {
+                    return;
+                }
+
+
+                if (!response.ok) {
+
+                    const error =
+                        await obtenerError(
+                            response
+                        );
+
+                    mostrarMensaje(
+                        mensajeApertura,
+                        error ||
+                        "No se pudo abrir la caja.",
+                        "error"
+                    );
+
+                    return;
+                }
+
+
+                mostrarMensaje(
+                    mensajeApertura,
+                    "Caja abierta correctamente.",
+                    "ok"
+                );
+
+
+                fondoInicial.value =
+                    "0.00";
+
+
+                await cargarCaja();
+
+                await cargarHistorial();
+
+            } catch (error) {
+
+                mostrarMensaje(
+                    mensajeApertura,
+                    "Error de conexión con el servidor.",
+                    "error"
+                );
+
+            } finally {
+
+                procesandoApertura =
+                    false;
+
+                btnAbrirCaja.disabled =
+                    false;
+
+                btnAbrirCaja.innerText =
+                    "Abrir caja";
+            }
+        }
+
+
+        // =============================================
+        // RESUMEN CAJA ACTIVA
+        // =============================================
+
+        async function cargarResumenCaja() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/Caja/activa/resumen",
+                        {
+                            headers: {
+                                "Authorization":
+                                    `Bearer ${token}`
+                            }
+                        }
+                    );
+
+
+                if (
+                    manejarNoAutorizado(
+                        response
+                    )
+                ) {
+                    return;
+                }
+
+
+                if (
+                    response.status === 204
+                ) {
+
+                    resumenActual =
+                        null;
+
+                    panelApertura.style.display =
+                        "block";
+
+                    panelCajaActiva.style.display =
+                        "none";
+
+                    return;
+                }
+
+
+                if (!response.ok) {
+
+                    mostrarMensaje(
+                        mensajeCierre,
+                        "No se pudo cargar el resumen de caja.",
+                        "error"
+                    );
+
+                    return;
+                }
+
+
+                resumenActual =
+                    await response.json();
+
+
+                panelApertura.style.display =
+                    "none";
+
+                panelCajaActiva.style.display =
+                    "block";
+
+
+                renderizarResumenCaja();
+
+
+            } catch (error) {
+
+                mostrarMensaje(
+                    mensajeCierre,
+                    "Error al consultar el resumen de caja.",
+                    "error"
+                );
+            }
+        }
+
+
+        function renderizarResumenCaja() {
+
+            if (!resumenActual) {
+                return;
+            }
+
+
+            document
+                .getElementById(
+                    "cajaId"
+                )
+                .innerText =
+                `#${resumenActual.cajaId}`;
+
+
+            document
+                .getElementById(
+                    "usuarioApertura"
+                )
+                .innerText =
+                resumenActual.usuarioApertura ||
+                "-";
+
+
+            document
+                .getElementById(
+                    "fechaApertura"
+                )
+                .innerText =
+                fechaLocal(
+                    resumenActual.fechaApertura
+                );
+
+
+            document
+                .getElementById(
+                    "cantidadPagos"
+                )
+                .innerText =
+                resumenActual.cantidadPagos;
+
+
+            document
+                .getElementById(
+                    "resumenFondo"
+                )
+                .innerText =
+                dinero(
+                    resumenActual.fondoInicial
+                );
+
+
+            document
+                .getElementById(
+                    "resumenEfectivo"
+                )
+                .innerText =
+                dinero(
+                    resumenActual.totalEfectivo
+                );
+
+
+            document
+                .getElementById(
+                    "resumenTransferencia"
+                )
+                .innerText =
+                dinero(
+                    resumenActual.totalTransferencia
+                );
+
+
+            document
+                .getElementById(
+                    "resumenD1"
+                )
+                .innerText =
+                dinero(
+                    resumenActual.totalD1
+                );
+
+
+            document
+                .getElementById(
+                    "resumenTotal"
+                )
+                .innerText =
+                dinero(
+                    resumenActual.totalCobrado
+                );
+
+
+            document
+                .getElementById(
+                    "resumenEsperado"
+                )
+                .innerText =
+                dinero(
+                    resumenActual.efectivoEsperado
+                );
+
+
+            document
+                .getElementById(
+                    "cuadreFondo"
+                )
+                .innerText =
+                dinero(
+                    resumenActual.fondoInicial
+                );
+
+
+            document
+                .getElementById(
+                    "cuadreEfectivo"
+                )
+                .innerText =
+                dinero(
+                    resumenActual.totalEfectivo
+                );
+
+
+            document
+                .getElementById(
+                    "cuadreEsperado"
+                )
+                .innerText =
+                dinero(
+                    resumenActual.efectivoEsperado
+                );
+
+
+            calcularDiferenciaVisual();
+        }
+
+
+        // =============================================
+        // DIFERENCIA VISUAL
+        // =============================================
+
+        function calcularDiferenciaVisual() {
+
+            if (!resumenActual) {
+
+                resultadoDiferencia.innerText =
+                    "Diferencia: $0.00";
+
+                return;
+            }
+
+
+            const contado =
+                Number(
+                    efectivoContado.value
+                );
+
+
+            if (
+                efectivoContado.value === "" ||
+                Number.isNaN(contado)
+            ) {
+
+                resultadoDiferencia.innerText =
+                    "Ingrese el efectivo contado.";
+
+                resultadoDiferencia.className =
+                    "resultado-diferencia cuadrada";
+
+                return;
+            }
+
+
+            const esperado =
+                Number(
+                    resumenActual.efectivoEsperado
+                );
+
+
+            const diferencia =
+                contado -
+                esperado;
+
+
+            resultadoDiferencia.className =
+                "resultado-diferencia";
+
+
+            if (
+                Math.abs(diferencia) <
+                0.001
+            ) {
+
+                resultadoDiferencia
+                    .classList
+                    .add(
+                        "cuadrada"
+                    );
+
+                resultadoDiferencia.innerText =
+                    "✅ Caja cuadrada · Diferencia $0.00";
+
+                return;
+            }
+
+
+            if (diferencia < 0) {
+
+                resultadoDiferencia
+                    .classList
+                    .add(
+                        "faltante"
+                    );
+
+                resultadoDiferencia.innerText =
+                    `⚠️ Faltante: ${dinero(Math.abs(diferencia))}`;
+
+                return;
+            }
+
+
+            resultadoDiferencia
+                .classList
+                .add(
+                    "sobrante"
+                );
+
+            resultadoDiferencia.innerText =
+                `⚠️ Sobrante: ${dinero(diferencia)}`;
+        }
+
+
+        // =============================================
+        // CERRAR CAJA
+        // =============================================
+
+        async function cerrarCaja() {
+
+            if (
+                procesandoCierre ||
+                !resumenActual
+            ) {
+                return;
+            }
+
+
+            limpiarMensajes();
+
+
+            const contado =
+                Number(
+                    efectivoContado.value
+                );
+
+
+            if (
+                efectivoContado.value === "" ||
+                Number.isNaN(contado) ||
+                contado < 0
+            ) {
+
+                mostrarMensaje(
+                    mensajeCierre,
+                    "Ingrese correctamente el efectivo contado.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            const esperado =
+                Number(
+                    resumenActual.efectivoEsperado
+                );
+
+
+            const diferencia =
+                contado -
+                esperado;
+
+
+            const observacion =
+                observacionCierre
+                    .value
+                    .trim();
+
+
+            if (
+                Math.abs(diferencia) >= 0.001 &&
+                !observacion
+            ) {
+
+                mostrarMensaje(
+                    mensajeCierre,
+                    "Existe una diferencia. Debe ingresar una observación antes de cerrar.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            let detalle =
+                `Efectivo esperado: ${dinero(esperado)}\n` +
+                `Efectivo contado: ${dinero(contado)}\n`;
+
+
+            if (
+                Math.abs(diferencia) <
+                0.001
+            ) {
+
+                detalle +=
+                    "Diferencia: $0.00";
+
+            } else if (
+                diferencia < 0
+            ) {
+
+                detalle +=
+                    `Faltante: ${dinero(Math.abs(diferencia))}`;
+
+            } else {
+
+                detalle +=
+                    `Sobrante: ${dinero(diferencia)}`;
+            }
+
+
+            const confirmar =
+                window.confirm(
+                    `¿Confirma el cierre de caja?\n\n${detalle}\n\nDespués del cierre deberá abrir una nueva caja para registrar nuevos pagos.`
+                );
+
+
+            if (!confirmar) {
+                return;
+            }
+
+
+            procesandoCierre =
+                true;
+
+            btnCerrarCaja.disabled =
+                true;
+
+            btnCerrarCaja.innerText =
+                "Cerrando caja...";
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/Caja/cerrar",
+                        {
+                            method:
+                                "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json",
+
+                                "Authorization":
+                                    `Bearer ${token}`
+                            },
+
+                            body:
+                                JSON.stringify({
+                                    efectivoContado:
+                                        contado,
+
+                                    observacionCierre:
+                                        observacion ||
+                                        null
+                                })
+                        }
+                    );
+
+
+                if (
+                    manejarNoAutorizado(
+                        response
+                    )
+                ) {
+                    return;
+                }
+
+
+                if (!response.ok) {
+
+                    const error =
+                        await obtenerError(
+                            response
+                        );
+
+                    mostrarMensaje(
+                        mensajeCierre,
+                        error ||
+                        "No se pudo cerrar la caja.",
+                        "error"
+                    );
+
+                    return;
+                }
+
+
+                const data =
+                    await response.json();
+
+
+                window.alert(
+                    `Caja cerrada correctamente.\n\n` +
+                    `Estado: ${data.estadoCuadre}\n` +
+                    `Total cobrado: ${dinero(data.totalCobrado)}\n` +
+                    `Diferencia: ${dinero(data.diferencia)}`
+                );
+
+
+                efectivoContado.value =
+                    "";
+
+                observacionCierre.value =
+                    "";
+
+                resumenActual =
+                    null;
+
+
+                await cargarCaja();
+
+                await cargarHistorial();
+
+
+            } catch (error) {
+
+                mostrarMensaje(
+                    mensajeCierre,
+                    "Error de conexión con el servidor.",
+                    "error"
+                );
+
+            } finally {
+
+                procesandoCierre =
+                    false;
+
+                btnCerrarCaja.disabled =
+                    false;
+
+                btnCerrarCaja.innerText =
+                    "Cerrar y cuadrar caja";
+            }
+        }
+
+
+        // =============================================
+        // HISTORIAL
+        // =============================================
+
+        async function cargarHistorial() {
+
+            const desde =
+                document.getElementById(
+                    "desde"
+                ).value;
+
+            const hasta =
+                document.getElementById(
+                    "hasta"
+                ).value;
+
+
+            const params =
+                new URLSearchParams();
+
+
+            if (desde) {
+                params.append(
+                    "desde",
+                    desde
+                );
+            }
+
+            if (hasta) {
+                params.append(
+                    "hasta",
+                    hasta
+                );
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `/api/Caja/historial?${params.toString()}`,
+                        {
+                            headers: {
+                                "Authorization":
+                                    `Bearer ${token}`
+                            }
+                        }
+                    );
+
+
+                if (
+                    manejarNoAutorizado(
+                        response
+                    )
+                ) {
+                    return;
+                }
+
+
+                if (!response.ok) {
+
+                    contenedorHistorial.innerHTML = `
+                        <div class="vacio">
+                            No se pudo cargar el historial.
+                        </div>
+                    `;
+
+                    return;
+                }
+
+
+                const cierres =
+                    await response.json();
+
+
+                renderizarHistorial(
+                    cierres
+                );
+
+
+            } catch (error) {
+
+                contenedorHistorial.innerHTML = `
+                    <div class="vacio">
+                        Error al consultar el historial.
+                    </div>
+                `;
+            }
+        }
+
+
+        function renderizarHistorial(
+            cierres
+        ) {
+
+            contenedorHistorial.innerHTML =
+                "";
+
+
+            if (
+                !cierres ||
+                cierres.length === 0
+            ) {
+
+                contenedorHistorial.innerHTML = `
+                    <div class="vacio">
+                        No existen cierres para los filtros seleccionados.
+                    </div>
+                `;
+
+                return;
+            }
+
+
+            cierres.forEach(
+                cierre => {
+
+                    const div =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    const claseCuadre =
+                        String(
+                            cierre.estadoCuadre ||
+                            ""
+                        )
+                            .toLowerCase();
+
+
+                    div.className =
+                        "cierre-card";
+
+
+                    div.innerHTML = `
+
+                        <div class="cierre-header">
+
+                            <div>
+
+                                <div class="cierre-titulo">
+                                    Cierre de caja #${cierre.id}
+                                </div>
+
+                                <div>
+                                    ${fechaLocal(cierre.fechaCierre)}
+                                </div>
+
+                            </div>
+
+
+                            <span class="
+                                badge-cuadre
+                                ${claseCuadre}
+                            ">
+                                ${escaparHtml(cierre.estadoCuadre)}
+                            </span>
+
+                        </div>
+
+
+                        <div class="cierre-grid">
+
+
+                            <div class="cierre-dato">
+                                <span>Abrió</span>
+                                <strong>
+                                    ${escaparHtml(cierre.usuarioApertura)}
+                                </strong>
+                            </div>
+
+
+                            <div class="cierre-dato">
+                                <span>Cerró</span>
+                                <strong>
+                                    ${escaparHtml(cierre.usuarioCierre)}
+                                </strong>
+                            </div>
+
+
+                            <div class="cierre-dato">
+                                <span>Fondo inicial</span>
+                                <strong>
+                                    ${dinero(cierre.fondoInicial)}
+                                </strong>
+                            </div>
+
+
+                            <div class="cierre-dato">
+                                <span>Efectivo</span>
+                                <strong>
+                                    ${dinero(cierre.totalEfectivo)}
+                                </strong>
+                            </div>
+
+
+                            <div class="cierre-dato">
+                                <span>Transferencia</span>
+                                <strong>
+                                    ${dinero(cierre.totalTransferencia)}
+                                </strong>
+                            </div>
+
+
+                            <div class="cierre-dato">
+                                <span>D1</span>
+                                <strong>
+                                    ${dinero(cierre.totalD1)}
+                                </strong>
+                            </div>
+
+
+                            <div class="cierre-dato">
+                                <span>Total cobrado</span>
+                                <strong>
+                                    ${dinero(cierre.totalCobrado)}
+                                </strong>
+                            </div>
+
+
+                            <div class="cierre-dato">
+                                <span>Esperado</span>
+                                <strong>
+                                    ${dinero(cierre.efectivoEsperado)}
+                                </strong>
+                            </div>
+
+
+                            <div class="cierre-dato">
+                                <span>Contado</span>
+                                <strong>
+                                    ${dinero(cierre.efectivoContado)}
+                                </strong>
+                            </div>
+
+
+                            <div class="cierre-dato">
+                                <span>Diferencia</span>
+                                <strong>
+                                    ${dinero(cierre.diferencia)}
+                                </strong>
+                            </div>
+
+
+                        </div>
+
+
+                        ${
+                            cierre.observacionCierre
+
+                            ? `
+                                <div class="observacion">
+
+                                    <strong>
+                                        Observación:
+                                    </strong>
+
+                                    ${escaparHtml(cierre.observacionCierre)}
+
+                                </div>
+                              `
+
+                            : ""
+                        }
+                    `;
+
+
+                    contenedorHistorial
+                        .appendChild(
+                            div
+                        );
+                }
+            );
+        }
+
+
+        // =============================================
+        // ERROR RESPUESTAS
+        // =============================================
+
+        async function obtenerError(
+            response
+        ) {
+
+            const texto =
+                await response.text();
+
+
+            if (!texto) {
+                return "";
+            }
+
+
+            try {
+
+                const json =
+                    JSON.parse(
+                        texto
+                    );
+
+
+                if (
+                    typeof json ===
+                    "string"
+                ) {
+                    return json;
+                }
+
+
+                return (
+                    json.mensaje ||
+                    json.message ||
+                    texto
+                );
+
+            } catch (_) {
+
+                return texto;
+            }
+        }
+
+
+        // =============================================
+        // MENSAJES
+        // =============================================
+
+        function mostrarMensaje(
+            elemento,
+            texto,
+            tipo
+        ) {
+
+            elemento.innerText =
+                texto;
+
+            elemento.className =
+                `mensaje ${tipo}`;
+        }
+
+
+        function limpiarMensajes() {
+
+            mensajeApertura.innerText =
+                "";
+
+            mensajeApertura.className =
+                "mensaje";
+
+
+            mensajeCierre.innerText =
+                "";
+
+            mensajeCierre.className =
+                "mensaje";
+        }
+
+
+        // =============================================
+        // NAVEGACIÓN
+        // =============================================
+
+        function volverPanel() {
+
+            window.location.href =
+                "/panel.html";
+        }
+
+
+        function cerrarSesion() {
+
+            localStorage.clear();
+
+            window.location.href =
+                "/login.html";
+        }
+
+
+        // =============================================
+        // INICIALIZACIÓN
+        // =============================================
+
+        document
+            .getElementById(
+                "desde"
+            )
+            .value =
+            fechaHoyInput();
+
+
+        document
+            .getElementById(
+                "hasta"
+            )
+            .value =
+            fechaHoyInput();
+
+
+        cargarCaja();
+
+        cargarHistorial();
+
+    </script>
+
+</body>
+
+</html>

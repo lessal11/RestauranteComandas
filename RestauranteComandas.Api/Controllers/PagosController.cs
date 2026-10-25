@@ -5,6 +5,7 @@ using RestauranteComandas.Api.Data;
 using RestauranteComandas.Api.DTOs;
 using RestauranteComandas.Api.Hubs;
 using RestauranteComandas.Api.Models;
+using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 
@@ -21,6 +22,45 @@ namespace RestauranteComandas.Api.Controllers
         {
             _context = context;
             _hubContext = hubContext;
+        }
+
+        // =========================================================
+        // USUARIO AUTENTICADO / CAJA ABIERTA
+        // =========================================================
+
+        private async Task<Usuario?> ObtenerUsuarioAutenticadoAsync()
+        {
+            var usuarioIdClaim =
+                User.FindFirst(
+                    ClaimTypes.NameIdentifier
+                )?.Value;
+
+            if (
+                !int.TryParse(
+                    usuarioIdClaim,
+                    out var usuarioId
+                )
+            )
+            {
+                return null;
+            }
+
+            return await _context.Usuarios
+                .FirstOrDefaultAsync(
+                    u =>
+                        u.Id == usuarioId &&
+                        u.Activo
+                );
+        }
+
+
+        private async Task<CajaSesion?> ObtenerCajaAbiertaAsync()
+        {
+            return await _context.CajaSesiones
+                .FirstOrDefaultAsync(
+                    c =>
+                        c.Estado == "Abierta"
+                );
         }
 
         [HttpGet]
@@ -309,6 +349,35 @@ namespace RestauranteComandas.Api.Controllers
                 );
             }
 
+            // =====================================================
+            // USUARIO QUE REGISTRA EL PAGO
+            // =====================================================
+
+            var usuarioRegistro =
+                await ObtenerUsuarioAutenticadoAsync();
+
+            if (usuarioRegistro == null)
+            {
+                return Unauthorized(
+                    "No se pudo identificar al usuario que registra el pago"
+                );
+            }
+
+
+            // =====================================================
+            // CAJA ABIERTA
+            // =====================================================
+
+            var cajaAbierta =
+                await ObtenerCajaAbiertaAsync();
+
+            if (cajaAbierta == null)
+            {
+                return BadRequest(
+                    "Debe abrir caja antes de registrar pagos."
+                );
+            }
+
             await using var transaccion =
                 await _context.Database
                     .BeginTransactionAsync();
@@ -486,6 +555,12 @@ namespace RestauranteComandas.Api.Controllers
                         EstadoPago =
                             "Confirmado",
 
+                        CajaSesionId =
+                            cajaAbierta.Id,
+
+                        UsuarioRegistroId =
+                            usuarioRegistro.Id,
+
                         Detalles =
                             pagoDetalles
                     };
@@ -573,6 +648,12 @@ namespace RestauranteComandas.Api.Controllers
                     ordenId =
                         orden.Id,
 
+                    cajaSesionId =
+                        cajaAbierta.Id,
+
+                    usuarioRegistro =
+                        usuarioRegistro.Nombre,
+
                     montoPago =
                         pago.Monto,
 
@@ -632,6 +713,27 @@ namespace RestauranteComandas.Api.Controllers
                 return BadRequest("Método de pago no permitido");
             }
 
+            var usuarioRegistro =
+                await ObtenerUsuarioAutenticadoAsync();
+
+            if (usuarioRegistro == null)
+            {
+                return Unauthorized(
+                    "No se pudo identificar al usuario que registra el pago"
+                );
+            }
+
+
+            var cajaAbierta =
+                await ObtenerCajaAbiertaAsync();
+
+            if (cajaAbierta == null)
+            {
+                return BadRequest(
+                    "Debe abrir caja antes de registrar pagos."
+                );
+            }
+
             var orden = await _context.Ordenes
                 .Include(o => o.Mesa)
                 .Include(o => o.Pagos)
@@ -659,12 +761,29 @@ namespace RestauranteComandas.Api.Controllers
 
             var pago = new Pago
             {
-                OrdenId = orden.Id,
-                MetodoPago = dto.MetodoPago,
-                Monto = dto.Monto,
-                Referencia = dto.Referencia,
-                FechaPago = DateTime.UtcNow,
-                EstadoPago = "Confirmado"
+                OrdenId =
+                    orden.Id,
+
+                MetodoPago =
+                    dto.MetodoPago,
+
+                Monto =
+                    dto.Monto,
+
+                Referencia =
+                    dto.Referencia,
+
+                FechaPago =
+                    DateTime.UtcNow,
+
+                EstadoPago =
+                    "Confirmado",
+
+                CajaSesionId =
+                    cajaAbierta.Id,
+
+                UsuarioRegistroId =
+                    usuarioRegistro.Id
             };
 
             _context.Pagos.Add(pago);

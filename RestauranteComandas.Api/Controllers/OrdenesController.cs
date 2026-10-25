@@ -232,23 +232,40 @@ namespace RestauranteComandas.Api.Controllers
                             d.Cantidad,
 
                             CantidadPagada =
-                                d.PagoDetalles
-                                    .Where(pd =>
-                                        pd.Pago != null &&
-                                        pd.Pago.EstadoPago == "Confirmado")
-                                    .Sum(pd => (int?)pd.Cantidad)
-                                ?? 0,
+    d.PagoDetalles
+        .Where(pd =>
+            pd.Pago != null &&
+            pd.Pago.EstadoPago == "Confirmado")
+        .Sum(pd => (int?)pd.Cantidad)
+    ?? 0,
 
                             CantidadPendiente =
-                                d.Cantidad -
-                                (
-                                    d.PagoDetalles
-                                        .Where(pd =>
-                                            pd.Pago != null &&
-                                            pd.Pago.EstadoPago == "Confirmado")
-                                        .Sum(pd => (int?)pd.Cantidad)
-                                    ?? 0
-                                ),
+    d.Cantidad -
+    (
+        d.PagoDetalles
+            .Where(pd =>
+                pd.Pago != null &&
+                pd.Pago.EstadoPago == "Confirmado")
+            .Sum(pd => (int?)pd.Cantidad)
+        ?? 0
+    ),
+
+
+                            // =============================================
+                            // ENTREGA
+                            // =============================================
+
+                            d.CantidadEntregada,
+
+                            CantidadPendienteEntrega =
+                            d.CantidadEntregada >= d.Cantidad
+                                ? 0
+                                : d.Cantidad - d.CantidadEntregada,
+
+                                                    Entregado =
+                            d.Cantidad > 0 &&
+                            d.CantidadEntregada >= d.Cantidad,
+
 
                             d.PrecioUnitario,
                             d.Subtotal,
@@ -279,7 +296,17 @@ namespace RestauranteComandas.Api.Controllers
                     .ThenInclude(d => d.MenuItem)
                 .Where(o =>
                     o.Estado == "Pendiente" ||
-                    o.Estado == "En preparación"
+                    o.Estado == "En preparación" ||
+                    (
+                        (
+                            o.Estado == "Listo" ||
+                            o.Estado == "Pagado"
+                        )
+                        &&
+                        o.Detalles.Any(d =>
+                            d.CantidadEntregada < d.Cantidad
+                        )
+                    )
                 )
                 .OrderBy(o => o.Fecha)
                 .Select(o => new
@@ -294,20 +321,51 @@ namespace RestauranteComandas.Api.Controllers
                     o.Estado,
                     o.Total,
 
-                    Detalles = o.Detalles
-                        .OrderBy(d => d.Id)
-                        .Select(d => new
-                        {
-                            d.Id,
-                            d.MenuItemId,
+                    Detalles =
+                    o.Detalles.Select(d => new
+                    {
+                        d.Id,
 
-                            Plato = d.MenuItem != null
+                        d.MenuItemId,
+
+                        Plato =
+                            d.MenuItem != null
                                 ? d.MenuItem.Nombre
                                 : "",
 
+                        d.Cantidad,
+
+                        cantidadEntregada =
+                            d.CantidadEntregada,
+
+                        cantidadPendienteEntrega =
+                            Math.Max(
+                                0,
+                                d.Cantidad -
+                                d.CantidadEntregada
+                            ),
+
+                        entregado =
+                            d.CantidadEntregada >=
                             d.Cantidad,
-                            d.DetallePersonalizado
-                        })
+
+                        d.DetallePersonalizado,
+
+                        lineasEntregadas =
+                            o.Detalles.Count(d =>
+                                d.Cantidad > 0 &&
+                                d.CantidadEntregada >= d.Cantidad
+                            ),
+
+                        totalLineas =
+                            o.Detalles.Count,
+
+                        todosEntregados =
+                            o.Detalles.Any() &&
+                            o.Detalles.All(d =>
+                                d.CantidadEntregada >= d.Cantidad
+                            )
+                    })
                 })
                 .ToListAsync();
 
@@ -902,18 +960,56 @@ namespace RestauranteComandas.Api.Controllers
                     : "Producto";
 
             var cantidadPagada =
-                await ObtenerCantidadPagadaDetalleAsync(
-                    detalle.Id
+    await ObtenerCantidadPagadaDetalleAsync(
+        detalle.Id
+    );
+
+            var cantidadEntregada =
+                detalle.CantidadEntregada;
+
+            var cantidadMinimaPermitida =
+                Math.Max(
+                    cantidadPagada,
+                    cantidadEntregada
                 );
 
-                        if (cantidadNueva < cantidadPagada)
-                        {
-                            return BadRequest(
-                                $"No se puede reducir {nombreProducto} a {cantidadNueva} " +
-                                $"porque ya se pagaron {cantidadPagada} unidad(es). " +
-                                $"La cantidad mínima permitida es {cantidadPagada}."
-                            );
-                        }
+
+            if (
+                cantidadNueva <
+                cantidadMinimaPermitida
+            )
+            {
+                string motivo;
+
+                if (
+                    cantidadPagada > 0 &&
+                    cantidadEntregada > 0
+                )
+                {
+                    motivo =
+                        $"ya existen {cantidadPagada} unidad(es) pagada(s) " +
+                        $"y {cantidadEntregada} unidad(es) entregada(s)";
+                }
+                else if (
+                    cantidadEntregada > 0
+                )
+                {
+                    motivo =
+                        $"ya se entregaron {cantidadEntregada} unidad(es)";
+                }
+                else
+                {
+                    motivo =
+                        $"ya se pagaron {cantidadPagada} unidad(es)";
+                }
+
+
+                return BadRequest(
+                    $"No se puede reducir {nombreProducto} a {cantidadNueva} " +
+                    $"porque {motivo}. " +
+                    $"La cantidad mínima permitida es {cantidadMinimaPermitida}."
+                );
+            }
 
             if (
                 cantidadAnterior ==
@@ -1228,18 +1324,51 @@ namespace RestauranteComandas.Api.Controllers
             }
 
             var cantidadPagada =
-                await ObtenerCantidadPagadaDetalleAsync(
-                    detalle.Id
-                );
+    await ObtenerCantidadPagadaDetalleAsync(
+        detalle.Id
+    );
 
-                        if (cantidadPagada > 0)
-                        {
-                            return BadRequest(
-                                $"No se puede eliminar {detalle.MenuItem?.Nombre ?? "el producto"} " +
-                                $"porque ya existen {cantidadPagada} unidad(es) pagada(s). " +
-                                $"Solo pueden modificarse las unidades pendientes."
-                            );
-                        }
+            var cantidadEntregada =
+                detalle.CantidadEntregada;
+
+
+            if (
+                cantidadPagada > 0 ||
+                cantidadEntregada > 0
+            )
+            {
+                string motivo;
+
+
+                if (
+                    cantidadPagada > 0 &&
+                    cantidadEntregada > 0
+                )
+                {
+                    motivo =
+                        $"ya existen {cantidadPagada} unidad(es) pagada(s) " +
+                        $"y {cantidadEntregada} unidad(es) entregada(s)";
+                }
+                else if (
+                    cantidadEntregada > 0
+                )
+                {
+                    motivo =
+                        $"ya existen {cantidadEntregada} unidad(es) entregada(s)";
+                }
+                else
+                {
+                    motivo =
+                        $"ya existen {cantidadPagada} unidad(es) pagada(s)";
+                }
+
+
+                return BadRequest(
+                    $"No se puede eliminar {detalle.MenuItem?.Nombre ?? "el producto"} " +
+                    $"porque {motivo}. " +
+                    $"Solo pueden eliminarse productos que no hayan sido pagados ni entregados."
+                );
+            }
 
             var nombreProducto =
                 detalle.MenuItem != null
@@ -1606,6 +1735,187 @@ namespace RestauranteComandas.Api.Controllers
                     .ToListAsync();
 
             return Ok(ordenes);
+        }
+
+        // =========================================================
+        // MARCAR / DESMARCAR PRODUCTO COMO ENTREGADO
+        // =========================================================
+
+        [HttpPut(
+            "{ordenId}/detalles/{detalleId}/entrega"
+        )]
+        [Authorize(Roles = "Administrador,Cocina")]
+        public async Task<IActionResult> ActualizarEntregaDetalle(
+            int ordenId,
+            int detalleId,
+            ActualizarEntregaDetalleDto dto)
+        {
+            var orden =
+                await _context.Ordenes
+                    .Include(o => o.Detalles)
+                        .ThenInclude(d => d.MenuItem)
+                    .FirstOrDefaultAsync(
+                        o => o.Id == ordenId
+                    );
+
+
+            if (orden == null)
+            {
+                return NotFound(
+                    "Orden no encontrada"
+                );
+            }
+
+
+            if (orden.Estado == "Cancelado")
+            {
+                return BadRequest(
+                    "No se puede modificar la entrega de una orden cancelada"
+                );
+            }
+
+
+            var detalle =
+                orden.Detalles
+                    .FirstOrDefault(
+                        d => d.Id == detalleId
+                    );
+
+
+            if (detalle == null)
+            {
+                return NotFound(
+                    "El producto no pertenece a esta orden"
+                );
+            }
+
+
+            // =============================================
+            // ACTUALIZAR ENTREGA
+            // =============================================
+
+            if (dto.Entregado)
+            {
+                detalle.CantidadEntregada =
+                    detalle.Cantidad;
+            }
+            else
+            {
+                detalle.CantidadEntregada =
+                    0;
+            }
+
+
+            await _context.SaveChangesAsync();
+
+
+            // =============================================
+            // CALCULAR ESTADO DE ENTREGA DE TODA LA ORDEN
+            // =============================================
+
+            var totalLineas =
+                orden.Detalles.Count;
+
+
+            var lineasEntregadas =
+                orden.Detalles.Count(
+                    d =>
+                        d.Cantidad > 0 &&
+                        d.CantidadEntregada >= d.Cantidad
+                );
+
+
+            var todosEntregados =
+                totalLineas > 0 &&
+                lineasEntregadas == totalLineas;
+
+
+            var cantidadPendienteDetalle =
+                Math.Max(
+                    0,
+                    detalle.Cantidad -
+                    detalle.CantidadEntregada
+                );
+
+
+            // =============================================
+            // SIGNALR
+            // =============================================
+
+            await _hubContext
+                .Clients.All
+                .SendAsync(
+                    "EntregaDetalleActualizada",
+                    new
+                    {
+                        ordenId =
+                            orden.Id,
+
+                        detalleId =
+                            detalle.Id,
+
+                        plato =
+                            detalle.MenuItem != null
+                                ? detalle.MenuItem.Nombre
+                                : "Producto",
+
+                        cantidad =
+                            detalle.Cantidad,
+
+                        cantidadEntregada =
+                            detalle.CantidadEntregada,
+
+                        cantidadPendiente =
+                            cantidadPendienteDetalle,
+
+                        entregado =
+                            detalle.CantidadEntregada >=
+                            detalle.Cantidad,
+
+                        lineasEntregadas,
+
+                        totalLineas,
+
+                        todosEntregados,
+
+                        fecha =
+                            DateTime.UtcNow
+                    }
+                );
+
+
+            return Ok(new
+            {
+                mensaje =
+                    dto.Entregado
+                        ? "Producto marcado como entregado"
+                        : "Entrega del producto revertida",
+
+                ordenId =
+                    orden.Id,
+
+                detalleId =
+                    detalle.Id,
+
+                cantidad =
+                    detalle.Cantidad,
+
+                cantidadEntregada =
+                    detalle.CantidadEntregada,
+
+                cantidadPendiente =
+                    cantidadPendienteDetalle,
+
+                entregado =
+                    detalle.CantidadEntregada >=
+                    detalle.Cantidad,
+
+                lineasEntregadas,
+
+                totalLineas,
+
+                todosEntregados
+            });
         }
 
         // =========================================================

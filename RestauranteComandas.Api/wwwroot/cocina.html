@@ -194,17 +194,112 @@
 
         .detalle {
             border-bottom: 1px solid #ddd;
-            padding: 8px 0;
+            padding: 10px 0;
+            transition: .2s ease;
         }
 
             .detalle strong {
                 font-size: 18px;
             }
 
+        .detalle-entregado {
+            opacity: .72;
+            background: #f0fdf4;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 4px 0;
+        }
+
+            .detalle-entregado strong {
+                text-decoration: line-through;
+                color: #166534;
+            }
+
+        .detalle-contenido {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+        }
+
+        .detalle-info {
+            flex: 1;
+            min-width: 0;
+        }
+
         .nota {
             color: #dc2626;
             font-style: italic;
             margin-top: 4px;
+        }
+
+        .entrega-progreso {
+            margin-top: 6px;
+            font-size: 13px;
+            font-weight: 800;
+            color: #6b7280;
+        }
+
+            .entrega-progreso.completo {
+                color: #15803d;
+            }
+
+        .entrega-check {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            flex-shrink: 0;
+            cursor: pointer;
+            border-radius: 10px;
+            padding: 9px 11px;
+            background: #f3f4f6;
+            color: #374151;
+            font-size: 13px;
+            font-weight: 900;
+        }
+
+            .entrega-check.entregado {
+                background: #dcfce7;
+                color: #166534;
+            }
+
+            .entrega-check input {
+                width: 22px;
+                height: 22px;
+                cursor: pointer;
+                accent-color: #16a34a;
+            }
+
+        .progreso-orden {
+            margin: 12px 0;
+            border-radius: 10px;
+            padding: 10px 12px;
+            background: #eff6ff;
+            color: #1e40af;
+            font-weight: 900;
+        }
+
+            .progreso-orden.completo {
+                background: #dcfce7;
+                color: #166534;
+            }
+
+        .aviso-listo {
+            margin: 12px 0;
+            border-radius: 10px;
+            padding: 10px 12px;
+            background: #dcfce7;
+            color: #166534;
+            font-weight: 900;
+        }
+
+        .aviso-pagado {
+            margin: 12px 0;
+            border-radius: 10px;
+            padding: 10px 12px;
+            background: #ede9fe;
+            color: #5b21b6;
+            font-weight: 900;
         }
 
         /* =============================================
@@ -294,6 +389,16 @@
 
             .orden {
                 padding: 14px;
+            }
+
+            .detalle-contenido {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .entrega-check {
+                width: 100%;
+                justify-content: center;
             }
         }
     </style>
@@ -436,11 +541,6 @@
             }
         );
 
-        /*
-         * Cuando llegan productos nuevos:
-         * 1. actualizamos la orden completa;
-         * 2. resaltamos específicamente lo nuevo.
-         */
         connection.on(
             "ProductosAgregados",
             async function (data) {
@@ -453,10 +553,6 @@
             }
         );
 
-        /*
-         * Corrección de un producto que ya
-         * había sido enviado a Cocina.
-         */
         connection.on(
             "OrdenCorregida",
             async function (data) {
@@ -465,48 +561,28 @@
                     data
                 );
 
-                /*
-                 * Recargamos para que las cantidades
-                 * visibles del pedido coincidan con
-                 * la base de datos.
-                 */
+                await cargarOrdenesPendientes();
+            }
+        );
+
+        /*
+         * Cuando otro dispositivo de Cocina
+         * marca o desmarca un producto entregado,
+         * todos los monitores se sincronizan.
+         */
+        connection.on(
+            "EntregaDetalleActualizada",
+            async function (data) {
+
                 await cargarOrdenesPendientes();
             }
         );
 
         connection.on(
             "EstadoOrdenActualizado",
-            function (data) {
+            async function (data) {
 
-                const estadoElemento =
-                    document.getElementById(
-                        `estado-${data.id}`
-                    );
-
-                if (estadoElemento) {
-
-                    estadoElemento.innerText =
-                        data.estado;
-                }
-
-                if (
-                    data.estado === "Listo" ||
-                    data.estado === "Pagado" ||
-                    data.estado === "Cancelado"
-                ) {
-
-                    const ordenElemento =
-                        document.getElementById(
-                            `orden-${data.id}`
-                        );
-
-                    if (ordenElemento) {
-
-                        ordenElemento.remove();
-                    }
-                }
-
-                mostrarMensajeSinOrdenes();
+                await cargarOrdenesPendientes();
             }
         );
 
@@ -672,40 +748,146 @@
         // =============================================
 
         function crearDetallesHtml(
-            detalles
+            detalles,
+            ordenId
         ) {
 
             return (
                 detalles || []
             )
                 .map(
-                    detalle => `
-                        <div class="detalle">
+                    detalle => {
 
-                            <strong>
+                        const cantidad =
+                            Number(
+                                detalle.cantidad ||
+                                0
+                            );
 
-                                ${detalle.cantidad}
-                                x
-                                ${escaparHtml(detalle.plato)}
 
-                            </strong>
+                        const cantidadEntregada =
+                            Number(
+                                detalle.cantidadEntregada ||
+                                0
+                            );
 
-                            ${detalle.detallePersonalizado
 
-                            ? `
-                                    <div class="nota">
+                        const entregado =
+                            detalle.entregado === true ||
+                            (
+                                cantidad > 0 &&
+                                cantidadEntregada >= cantidad
+                            );
 
-                                        Detalle:
-                                        ${escaparHtml(detalle.detallePersonalizado)}
 
-                                    </div>
-                                  `
+                        const cantidadPendiente =
+                            Math.max(
+                                0,
+                                cantidad -
+                                cantidadEntregada
+                            );
 
-                            : ""
-                        }
+
+                        return `
+                    <div
+                        class="
+                            detalle
+                            ${entregado
+                                ? "detalle-entregado"
+                                : ""}
+                        "
+                        id="detalle-${detalle.id}"
+                    >
+
+                        <div class="detalle-contenido">
+
+
+                            <div class="detalle-info">
+
+                                <strong>
+
+                                    ${cantidad}
+                                    x
+                                    ${escaparHtml(detalle.plato)}
+
+                                </strong>
+
+
+                                ${detalle.detallePersonalizado
+
+                                ? `
+                                        <div class="nota">
+
+                                            Detalle:
+                                            ${escaparHtml(
+                                    detalle.detallePersonalizado
+                                )}
+
+                                        </div>
+                                      `
+
+                                : ""
+                            }
+
+
+                                <div class="
+                                    entrega-progreso
+                                    ${entregado
+                                ? "completo"
+                                : ""}
+                                ">
+
+                                    ${entregado
+
+                                ? `✅ Entregado: ${cantidadEntregada} de ${cantidad}`
+
+                                : `Pendiente: ${cantidadPendiente} · Entregado: ${cantidadEntregada} de ${cantidad}`
+                            }
+
+                                </div>
+
+                            </div>
+
+
+                            <label class="
+                                entrega-check
+                                ${entregado
+                                ? "entregado"
+                                : ""}
+                            ">
+
+                                <input
+                                    type="checkbox"
+
+                                    ${entregado
+                                ? "checked"
+                                : ""}
+
+                                    onchange="
+                                        actualizarEntrega(
+                                            ${ordenId},
+                                            ${detalle.id},
+                                            this.checked,
+                                            this
+                                        )
+                                    "
+                                >
+
+                                <span>
+                                    ${entregado
+                                ? "Entregado"
+                                : "Marcar entregado"
+                            }
+                                </span>
+
+                            </label>
+
 
                         </div>
-                    `
+
+                    </div>
+                `;
+                    }
                 )
                 .join("");
         }
@@ -749,10 +931,58 @@
             div.id =
                 `orden-${orden.id}`;
 
+            const detalles =
+                orden.detalles ||
+                [];
+
+
             const detallesHtml =
                 crearDetallesHtml(
-                    orden.detalles
+                    detalles,
+                    orden.id
                 );
+
+
+            const totalUnidades =
+                detalles.reduce(
+                    (
+                        acumulado,
+                        detalle
+                    ) =>
+                        acumulado +
+                        Number(
+                            detalle.cantidad ||
+                            0
+                        ),
+                    0
+                );
+
+
+            const unidadesEntregadas =
+                detalles.reduce(
+                    (
+                        acumulado,
+                        detalle
+                    ) =>
+                        acumulado +
+                        Math.min(
+                            Number(
+                                detalle.cantidadEntregada ||
+                                0
+                            ),
+                            Number(
+                                detalle.cantidad ||
+                                0
+                            )
+                        ),
+                    0
+                );
+
+
+            const todasEntregadas =
+                totalUnidades > 0 &&
+                unidadesEntregadas >=
+                totalUnidades;
 
             div.innerHTML = `
                     <h2>
@@ -784,29 +1014,91 @@
 
                     <div class="detalles-orden">
 
+                    <div class="
+                        progreso-orden
+                        ${todasEntregadas
+                                        ? "completo"
+                                        : ""}
+                    ">
+
+                        ${todasEntregadas
+
+                                        ? `✅ Todos los productos fueron entregados`
+
+                                        : `Entrega: ${unidadesEntregadas} de ${totalUnidades} unidad(es)`
+                                    }
+
+                    </div>
+
+
+                    ${orden.estado === "Listo"
+
+                                        ? `
+                                <div class="aviso-listo">
+                                    ✅ Pedido listo. Marque los productos
+                                    conforme sean entregados.
+                                </div>
+                              `
+
+                                        : ""
+                                    }
+
+
+                    ${orden.estado === "Pagado"
+
+                                        ? `
+                                <div class="aviso-pagado">
+                                    💳 Orden pagada. Todavía existen
+                                    productos pendientes de entregar.
+                                </div>
+                              `
+
+                                        : ""
+                    }
+
                         ${detallesHtml}
 
                     </div>
 
                     <div class="novedades-container"></div>
 
-                    <div class="acciones">
+                    ${
+                orden.estado === "Pendiente" ||
+                    orden.estado === "En preparación"
 
-                        <button
-                            class="btn-preparacion"
-                            onclick="actualizarEstado(${orden.id}, 'En preparación')"
-                        >
-                            En preparación
-                        </button>
+                    ? `
+            <div class="acciones">
 
-                        <button
-                            class="btn-listo"
-                            onclick="actualizarEstado(${orden.id}, 'Listo')"
-                        >
-                            Listo
-                        </button>
+                <button
+                    class="btn-preparacion"
+                    onclick="
+                        actualizarEstado(
+                            ${orden.id},
+                            'En preparación'
+                        )
+                    "
+                >
+                    En preparación
+                </button>
 
-                    </div>
+
+                <button
+                    class="btn-listo"
+                    onclick="
+                        actualizarEstado(
+                            ${orden.id},
+                            'Listo'
+                        )
+                    "
+                >
+                    Listo
+                </button>
+
+            </div>
+          `
+
+                    : ""
+}
                 `;
 
             contenedor.prepend(
@@ -1027,6 +1319,121 @@
                 block:
                     "center"
             });
+        }
+
+        // =============================================
+        // ACTUALIZAR ENTREGA
+        // =============================================
+
+        async function actualizarEntrega(
+            ordenId,
+            detalleId,
+            entregado,
+            checkbox
+        ) {
+
+            if (!checkbox) {
+                return;
+            }
+
+
+            checkbox.disabled =
+                true;
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `/api/Ordenes/${ordenId}/detalles/${detalleId}/entrega`,
+                        {
+                            method:
+                                "PUT",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json",
+
+                                "Authorization":
+                                    `Bearer ${token}`
+                            },
+
+                            body:
+                                JSON.stringify({
+                                    entregado:
+                                        entregado
+                                })
+                        }
+                    );
+
+
+                if (
+                    response.status === 401 ||
+                    response.status === 403
+                ) {
+
+                    alert(
+                        "No tiene permiso o la sesión expiró"
+                    );
+
+                    localStorage.clear();
+
+                    window.location.href =
+                        "/login.html";
+
+                    return;
+                }
+
+
+                if (!response.ok) {
+
+                    /*
+                     * Volvemos visualmente al valor anterior
+                     * porque el servidor rechazó el cambio.
+                     */
+                    checkbox.checked =
+                        !entregado;
+
+
+                    const error =
+                        await response.text();
+
+
+                    alert(
+                        error ||
+                        "No se pudo actualizar la entrega"
+                    );
+
+                    return;
+                }
+
+
+                /*
+                 * Recargamos desde el servidor para que:
+                 *
+                 * - el progreso quede correcto;
+                 * - desaparezca la orden si ya terminó;
+                 * - todos los dispositivos vean el mismo estado.
+                 */
+                await cargarOrdenesPendientes();
+
+
+            } catch (error) {
+
+                checkbox.checked =
+                    !entregado;
+
+
+                alert(
+                    "Error de conexión con el servidor"
+                );
+
+            } finally {
+
+                checkbox.disabled =
+                    false;
+            }
         }
 
         // =============================================

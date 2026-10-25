@@ -17,6 +17,7 @@ namespace RestauranteComandas.Api.Data
         public DbSet<OrdenDetalle> OrdenDetalles { get; set; }
         public DbSet<Pago> Pagos { get; set; }
         public DbSet<PagoDetalle> PagoDetalles { get; set; }
+        public DbSet<CajaSesion> CajaSesiones { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -29,6 +30,11 @@ namespace RestauranteComandas.Api.Data
             modelBuilder.Entity<Usuario>()
                 .HasIndex(u => u.NombreUsuario)
                 .IsUnique();
+
+            modelBuilder.Entity<CajaSesion>()
+                .HasIndex(c => c.Estado)
+                .IsUnique()
+                .HasFilter("\"Estado\" = 'Abierta'");
 
             modelBuilder.Entity<Orden>()
                 .HasOne(o => o.Mesa)
@@ -92,6 +98,66 @@ namespace RestauranteComandas.Api.Data
 
             modelBuilder.Entity<PagoDetalle>()
                 .Property(pd => pd.Subtotal)
+                .HasPrecision(10, 2);
+            
+            modelBuilder.Entity<CajaSesion>()
+                .HasOne(c => c.UsuarioApertura)
+                .WithMany()
+                .HasForeignKey(c => c.UsuarioAperturaId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<CajaSesion>()
+                .HasOne(c => c.UsuarioCierre)
+                .WithMany()
+                .HasForeignKey(c => c.UsuarioCierreId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Pago>()
+                .HasOne(p => p.CajaSesion)
+                .WithMany(c => c.Pagos)
+                .HasForeignKey(p => p.CajaSesionId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Pago>()
+                .HasOne(p => p.UsuarioRegistro)
+                .WithMany()
+                .HasForeignKey(p => p.UsuarioRegistroId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // =============================================
+            // PRECISIÓN - CAJA
+            // =============================================
+
+            modelBuilder.Entity<CajaSesion>()
+                .Property(c => c.FondoInicial)
+                .HasPrecision(10, 2);
+
+            modelBuilder.Entity<CajaSesion>()
+                .Property(c => c.EfectivoContado)
+                .HasPrecision(10, 2);
+
+            modelBuilder.Entity<CajaSesion>()
+                .Property(c => c.TotalEfectivo)
+                .HasPrecision(10, 2);
+
+            modelBuilder.Entity<CajaSesion>()
+                .Property(c => c.TotalTransferencia)
+                .HasPrecision(10, 2);
+
+            modelBuilder.Entity<CajaSesion>()
+                .Property(c => c.TotalD1)
+                .HasPrecision(10, 2);
+
+            modelBuilder.Entity<CajaSesion>()
+                .Property(c => c.TotalCobrado)
+                .HasPrecision(10, 2);
+
+            modelBuilder.Entity<CajaSesion>()
+                .Property(c => c.EfectivoEsperado)
+                .HasPrecision(10, 2);
+
+            modelBuilder.Entity<CajaSesion>()
+                .Property(c => c.Diferencia)
                 .HasPrecision(10, 2);
         }
     }

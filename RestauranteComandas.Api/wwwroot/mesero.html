@@ -308,6 +308,64 @@
             font-size: 11px;
         }
 
+        /* =============================================
+   ESTADO DE ENTREGA
+   ============================================= */
+
+        .estado-entrega {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 7px;
+            border-radius: 999px;
+            padding: 5px 9px;
+            font-size: 11px;
+            font-weight: 900;
+        }
+
+            .estado-entrega.pendiente {
+                background: #fef3c7;
+                color: #92400e;
+            }
+
+            .estado-entrega.parcial {
+                background: #dbeafe;
+                color: #1e40af;
+            }
+
+            .estado-entrega.entregado {
+                background: #dcfce7;
+                color: #166534;
+            }
+
+        .producto-enviado.entregado {
+            background: #f0fdf4;
+            border-radius: 10px;
+            padding-left: 8px;
+            padding-right: 8px;
+        }
+
+        .resumen-entrega-mesero {
+            margin: 10px 0;
+            border-radius: 10px;
+            padding: 9px 11px;
+            background: #eff6ff;
+            color: #1e40af;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+            .resumen-entrega-mesero.completo {
+                background: #dcfce7;
+                color: #166534;
+            }
+
+        .btn-ajuste:disabled,
+        .btn-eliminar-enviado:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+        }
+
         .producto-enviado-controles {
             display: flex;
             align-items: center;
@@ -1000,12 +1058,12 @@
 
                     <div class="orden-activa-ayuda">
 
-                        Estos productos ya fueron
-                        enviados a cocina.
+                        Estos productos ya fueron enviados a cocina.
 
-                        Puedes corregir una cantidad
-                        enviada por error o eliminar
-                        un producto.
+                        Puedes corregir las unidades que todavía no
+                        hayan sido pagadas ni entregadas.
+
+                        El estado de entrega es actualizado por Cocina.
 
                     </div>
 
@@ -1693,6 +1751,74 @@
                 .innerHTML =
                 "";
 
+            const detallesOrden =
+                ordenActivaMesa.detalles ||
+                [];
+
+
+            const totalUnidades =
+                detallesOrden.reduce(
+                    (total, detalle) =>
+                        total +
+                        Number(
+                            detalle.cantidad ||
+                            0
+                        ),
+                    0
+                );
+
+
+            const unidadesEntregadas =
+                detallesOrden.reduce(
+                    (total, detalle) =>
+                        total +
+                        Math.min(
+                            Number(
+                                detalle.cantidadEntregada ||
+                                0
+                            ),
+                            Number(
+                                detalle.cantidad ||
+                                0
+                            )
+                        ),
+                    0
+                );
+
+
+            const entregaCompleta =
+                totalUnidades > 0 &&
+                unidadesEntregadas >=
+                totalUnidades;
+
+
+            const resumenEntrega =
+                document.createElement(
+                    "div"
+                );
+
+
+            resumenEntrega.className =
+                entregaCompleta
+
+                    ? "resumen-entrega-mesero completo"
+
+                    : "resumen-entrega-mesero";
+
+
+            resumenEntrega.innerText =
+                entregaCompleta
+
+                    ? `✅ Todo entregado · ${unidadesEntregadas} de ${totalUnidades}`
+
+                    : `🍽️ Entrega: ${unidadesEntregadas} de ${totalUnidades} unidad(es)`;
+
+
+            ordenActivaDetalles
+                .appendChild(
+                    resumenEntrega
+                );
+
             (
                 ordenActivaMesa
                     .detalles ||
@@ -1705,8 +1831,70 @@
                             "div"
                         );
 
+                    const cantidad =
+                        Number(
+                            detalle.cantidad ||
+                            0
+                        );
+
+
+                    const cantidadPagada =
+                        Number(
+                            detalle.cantidadPagada ||
+                            0
+                        );
+
+
+                    const cantidadEntregada =
+                        Number(
+                            detalle.cantidadEntregada ||
+                            0
+                        );
+
+
+                    const pendienteEntrega =
+                        Math.max(
+                            0,
+                            cantidad -
+                            cantidadEntregada
+                        );
+
+
+                    const entregado =
+                        detalle.entregado === true ||
+                        (
+                            cantidad > 0 &&
+                            cantidadEntregada >= cantidad
+                        );
+
+
+                    const entregaParcial =
+                        cantidadEntregada > 0 &&
+                        !entregado;
+
+
+                    const cantidadMinima =
+                        Math.max(
+                            cantidadPagada,
+                            cantidadEntregada
+                        );
+
+
+                    const puedeReducir =
+                        cantidad >
+                        cantidadMinima;
+
+
+                    const puedeEliminar =
+                        cantidadPagada === 0 &&
+                        cantidadEntregada === 0;
+
                     div.className =
-                        "producto-enviado";
+                        entregado
+
+                            ? "producto-enviado entregado"
+
+                            : "producto-enviado";
 
                     div.innerHTML = `
                         <div class="producto-enviado-top">
@@ -1732,6 +1920,34 @@
 
                         </div>
 
+                        ${
+                                                entregado
+
+                                                    ? `
+                                    <div class="estado-entrega entregado">
+                                        ✅ Entregado ·
+                                        ${cantidadEntregada} de ${cantidad}
+                                    </div>
+                                  `
+
+                                                    : entregaParcial
+
+                                                        ? `
+                                        <div class="estado-entrega parcial">
+                                            🍽️ Entrega parcial ·
+                                            ${cantidadEntregada} de ${cantidad}
+                                            · Faltan ${pendienteEntrega}
+                                        </div>
+                                      `
+
+                                                        : `
+                                        <div class="estado-entrega pendiente">
+                                            ⏳ Pendiente de entrega ·
+                                            ${cantidad}
+                                        </div>
+                                      `
+                        }
+
                         ${detalle.detallePersonalizado
 
                             ? `
@@ -1751,6 +1967,11 @@
                             <button
                                 class="btn-ajuste"
                                 type="button"
+
+                                ${puedeReducir
+                                                        ? ""
+                                                        : "disabled"}
+
                                 onclick="cambiarCantidadEnviada(${detalle.id}, -1)"
                             >
                                 −
@@ -1773,11 +1994,15 @@
                             <button
                                 class="btn-eliminar-enviado"
                                 type="button"
+
+                                ${puedeEliminar
+                                                        ? ""
+                                                        : "disabled"}
+
                                 onclick="eliminarDetalleEnviado(${detalle.id})"
                             >
                                 Eliminar
                             </button>
-
                         </div>
                     `;
 

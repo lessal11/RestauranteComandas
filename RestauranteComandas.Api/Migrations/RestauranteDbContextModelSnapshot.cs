@@ -22,6 +22,78 @@ namespace RestauranteComandas.Api.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("RestauranteComandas.Api.Models.CajaSesion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal?>("Diferencia")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<decimal?>("EfectivoContado")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<decimal?>("EfectivoEsperado")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("FechaApertura")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("FechaCierre")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("FondoInicial")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<string>("ObservacionCierre")
+                        .HasColumnType("text");
+
+                    b.Property<decimal?>("TotalCobrado")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<decimal?>("TotalD1")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<decimal?>("TotalEfectivo")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<decimal?>("TotalTransferencia")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<int>("UsuarioAperturaId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("UsuarioCierreId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Estado")
+                        .IsUnique()
+                        .HasFilter("\"Estado\" = 'Abierta'");
+
+                    b.HasIndex("UsuarioAperturaId");
+
+                    b.HasIndex("UsuarioCierreId");
+
+                    b.ToTable("CajaSesiones");
+                });
+
             modelBuilder.Entity("RestauranteComandas.Api.Models.MenuItem", b =>
                 {
                     b.Property<int>("Id")
@@ -118,6 +190,9 @@ namespace RestauranteComandas.Api.Migrations
                     b.Property<int>("Cantidad")
                         .HasColumnType("integer");
 
+                    b.Property<int>("CantidadEntregada")
+                        .HasColumnType("integer");
+
                     b.Property<string>("DetallePersonalizado")
                         .HasColumnType("text");
 
@@ -152,6 +227,9 @@ namespace RestauranteComandas.Api.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("CajaSesionId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("EstadoPago")
                         .IsRequired()
                         .HasColumnType("text");
@@ -173,9 +251,16 @@ namespace RestauranteComandas.Api.Migrations
                     b.Property<string>("Referencia")
                         .HasColumnType("text");
 
+                    b.Property<int?>("UsuarioRegistroId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("CajaSesionId");
+
                     b.HasIndex("OrdenId");
+
+                    b.HasIndex("UsuarioRegistroId");
 
                     b.ToTable("Pagos");
                 });
@@ -249,6 +334,24 @@ namespace RestauranteComandas.Api.Migrations
                     b.ToTable("Usuarios");
                 });
 
+            modelBuilder.Entity("RestauranteComandas.Api.Models.CajaSesion", b =>
+                {
+                    b.HasOne("RestauranteComandas.Api.Models.Usuario", "UsuarioApertura")
+                        .WithMany()
+                        .HasForeignKey("UsuarioAperturaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("RestauranteComandas.Api.Models.Usuario", "UsuarioCierre")
+                        .WithMany()
+                        .HasForeignKey("UsuarioCierreId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("UsuarioApertura");
+
+                    b.Navigation("UsuarioCierre");
+                });
+
             modelBuilder.Entity("RestauranteComandas.Api.Models.Orden", b =>
                 {
                     b.HasOne("RestauranteComandas.Api.Models.Mesa", "Mesa")
@@ -289,13 +392,27 @@ namespace RestauranteComandas.Api.Migrations
 
             modelBuilder.Entity("RestauranteComandas.Api.Models.Pago", b =>
                 {
+                    b.HasOne("RestauranteComandas.Api.Models.CajaSesion", "CajaSesion")
+                        .WithMany("Pagos")
+                        .HasForeignKey("CajaSesionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("RestauranteComandas.Api.Models.Orden", "Orden")
                         .WithMany("Pagos")
                         .HasForeignKey("OrdenId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("RestauranteComandas.Api.Models.Usuario", "UsuarioRegistro")
+                        .WithMany()
+                        .HasForeignKey("UsuarioRegistroId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CajaSesion");
+
                     b.Navigation("Orden");
+
+                    b.Navigation("UsuarioRegistro");
                 });
 
             modelBuilder.Entity("RestauranteComandas.Api.Models.PagoDetalle", b =>
@@ -315,6 +432,11 @@ namespace RestauranteComandas.Api.Migrations
                     b.Navigation("OrdenDetalle");
 
                     b.Navigation("Pago");
+                });
+
+            modelBuilder.Entity("RestauranteComandas.Api.Models.CajaSesion", b =>
+                {
+                    b.Navigation("Pagos");
                 });
 
             modelBuilder.Entity("RestauranteComandas.Api.Models.MenuItem", b =>
