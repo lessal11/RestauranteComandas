@@ -63,6 +63,9 @@
         // =============================================
 
         public ICollection<Pago> Pagos { get; set; } =
-            new List<Pago>();
+    new List<Pago>();
+
+        public ICollection<CajaConteoDenominacion> ConteoDenominaciones { get; set; } =
+            new List<CajaConteoDenominacion>();
     }
 }

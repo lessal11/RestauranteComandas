@@ -1,179 +1,408 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
-
 <head>
-
     <meta charset="UTF-8">
 
-    <link rel="manifest"
-          href="/manifest.webmanifest?v=4">
+    <link rel="manifest" href="/manifest.webmanifest?v=4">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png?v=4">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png?v=4">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png?v=4">
 
-    <link rel="apple-touch-icon"
-          sizes="180x180"
-          href="/icons/apple-touch-icon.png?v=4">
-
-    <link rel="icon"
-          type="image/png"
-          sizes="32x32"
-          href="/icons/icon-32x32.png?v=4">
-
-    <link rel="icon"
-          type="image/png"
-          sizes="192x192"
-          href="/icons/icon-192x192.png?v=4">
-
-    <meta name="apple-mobile-web-app-capable"
-          content="yes">
-
-    <meta name="apple-mobile-web-app-title"
-          content="La Super Corvina">
-
-    <meta name="mobile-web-app-capable"
-          content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="La Super Corvina">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
 
     <meta name="viewport"
           content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-    <meta name="theme-color"
-          content="#0d1b2a">
+    <meta name="theme-color" content="#0d1b2a">
 
-    <title>
-        Cierre de Caja - La Super Corvina
-    </title>
-
+    <title>Apertura y Cierre de Caja - La Super Corvina</title>
 
     <style>
-
         * {
             box-sizing: border-box;
         }
 
         :root {
-            --rojo: #dc2626;
-            --verde: #16a34a;
-            --amarillo: #f59e0b;
-            --azul: #2563eb;
+            --rojo: #b8322c;
+            --verde: #15803d;
+            --azul: #1d4ed8;
+            --morado: #7c3aed;
             --oscuro: #111827;
-            --gris: #6b7280;
-            --fondo: #f3f4f6;
+            --texto: #172033;
+            --suave: #6b7280;
             --borde: #e5e7eb;
+            --fondo-card: rgba(255, 250, 242, .96);
+            --fondo-suave: #f8fafc;
         }
-
 
         body {
             margin: 0;
+            min-height: 100vh;
             font-family: Arial, Helvetica, sans-serif;
-            background: var(--fondo);
-            color: var(--oscuro);
+            color: var(--texto);
+            background: #111827;
         }
-
-
-        button,
-        input,
-        textarea {
-            font: inherit;
-        }
-
-
-        /* =============================================
-           HEADER
-           ============================================= */
 
         header {
+            position: sticky;
+            top: 0;
+            z-index: 30;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 15px;
-            flex-wrap: wrap;
-            padding: 18px 25px;
-            background: var(--oscuro);
+            gap: 16px;
+            padding: 18px 24px;
             color: white;
+            border-bottom: 2px solid #d49a22;
+            background: rgba(9, 28, 44, .95);
+            backdrop-filter: blur(10px);
+        }
+
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-width: 0;
+        }
+
+        .logo {
+            width: 92px;
+            height: 92px;
+            border-radius: 18px;
+            object-fit: cover;
         }
 
         .titulo {
-            font-size: 26px;
+            margin: 0;
+            font-size: clamp(26px, 4vw, 46px);
+            line-height: 1;
             font-weight: 900;
         }
 
         .usuario {
-            margin-top: 4px;
-            color: #d1d5db;
+            margin-top: 7px;
+            color: #f5c967;
             font-size: 14px;
         }
 
-        .acciones-header {
+        .header-actions {
             display: flex;
-            gap: 9px;
+            gap: 10px;
             flex-wrap: wrap;
         }
 
-        .btn-header {
+        button {
+            font: inherit;
+        }
+
+        .btn-header,
+        .btn-secundario,
+        .btn-principal {
             border: none;
-            border-radius: 9px;
-            padding: 10px 14px;
-            background: var(--rojo);
-            color: white;
+            border-radius: 13px;
+            padding: 12px 16px;
             cursor: pointer;
             font-weight: 900;
         }
 
+        .btn-header {
+            color: white;
+            border: 1px solid #8a6420;
+            background: #10263a;
+        }
 
-        /* =============================================
-           CONTENIDO
-           ============================================= */
+        main {
+            min-height: calc(100vh - 130px);
+            padding: 42px 24px 70px;
+            background:
+                linear-gradient(rgba(6, 19, 30, .58), rgba(6, 19, 30, .68)),
+                url("/images/fondo.jpeg") center / cover fixed;
+        }
 
         .contenedor {
-            width: min(100%, 1200px);
-            margin: auto;
-            padding: 24px 18px 50px;
+            width: min(100%, 1540px);
+            margin: 0 auto;
+            border-radius: 28px;
+            padding: 32px;
+            background: var(--fondo-card);
+            box-shadow: 0 18px 55px rgba(0,0,0,.25);
         }
 
-        .panel {
-            margin-bottom: 20px;
-            border-radius: 15px;
-            padding: 20px;
-            background: white;
-            box-shadow: 0 5px 15px rgba(0,0,0,.10);
+        h1, h2, h3 {
+            margin-top: 0;
         }
 
-            .panel h2 {
-                margin: 0 0 15px;
-                color: var(--rojo);
-            }
+        h1, h2 {
+            color: var(--rojo);
+        }
 
+        .oculto {
+            display: none !important;
+        }
 
-        /* =============================================
-           ESTADO DE CAJA
-           ============================================= */
-
-        .estado-caja {
+        .estado-pill {
             display: inline-flex;
             align-items: center;
             gap: 7px;
-            margin-bottom: 16px;
+            margin-bottom: 18px;
             border-radius: 999px;
-            padding: 7px 12px;
+            padding: 9px 15px;
+            color: #166534;
+            background: #dcfce7;
+            font-weight: 900;
+        }
+
+        .grid-info {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .info-box {
+            min-width: 0;
+            border-radius: 12px;
+            padding: 15px;
+            background: #f3f4f6;
+        }
+
+        .info-label {
+            color: var(--suave);
+            font-size: 13px;
+        }
+
+        .info-value {
+            margin-top: 9px;
+            overflow-wrap: anywhere;
+            font-size: 18px;
+            font-weight: 900;
+        }
+
+        .totales-grid {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: 14px;
+            margin-top: 20px;
+        }
+
+        .total-box {
+            min-width: 0;
+            border: 1px solid #ead4aa;
+            border-radius: 14px;
+            padding: 17px;
+            background: #f8fafc;
+        }
+
+        .total-box .label {
+            color: var(--suave);
             font-size: 13px;
             font-weight: 900;
         }
 
-            .estado-caja.abierta {
-                background: #dcfce7;
-                color: #166534;
-            }
+        .total-box .valor {
+            margin-top: 9px;
+            font-size: clamp(21px, 2vw, 28px);
+            font-weight: 900;
+        }
 
-            .estado-caja.cerrada {
-                background: #fee2e2;
-                color: #991b1b;
-            }
+        .verde { color: var(--verde); }
+        .azul { color: var(--azul); }
+        .morado { color: var(--morado); }
+        .rojo { color: var(--rojo); }
 
+        .acciones-resumen {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 17px;
+        }
+
+        .btn-secundario {
+            color: white;
+            background: var(--oscuro);
+        }
+
+        .seccion {
+            margin-top: 22px;
+            border: 1px solid #dbe2ea;
+            border-radius: 16px;
+            padding: 20px;
+            background: rgba(255,255,255,.36);
+        }
+
+        .linea-cuadre {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .linea-cuadre.total {
+            border-top: 2px solid #1f2937;
+            border-bottom: none;
+            font-size: 22px;
+            font-weight: 900;
+        }
 
         /* =============================================
-           APERTURA
+           DENOMINACIONES
            ============================================= */
 
-        .form-grupo {
-            margin-bottom: 16px;
+        .denominaciones-wrap {
+            display: grid;
+            grid-template-columns: minmax(0, 1.25fr) minmax(300px, .75fr);
+            gap: 22px;
+            align-items: start;
+        }
+
+        .denominaciones-panel {
+            overflow: hidden;
+            border: 1px solid var(--borde);
+            border-radius: 16px;
+            background: white;
+        }
+
+        .denominaciones-head,
+        .denominacion-fila {
+            display: grid;
+            grid-template-columns: minmax(100px, .9fr) minmax(170px, 1.2fr) minmax(110px, .8fr);
+            gap: 12px;
+            align-items: center;
+        }
+
+        .denominaciones-head {
+            padding: 12px 16px;
+            color: #374151;
+            background: #f3f4f6;
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .denominacion-fila {
+            padding: 11px 16px;
+            border-top: 1px solid #eef2f7;
+        }
+
+        .denominacion-valor {
+            font-size: 18px;
+            font-weight: 900;
+        }
+
+        .denominacion-tipo {
+            display: block;
+            margin-top: 2px;
+            color: var(--suave);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .contador-denominacion {
+            display: grid;
+            grid-template-columns: 38px minmax(70px, 1fr) 38px;
+            gap: 6px;
+        }
+
+        .contador-denominacion button {
+            border: 1px solid #d1d5db;
+            border-radius: 9px;
+            background: #f9fafb;
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: 900;
+        }
+
+        .contador-denominacion input {
+            width: 100%;
+            min-width: 0;
+            border: 1px solid #d1d5db;
+            border-radius: 9px;
+            padding: 9px 7px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 900;
+            outline: none;
+        }
+
+        .contador-denominacion input:focus {
+            border-color: #b8322c;
+            box-shadow: 0 0 0 3px rgba(184, 50, 44, .10);
+        }
+
+        .denominacion-subtotal {
+            text-align: right;
+            font-size: 17px;
+            font-weight: 900;
+        }
+
+        .arqueo-resumen {
+            position: sticky;
+            top: 135px;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 18px;
+            background: #f8fafc;
+        }
+
+        .arqueo-valor {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .arqueo-valor strong {
+            text-align: right;
+        }
+
+        .arqueo-total {
+            margin-top: 14px;
+            border-radius: 13px;
+            padding: 15px;
+            background: #111827;
+            color: white;
+        }
+
+        .arqueo-total span {
+            display: block;
+            color: #d1d5db;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .arqueo-total strong {
+            display: block;
+            margin-top: 6px;
+            font-size: 30px;
+        }
+
+        .diferencia-box {
+            margin-top: 12px;
+            border-radius: 13px;
+            padding: 14px;
+            font-weight: 900;
+        }
+
+        .diferencia-box.cuadrada {
+            color: #166534;
+            background: #dcfce7;
+        }
+
+        .diferencia-box.faltante {
+            color: #991b1b;
+            background: #fee2e2;
+        }
+
+        .diferencia-box.sobrante {
+            color: #92400e;
+            background: #fef3c7;
+        }
+
+        .observacion-wrap {
+            margin-top: 18px;
         }
 
         label {
@@ -182,1901 +411,2006 @@
             font-weight: 900;
         }
 
-        input,
+        input[type="number"],
+        input[type="date"],
         textarea {
             width: 100%;
             border: 1px solid #d1d5db;
-            border-radius: 9px;
+            border-radius: 10px;
             padding: 11px;
-            outline: none;
+            font: inherit;
         }
 
-            input:focus,
-            textarea:focus {
-                border-color: var(--rojo);
-                box-shadow: 0 0 0 3px rgba(220,38,38,.10);
-            }
-
         textarea {
-            min-height: 100px;
+            min-height: 90px;
             resize: vertical;
         }
 
-        .ayuda {
-            margin-top: 5px;
-            color: var(--gris);
-            font-size: 12px;
-        }
-
-
-        /* =============================================
-           RESUMEN
-           ============================================= */
-
-        .resumen-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px;
-        }
-
-        .resumen-card {
-            border: 1px solid var(--borde);
-            border-radius: 12px;
-            padding: 14px;
-            background: #f9fafb;
-        }
-
-            .resumen-card span {
-                display: block;
-                margin-bottom: 6px;
-                color: var(--gris);
-                font-size: 12px;
-                font-weight: 800;
-            }
-
-            .resumen-card strong {
-                display: block;
-                font-size: 23px;
-            }
-
-            .resumen-card.efectivo strong {
-                color: #15803d;
-            }
-
-            .resumen-card.transferencia strong {
-                color: #1d4ed8;
-            }
-
-            .resumen-card.d1 strong {
-                color: #7c3aed;
-            }
-
-            .resumen-card.total strong {
-                color: var(--rojo);
-            }
-
-
-        /* =============================================
-           INFORMACIÓN GENERAL
-           ============================================= */
-
-        .info-caja {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-            gap: 10px;
-            margin-bottom: 18px;
-        }
-
-        .info-item {
-            border-radius: 10px;
-            padding: 11px 13px;
-            background: #f3f4f6;
-        }
-
-            .info-item span {
-                display: block;
-                margin-bottom: 3px;
-                color: var(--gris);
-                font-size: 12px;
-            }
-
-            .info-item strong {
-                font-size: 15px;
-            }
-
-
-        /* =============================================
-           CUADRE
-           ============================================= */
-
-        .cuadre-box {
-            margin-top: 18px;
-            border: 2px solid #e5e7eb;
-            border-radius: 14px;
-            padding: 16px;
-        }
-
-        .fila-cuadre {
-            display: flex;
-            justify-content: space-between;
-            gap: 15px;
-            padding: 8px 0;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-            .fila-cuadre:last-child {
-                border-bottom: none;
-            }
-
-            .fila-cuadre.destacada {
-                margin-top: 5px;
-                border-top: 2px solid var(--oscuro);
-                font-size: 18px;
-                font-weight: 900;
-            }
-
-        .resultado-diferencia {
-            margin: 15px 0;
-            border-radius: 12px;
-            padding: 14px;
-            text-align: center;
-            font-size: 18px;
-            font-weight: 900;
-        }
-
-            .resultado-diferencia.cuadrada {
-                background: #dcfce7;
-                color: #166534;
-            }
-
-            .resultado-diferencia.faltante {
-                background: #fee2e2;
-                color: #991b1b;
-            }
-
-            .resultado-diferencia.sobrante {
-                background: #fef3c7;
-                color: #92400e;
-            }
-
-
-        /* =============================================
-           BOTONES
-           ============================================= */
-
         .btn-principal {
             width: 100%;
-            min-height: 50px;
-            border: none;
-            border-radius: 10px;
-            padding: 13px;
-            background: var(--verde);
+            margin-top: 16px;
+            padding: 14px 16px;
             color: white;
-            cursor: pointer;
+            background: var(--rojo);
             font-size: 16px;
+        }
+
+        .btn-principal:disabled {
+            opacity: .55;
+            cursor: not-allowed;
+        }
+
+        .mensaje {
+            min-height: 20px;
+            margin-top: 12px;
+            text-align: center;
             font-weight: 900;
         }
 
-            .btn-principal.cerrar {
-                background: var(--rojo);
-            }
+        .mensaje.ok { color: var(--verde); }
+        .mensaje.error { color: var(--rojo); }
 
-            .btn-principal:disabled {
-                background: #9ca3af;
-                cursor: not-allowed;
-            }
+        /* =============================================
+           APERTURA
+           ============================================= */
 
-        .btn-secundario {
-            border: none;
-            border-radius: 9px;
-            padding: 10px 13px;
-            background: var(--oscuro);
-            color: white;
-            cursor: pointer;
-            font-weight: 900;
+        .apertura-card {
+            width: min(100%, 620px);
+            margin: 0 auto;
         }
 
+        .apertura-card input {
+            font-size: 19px;
+            font-weight: 900;
+        }
 
         /* =============================================
            HISTORIAL
            ============================================= */
 
-        .historial-header {
+        .filtros {
             display: flex;
-            align-items: flex-end;
-            gap: 12px;
+            gap: 10px;
             flex-wrap: wrap;
-            margin-bottom: 18px;
+            align-items: end;
         }
 
         .filtro {
             flex: 1 1 180px;
         }
 
-        .cierre-card {
-            margin-bottom: 13px;
-            border: 1px solid var(--borde);
-            border-radius: 13px;
-            padding: 15px;
-            background: #f9fafb;
+        .tabla-wrap {
+            margin-top: 15px;
+            overflow-x: auto;
         }
 
-        .cierre-header {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 10px;
+        table {
+            width: 100%;
+            min-width: 900px;
+            border-collapse: collapse;
+            background: white;
         }
 
-        .cierre-titulo {
-            font-weight: 900;
-            color: var(--rojo);
+        th,
+        td {
+            padding: 11px 10px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+            white-space: nowrap;
         }
 
-        .badge-cuadre {
+        th {
+            color: #374151;
+            background: #f3f4f6;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .estado-cuadre {
+            display: inline-block;
             border-radius: 999px;
-            padding: 5px 10px;
+            padding: 5px 9px;
             font-size: 12px;
             font-weight: 900;
         }
 
-            .badge-cuadre.cuadrada {
-                background: #dcfce7;
-                color: #166534;
-            }
-
-            .badge-cuadre.faltante {
-                background: #fee2e2;
-                color: #991b1b;
-            }
-
-            .badge-cuadre.sobrante {
-                background: #fef3c7;
-                color: #92400e;
-            }
-
-        .cierre-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
-            gap: 8px;
+        .estado-cuadre.Cuadrada {
+            color: #166534;
+            background: #dcfce7;
         }
 
-        .cierre-dato {
-            padding: 8px;
-            border-radius: 8px;
-            background: white;
+        .estado-cuadre.Faltante {
+            color: #991b1b;
+            background: #fee2e2;
         }
 
-            .cierre-dato span {
-                display: block;
-                color: var(--gris);
-                font-size: 11px;
-            }
-
-            .cierre-dato strong {
-                font-size: 14px;
-            }
-
-        .observacion {
-            margin-top: 10px;
-            border-left: 4px solid var(--amarillo);
-            padding: 9px 11px;
-            background: #fffbeb;
-            color: #78350f;
-            font-size: 13px;
+        .estado-cuadre.Sobrante {
+            color: #92400e;
+            background: #fef3c7;
         }
 
-
-        /* =============================================
-           MENSAJES
-           ============================================= */
-
-        .mensaje {
-            min-height: 22px;
-            margin-top: 13px;
-            text-align: center;
-            font-weight: 900;
-        }
-
-            .mensaje.ok {
-                color: var(--verde);
+        @media (max-width: 1100px) {
+            .grid-info {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
-            .mensaje.error {
-                color: var(--rojo);
+            .totales-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
             }
 
-        .vacio {
-            padding: 20px;
-            text-align: center;
-            color: var(--gris);
+            .denominaciones-wrap {
+                grid-template-columns: 1fr;
+            }
+
+            .arqueo-resumen {
+                position: static;
+            }
         }
 
-
-        @media (max-width: 600px) {
-
+        @media (max-width: 700px) {
             header {
-                padding: 14px;
+                padding: 12px;
+            }
+
+            .logo {
+                width: 62px;
+                height: 62px;
             }
 
             .titulo {
-                font-size: 21px;
+                font-size: 24px;
+            }
+
+            main {
+                padding: 18px 10px 50px;
             }
 
             .contenedor {
-                padding: 15px 12px 40px;
+                border-radius: 18px;
+                padding: 18px 12px;
             }
 
-            .panel {
-                padding: 15px;
-            }
-
-            .resumen-grid {
+            .grid-info,
+            .totales-grid {
                 grid-template-columns: 1fr 1fr;
+            }
+
+            .denominaciones-head {
+                display: none;
+            }
+
+            .denominacion-fila {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .denominacion-subtotal {
+                text-align: left;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+
+            .btn-header {
+                flex: 1;
             }
         }
 
-
-        @media (max-width: 420px) {
-
-            .resumen-grid {
+        @media (max-width: 430px) {
+            .grid-info,
+            .totales-grid {
                 grid-template-columns: 1fr;
             }
         }
     </style>
 
-
-    <link rel="icon"
-          type="image/jpeg"
-          href="/images/logo.jpeg">
-
-    <link rel="stylesheet"
-          href="/css/theme.css?v=4">
-
+    <link rel="stylesheet" href="/css/theme.css?v=4">
 </head>
 
-
-<body>
-
-    <header>
+<body class="page-caja">
+<header>
+    <div class="header-info">
+        <img class="logo"
+             src="/images/logo.jpeg"
+             alt="La Super Corvina">
 
         <div>
-
-            <div class="titulo">
+            <h1 class="titulo">
                 Apertura y Cierre de Caja
-            </div>
+            </h1>
 
             <div class="usuario"
-                 id="usuarioInfo">
-            </div>
-
+                 id="usuarioInfo"></div>
         </div>
+    </div>
 
+    <div class="header-actions">
+        <button class="btn-header"
+                type="button"
+                onclick="volverPanel()">
+            Panel
+        </button>
 
-        <div class="acciones-header">
+        <button class="btn-header"
+                type="button"
+                onclick="cerrarSesion()">
+            Cerrar sesión
+        </button>
+    </div>
+</header>
 
-            <button class="btn-header"
-                    onclick="volverPanel()">
-                Panel
-            </button>
+<main>
+    <div class="contenedor">
 
-            <button class="btn-header"
-                    onclick="cerrarSesion()">
-                Cerrar sesión
-            </button>
+        <!-- ==========================================
+             SIN CAJA ABIERTA
+             ========================================== -->
 
-        </div>
+        <section id="seccionApertura"
+                 class="apertura-card oculto">
 
-    </header>
-
-
-    <main class="contenedor">
-
-
-        <!-- =============================================
-             APERTURA
-             ============================================= -->
-
-        <section class="panel"
-                 id="panelApertura">
-
-            <h2>
-                Abrir caja
-            </h2>
-
-            <div class="estado-caja cerrada">
-                🔴 Caja cerrada
-            </div>
+            <h2>Abrir caja</h2>
 
             <p>
-                No existe una sesión de caja abierta.
-                Ingrese el fondo inicial para comenzar.
+                No existe una caja abierta actualmente.
+                Registra el fondo inicial para comenzar el turno.
             </p>
 
+            <label for="fondoInicial">
+                Fondo inicial
+            </label>
 
-            <div class="form-grupo">
-
-                <label for="fondoInicial">
-                    Fondo inicial
-                </label>
-
-                <input id="fondoInicial"
-                       type="number"
-                       min="0"
-                       step="0.01"
-                       value="0.00"
-                       inputmode="decimal">
-
-                <div class="ayuda">
-                    Dinero disponible físicamente al comenzar el turno.
-                </div>
-
-            </div>
-
+            <input type="number"
+                   id="fondoInicial"
+                   min="0"
+                   step="0.01"
+                   inputmode="decimal"
+                   placeholder="0.00">
 
             <button class="btn-principal"
                     id="btnAbrirCaja"
                     type="button"
                     onclick="abrirCaja()">
-
                 Abrir caja
-
             </button>
 
-
             <div class="mensaje"
-                 id="mensajeApertura">
-            </div>
-
+                 id="mensajeApertura"></div>
         </section>
 
 
-        <!-- =============================================
-             CAJA ACTIVA
-             ============================================= -->
+        <!-- ==========================================
+             CAJA ACTUAL
+             ========================================== -->
 
-        <section class="panel"
-                 id="panelCajaActiva"
-                 style="display:none;">
+        <section id="seccionCajaActual"
+                 class="oculto">
 
-            <h2>
-                Caja actual
-            </h2>
+            <h2>Caja actual</h2>
 
-            <div class="estado-caja abierta">
+            <div class="estado-pill">
                 🟢 Caja abierta
             </div>
 
-
-            <div class="info-caja">
-
-                <div class="info-item">
-
-                    <span>
-                        Sesión
-                    </span>
-
-                    <strong id="cajaId">
-                        -
-                    </strong>
-
+            <div class="grid-info">
+                <div class="info-box">
+                    <div class="info-label">Sesión</div>
+                    <div class="info-value"
+                         id="cajaIdTexto">-</div>
                 </div>
 
-
-                <div class="info-item">
-
-                    <span>
-                        Abierta por
-                    </span>
-
-                    <strong id="usuarioApertura">
-                        -
-                    </strong>
-
+                <div class="info-box">
+                    <div class="info-label">Abierta por</div>
+                    <div class="info-value"
+                         id="usuarioAperturaTexto">-</div>
                 </div>
 
-
-                <div class="info-item">
-
-                    <span>
-                        Fecha de apertura
-                    </span>
-
-                    <strong id="fechaApertura">
-                        -
-                    </strong>
-
+                <div class="info-box">
+                    <div class="info-label">Fecha de apertura</div>
+                    <div class="info-value"
+                         id="fechaAperturaTexto">-</div>
                 </div>
 
-
-                <div class="info-item">
-
-                    <span>
-                        Pagos registrados
-                    </span>
-
-                    <strong id="cantidadPagos">
-                        0
-                    </strong>
-
+                <div class="info-box">
+                    <div class="info-label">Pagos registrados</div>
+                    <div class="info-value"
+                         id="cantidadPagosTexto">0</div>
                 </div>
-
             </div>
 
-
-            <div class="resumen-grid">
-
-                <div class="resumen-card">
-
-                    <span>
-                        Fondo inicial
-                    </span>
-
-                    <strong id="resumenFondo">
-                        $0.00
-                    </strong>
-
+            <div class="totales-grid">
+                <div class="total-box">
+                    <div class="label">Fondo inicial</div>
+                    <div class="valor"
+                         id="fondoInicialTexto">$0.00</div>
                 </div>
 
-
-                <div class="resumen-card efectivo">
-
-                    <span>
-                        Efectivo cobrado
-                    </span>
-
-                    <strong id="resumenEfectivo">
-                        $0.00
-                    </strong>
-
+                <div class="total-box">
+                    <div class="label">Efectivo cobrado</div>
+                    <div class="valor verde"
+                         id="totalEfectivoTexto">$0.00</div>
                 </div>
 
-
-                <div class="resumen-card transferencia">
-
-                    <span>
-                        Transferencias
-                    </span>
-
-                    <strong id="resumenTransferencia">
-                        $0.00
-                    </strong>
-
+                <div class="total-box">
+                    <div class="label">Transferencias</div>
+                    <div class="valor azul"
+                         id="totalTransferenciaTexto">$0.00</div>
                 </div>
 
-
-                <div class="resumen-card d1">
-
-                    <span>
-                        D1
-                    </span>
-
-                    <strong id="resumenD1">
-                        $0.00
-                    </strong>
-
+                <div class="total-box">
+                    <div class="label">D1</div>
+                    <div class="valor morado"
+                         id="totalD1Texto">$0.00</div>
                 </div>
 
-
-                <div class="resumen-card total">
-
-                    <span>
-                        Total cobrado
-                    </span>
-
-                    <strong id="resumenTotal">
-                        $0.00
-                    </strong>
-
+                <div class="total-box">
+                    <div class="label">Total cobrado</div>
+                    <div class="valor rojo"
+                         id="totalCobradoTexto">$0.00</div>
                 </div>
 
-
-                <div class="resumen-card efectivo">
-
-                    <span>
-                        Efectivo esperado
-                    </span>
-
-                    <strong id="resumenEsperado">
-                        $0.00
-                    </strong>
-
+                <div class="total-box">
+                    <div class="label">Efectivo esperado</div>
+                    <div class="valor verde"
+                         id="efectivoEsperadoTexto">$0.00</div>
                 </div>
-
             </div>
 
-
-            <div style="
-                    margin-top:15px;
-                    text-align:right;
-                ">
-
+            <div class="acciones-resumen">
                 <button class="btn-secundario"
                         type="button"
-                        onclick="cargarResumenCaja()">
-
+                        onclick="cargarResumenCajaActiva()">
                     Actualizar valores
-
                 </button>
+            </div>
 
+            <div class="seccion">
+                <h3>Cuadre de caja</h3>
+
+                <div class="linea-cuadre">
+                    <span>Fondo inicial</span>
+                    <strong id="cuadreFondo">$0.00</strong>
+                </div>
+
+                <div class="linea-cuadre">
+                    <span>+ Ventas en efectivo</span>
+                    <strong id="cuadreEfectivo">$0.00</strong>
+                </div>
+
+                <div class="linea-cuadre total">
+                    <span>Efectivo esperado</span>
+                    <strong id="cuadreEsperado">$0.00</strong>
+                </div>
             </div>
 
 
-            <!-- CUADRE -->
+            <!-- ======================================
+                 ARQUEO POR DENOMINACIONES
+                 ====================================== -->
 
-            <div class="cuadre-box">
+            <div class="seccion">
+                <h3>Conteo físico por denominaciones</h3>
 
-                <h3>
-                    Cuadre de caja
-                </h3>
+                <p>
+                    Ingresa cuántas monedas o billetes existen
+                    de cada denominación. El sistema calculará
+                    automáticamente el efectivo contado.
+                </p>
+
+                <div class="denominaciones-wrap">
+
+                    <div class="denominaciones-panel">
+
+                        <div class="denominaciones-head">
+                            <span>Denominación</span>
+                            <span>Cantidad</span>
+                            <span style="text-align:right;">
+                                Subtotal
+                            </span>
+                        </div>
+
+                        <div id="listaDenominaciones"></div>
+
+                    </div>
 
 
-                <div class="fila-cuadre">
+                    <div class="arqueo-resumen">
 
-                    <span>
-                        Fondo inicial
-                    </span>
+                        <h3>Resumen del arqueo</h3>
 
-                    <strong id="cuadreFondo">
-                        $0.00
-                    </strong>
+                        <div class="arqueo-valor">
+                            <span>Efectivo esperado</span>
+                            <strong id="arqueoEsperado">
+                                $0.00
+                            </strong>
+                        </div>
 
+                        <div class="arqueo-total">
+                            <span>Efectivo contado</span>
+
+                            <strong id="efectivoContadoTexto">
+                                $0.00
+                            </strong>
+                        </div>
+
+                        <div id="diferenciaBox"
+                             class="diferencia-box faltante">
+
+                            <div>
+                                Diferencia:
+                                <span id="diferenciaTexto">
+                                    $0.00
+                                </span>
+                            </div>
+
+                            <div id="estadoDiferenciaTexto"
+                                 style="margin-top:5px;">
+                                Pendiente de conteo
+                            </div>
+
+                        </div>
+
+
+                        <div class="observacion-wrap">
+                            <label for="observacionCierre">
+                                Observación de cierre
+                            </label>
+
+                            <textarea
+                                id="observacionCierre"
+                                placeholder="Obligatoria si existe faltante o sobrante"></textarea>
+                        </div>
+
+
+                        <button class="btn-principal"
+                                id="btnCerrarCaja"
+                                type="button"
+                                onclick="cerrarCaja()">
+                            Cerrar caja
+                        </button>
+
+                        <div class="mensaje"
+                             id="mensajeCierre"></div>
+
+                    </div>
                 </div>
-
-
-                <div class="fila-cuadre">
-
-                    <span>
-                        + Ventas en efectivo
-                    </span>
-
-                    <strong id="cuadreEfectivo">
-                        $0.00
-                    </strong>
-
-                </div>
-
-
-                <div class="fila-cuadre destacada">
-
-                    <span>
-                        Efectivo esperado
-                    </span>
-
-                    <strong id="cuadreEsperado">
-                        $0.00
-                    </strong>
-
-                </div>
-
-
-                <div class="form-grupo"
-                     style="margin-top:18px;">
-
-                    <label for="efectivoContado">
-                        Efectivo contado físicamente
-                    </label>
-
-                    <input id="efectivoContado"
-                           type="number"
-                           min="0"
-                           step="0.01"
-                           placeholder="0.00"
-                           inputmode="decimal"
-                           oninput="calcularDiferenciaVisual()">
-
-                </div>
-
-
-                <div id="resultadoDiferencia"
-                     class="resultado-diferencia cuadrada">
-
-                    Diferencia: $0.00
-
-                </div>
-
-
-                <div class="form-grupo">
-
-                    <label for="observacionCierre">
-                        Observación
-                    </label>
-
-                    <textarea id="observacionCierre"
-                              placeholder="Opcional si la caja cuadra. Obligatoria si existe faltante o sobrante."></textarea>
-
-                </div>
-
-
-                <button class="btn-principal cerrar"
-                        id="btnCerrarCaja"
-                        type="button"
-                        onclick="cerrarCaja()">
-
-                    Cerrar y cuadrar caja
-
-                </button>
-
-
-                <div class="mensaje"
-                     id="mensajeCierre">
-                </div>
-
             </div>
 
         </section>
 
 
-        <!-- =============================================
+        <!-- ==========================================
              HISTORIAL
-             ============================================= -->
+             ========================================== -->
 
-        <section class="panel">
+        <section class="seccion"
+                 id="seccionHistorial">
 
-            <h2>
-                Historial de cierres
-            </h2>
+            <h2>Historial de cierres</h2>
 
-
-            <div class="historial-header">
-
-
+            <div class="filtros">
                 <div class="filtro">
-
-                    <label for="desde">
+                    <label for="filtroDesde">
                         Desde
                     </label>
 
-                    <input id="desde"
-                           type="date">
-
+                    <input type="date"
+                           id="filtroDesde">
                 </div>
 
-
                 <div class="filtro">
-
-                    <label for="hasta">
+                    <label for="filtroHasta">
                         Hasta
                     </label>
 
-                    <input id="hasta"
-                           type="date">
-
+                    <input type="date"
+                           id="filtroHasta">
                 </div>
 
-
-                <button class="btn-secundario"
-                        type="button"
-                        onclick="cargarHistorial()">
-
-                    Buscar
-
-                </button>
-
+                <div>
+                    <button class="btn-secundario"
+                            type="button"
+                            onclick="cargarHistorial()">
+                        Buscar
+                    </button>
+                </div>
             </div>
 
+            <div class="tabla-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Sesión</th>
+                        <th>Apertura</th>
+                        <th>Cierre</th>
+                        <th>Usuario</th>
+                        <th>Total cobrado</th>
+                        <th>Esperado</th>
+                        <th>Contado</th>
+                        <th>Diferencia</th>
+                        <th>Cuadre</th>
+                    </tr>
+                    </thead>
 
-            <div id="contenedorHistorial">
+                    <tbody id="tablaHistorial"></tbody>
+                </table>
             </div>
 
+            <div class="mensaje"
+                 id="mensajeHistorial"></div>
         </section>
 
-    </main>
+    </div>
+</main>
 
 
-    <script>
+<script>
+    const token =
+        localStorage.getItem(
+            "token"
+        );
 
-        // =============================================
-        // SESIÓN
-        // =============================================
+    const usuarioNombre =
+        localStorage.getItem(
+            "usuarioNombre"
+        );
 
-        const token =
-            localStorage.getItem(
-                "token"
+    const usuarioRol =
+        localStorage.getItem(
+            "usuarioRol"
+        );
+
+
+    const DENOMINACIONES = [
+        {
+            valor: 0.01,
+            tipo: "Moneda"
+        },
+        {
+            valor: 0.05,
+            tipo: "Moneda"
+        },
+        {
+            valor: 0.10,
+            tipo: "Moneda"
+        },
+        {
+            valor: 0.25,
+            tipo: "Moneda"
+        },
+        {
+            valor: 0.50,
+            tipo: "Moneda"
+        },
+        {
+            valor: 1.00,
+            tipo: "Moneda / billete"
+        },
+        {
+            valor: 2.00,
+            tipo: "Billete"
+        },
+        {
+            valor: 5.00,
+            tipo: "Billete"
+        },
+        {
+            valor: 10.00,
+            tipo: "Billete"
+        },
+        {
+            valor: 20.00,
+            tipo: "Billete"
+        },
+        {
+            valor: 50.00,
+            tipo: "Billete"
+        },
+        {
+            valor: 100.00,
+            tipo: "Billete"
+        }
+    ];
+
+
+    const usuarioInfo =
+        document.getElementById(
+            "usuarioInfo"
+        );
+
+    const seccionApertura =
+        document.getElementById(
+            "seccionApertura"
+        );
+
+    const seccionCajaActual =
+        document.getElementById(
+            "seccionCajaActual"
+        );
+
+    const mensajeApertura =
+        document.getElementById(
+            "mensajeApertura"
+        );
+
+    const mensajeCierre =
+        document.getElementById(
+            "mensajeCierre"
+        );
+
+
+    let resumenCajaActual =
+        null;
+
+    let cerrandoCaja =
+        false;
+
+
+    validarSesion();
+
+    usuarioInfo.innerText =
+        `${usuarioNombre || ""} - ${usuarioRol || ""}`;
+
+
+    // =============================================
+    // SESIÓN
+    // =============================================
+
+    function validarSesion() {
+
+        if (!token) {
+
+            window.location.href =
+                "/login.html";
+
+            return;
+        }
+
+
+        if (
+            usuarioRol !== "Administrador" &&
+            usuarioRol !== "Caja"
+        ) {
+
+            alert(
+                "No tiene permiso para acceder al cierre de caja"
             );
 
-        const usuarioNombre =
-            localStorage.getItem(
-                "usuarioNombre"
+            window.location.href =
+                "/panel.html";
+        }
+    }
+
+
+    function headersJson() {
+
+        return {
+            "Content-Type":
+                "application/json",
+
+            "Authorization":
+                `Bearer ${token}`
+        };
+    }
+
+
+    function headersAuth() {
+
+        return {
+            "Authorization":
+                `Bearer ${token}`
+        };
+    }
+
+
+    function manejarNoAutorizado(
+        response
+    ) {
+
+        if (
+            response.status === 401 ||
+            response.status === 403
+        ) {
+
+            localStorage.clear();
+
+            window.location.href =
+                "/login.html";
+
+            return true;
+        }
+
+
+        return false;
+    }
+
+
+    // =============================================
+    // FORMATOS
+    // =============================================
+
+    function dinero(
+        valor
+    ) {
+
+        return `$${Number(
+            valor || 0
+        ).toFixed(2)}`;
+    }
+
+
+    function fechaLocal(
+        fecha
+    ) {
+
+        if (!fecha) {
+            return "-";
+        }
+
+        return new Date(
+            fecha
+        ).toLocaleString(
+            "es-EC"
+        );
+    }
+
+
+    function fechaInputHoy() {
+
+        const ahora =
+            new Date();
+
+        const anio =
+            ahora.getFullYear();
+
+        const mes =
+            String(
+                ahora.getMonth() + 1
+            ).padStart(
+                2,
+                "0"
             );
 
-        const usuarioRol =
-            localStorage.getItem(
-                "usuarioRol"
+        const dia =
+            String(
+                ahora.getDate()
+            ).padStart(
+                2,
+                "0"
             );
 
+        return `${anio}-${mes}-${dia}`;
+    }
 
-        const usuarioInfo =
-            document.getElementById(
-                "usuarioInfo"
+
+    function escaparHtml(
+        texto
+    ) {
+
+        return String(
+            texto ?? ""
+        )
+            .replaceAll(
+                "&",
+                "&amp;"
+            )
+            .replaceAll(
+                "<",
+                "&lt;"
+            )
+            .replaceAll(
+                ">",
+                "&gt;"
+            )
+            .replaceAll(
+                '"',
+                "&quot;"
+            )
+            .replaceAll(
+                "'",
+                "&#039;"
             );
+    }
 
 
-        // =============================================
-        // ELEMENTOS
-        // =============================================
+    // =============================================
+    // CARGAR ESTADO DE CAJA
+    // =============================================
 
-        const panelApertura =
-            document.getElementById(
-                "panelApertura"
+    async function cargarCaja() {
+
+        limpiarMensaje(
+            mensajeApertura
+        );
+
+        limpiarMensaje(
+            mensajeCierre
+        );
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/Caja/activa",
+                    {
+                        headers:
+                            headersAuth()
+                    }
+                );
+
+
+            if (
+                manejarNoAutorizado(
+                    response
+                )
+            ) {
+                return;
+            }
+
+
+            if (
+                response.status === 204
+            ) {
+
+                resumenCajaActual =
+                    null;
+
+                seccionApertura
+                    .classList
+                    .remove(
+                        "oculto"
+                    );
+
+                seccionCajaActual
+                    .classList
+                    .add(
+                        "oculto"
+                    );
+
+                limpiarConteo();
+
+                return;
+            }
+
+
+            if (!response.ok) {
+
+                mostrarMensaje(
+                    mensajeApertura,
+                    "No se pudo consultar la caja actual.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            seccionApertura
+                .classList
+                .add(
+                    "oculto"
+                );
+
+            seccionCajaActual
+                .classList
+                .remove(
+                    "oculto"
+                );
+
+
+            await cargarResumenCajaActiva();
+
+        } catch (error) {
+
+            mostrarMensaje(
+                mensajeApertura,
+                "Error de conexión con el servidor.",
+                "error"
             );
+        }
+    }
 
-        const panelCajaActiva =
-            document.getElementById(
-                "panelCajaActiva"
-            );
+
+    // =============================================
+    // APERTURA
+    // =============================================
+
+    async function abrirCaja() {
+
+        limpiarMensaje(
+            mensajeApertura
+        );
 
 
         const fondoInicial =
-            document.getElementById(
-                "fondoInicial"
+            Number(
+                document
+                    .getElementById(
+                        "fondoInicial"
+                    )
+                    .value
             );
 
-        const btnAbrirCaja =
+
+        if (
+            !Number.isFinite(
+                fondoInicial
+            ) ||
+            fondoInicial < 0
+        ) {
+
+            mostrarMensaje(
+                mensajeApertura,
+                "Ingrese un fondo inicial válido.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        const btn =
             document.getElementById(
                 "btnAbrirCaja"
             );
 
-        const mensajeApertura =
+
+        btn.disabled =
+            true;
+
+        btn.innerText =
+            "Abriendo caja...";
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/Caja/abrir",
+                    {
+                        method:
+                            "POST",
+
+                        headers:
+                            headersJson(),
+
+                        body:
+                            JSON.stringify({
+                                fondoInicial:
+                                    fondoInicial
+                            })
+                    }
+                );
+
+
+            if (
+                manejarNoAutorizado(
+                    response
+                )
+            ) {
+                return;
+            }
+
+
+            if (!response.ok) {
+
+                const error =
+                    await response.text();
+
+                mostrarMensaje(
+                    mensajeApertura,
+                    error ||
+                    "No se pudo abrir la caja.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            document
+                .getElementById(
+                    "fondoInicial"
+                )
+                .value =
+                "";
+
+
+            await cargarCaja();
+
+            await cargarHistorial();
+
+        } catch (error) {
+
+            mostrarMensaje(
+                mensajeApertura,
+                "Error de conexión con el servidor.",
+                "error"
+            );
+
+        } finally {
+
+            btn.disabled =
+                false;
+
+            btn.innerText =
+                "Abrir caja";
+        }
+    }
+
+
+    // =============================================
+    // RESUMEN DE CAJA
+    // =============================================
+
+    async function cargarResumenCajaActiva() {
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/Caja/activa/resumen",
+                    {
+                        headers:
+                            headersAuth()
+                    }
+                );
+
+
+            if (
+                manejarNoAutorizado(
+                    response
+                )
+            ) {
+                return;
+            }
+
+
+            if (
+                response.status === 204
+            ) {
+
+                await cargarCaja();
+
+                return;
+            }
+
+
+            if (!response.ok) {
+
+                mostrarMensaje(
+                    mensajeCierre,
+                    "No se pudieron actualizar los valores de caja.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            resumenCajaActual =
+                await response.json();
+
+
+            pintarResumenCaja();
+
+            actualizarArqueo();
+
+        } catch (error) {
+
+            mostrarMensaje(
+                mensajeCierre,
+                "Error al actualizar los valores de caja.",
+                "error"
+            );
+        }
+    }
+
+
+    function pintarResumenCaja() {
+
+        if (!resumenCajaActual) {
+            return;
+        }
+
+
+        document
+            .getElementById(
+                "cajaIdTexto"
+            )
+            .innerText =
+            `#${resumenCajaActual.cajaId}`;
+
+
+        document
+            .getElementById(
+                "usuarioAperturaTexto"
+            )
+            .innerText =
+            resumenCajaActual
+                .usuarioApertura ||
+            "-";
+
+
+        document
+            .getElementById(
+                "fechaAperturaTexto"
+            )
+            .innerText =
+            fechaLocal(
+                resumenCajaActual
+                    .fechaApertura
+            );
+
+
+        document
+            .getElementById(
+                "cantidadPagosTexto"
+            )
+            .innerText =
+            resumenCajaActual
+                .cantidadPagos ??
+            0;
+
+
+        document
+            .getElementById(
+                "fondoInicialTexto"
+            )
+            .innerText =
+            dinero(
+                resumenCajaActual
+                    .fondoInicial
+            );
+
+
+        document
+            .getElementById(
+                "totalEfectivoTexto"
+            )
+            .innerText =
+            dinero(
+                resumenCajaActual
+                    .totalEfectivo
+            );
+
+
+        document
+            .getElementById(
+                "totalTransferenciaTexto"
+            )
+            .innerText =
+            dinero(
+                resumenCajaActual
+                    .totalTransferencia
+            );
+
+
+        document
+            .getElementById(
+                "totalD1Texto"
+            )
+            .innerText =
+            dinero(
+                resumenCajaActual
+                    .totalD1
+            );
+
+
+        document
+            .getElementById(
+                "totalCobradoTexto"
+            )
+            .innerText =
+            dinero(
+                resumenCajaActual
+                    .totalCobrado
+            );
+
+
+        document
+            .getElementById(
+                "efectivoEsperadoTexto"
+            )
+            .innerText =
+            dinero(
+                resumenCajaActual
+                    .efectivoEsperado
+            );
+
+
+        document
+            .getElementById(
+                "cuadreFondo"
+            )
+            .innerText =
+            dinero(
+                resumenCajaActual
+                    .fondoInicial
+            );
+
+
+        document
+            .getElementById(
+                "cuadreEfectivo"
+            )
+            .innerText =
+            dinero(
+                resumenCajaActual
+                    .totalEfectivo
+            );
+
+
+        document
+            .getElementById(
+                "cuadreEsperado"
+            )
+            .innerText =
+            dinero(
+                resumenCajaActual
+                    .efectivoEsperado
+            );
+
+
+        document
+            .getElementById(
+                "arqueoEsperado"
+            )
+            .innerText =
+            dinero(
+                resumenCajaActual
+                    .efectivoEsperado
+            );
+    }
+
+
+    // =============================================
+    // DENOMINACIONES
+    // =============================================
+
+    function renderizarDenominaciones() {
+
+        const contenedor =
             document.getElementById(
-                "mensajeApertura"
+                "listaDenominaciones"
+            );
+
+
+        contenedor.innerHTML =
+            "";
+
+
+        DENOMINACIONES
+            .forEach(
+                (
+                    denominacion,
+                    indice
+                ) => {
+
+                    const div =
+                        document
+                            .createElement(
+                                "div"
+                            );
+
+
+                    div.className =
+                        "denominacion-fila";
+
+
+                    div.innerHTML = `
+                        <div class="denominacion-valor">
+
+                            ${dinero(
+                                denominacion.valor
+                            )}
+
+                            <span class="denominacion-tipo">
+                                ${escaparHtml(
+                                    denominacion.tipo
+                                )}
+                            </span>
+
+                        </div>
+
+
+                        <div class="contador-denominacion">
+
+                            <button
+                                type="button"
+                                onclick="cambiarCantidadDenominacion(${indice}, -1)"
+                                aria-label="Restar"
+                            >
+                                −
+                            </button>
+
+
+                            <input
+                                type="number"
+                                min="0"
+                                step="1"
+                                inputmode="numeric"
+                                value="0"
+                                id="denominacion-${indice}"
+                                data-indice="${indice}"
+                                oninput="normalizarCantidadDenominacion(${indice})"
+                            >
+
+
+                            <button
+                                type="button"
+                                onclick="cambiarCantidadDenominacion(${indice}, 1)"
+                                aria-label="Sumar"
+                            >
+                                +
+                            </button>
+
+                        </div>
+
+
+                        <div
+                            class="denominacion-subtotal"
+                            id="subtotal-denominacion-${indice}"
+                        >
+                            $0.00
+                        </div>
+                    `;
+
+
+                    contenedor
+                        .appendChild(
+                            div
+                        );
+                }
+            );
+    }
+
+
+    function obtenerCantidadDenominacion(
+        indice
+    ) {
+
+        const input =
+            document.getElementById(
+                `denominacion-${indice}`
+            );
+
+
+        if (!input) {
+            return 0;
+        }
+
+
+        const cantidad =
+            Number.parseInt(
+                input.value,
+                10
+            );
+
+
+        if (
+            !Number.isFinite(
+                cantidad
+            ) ||
+            cantidad < 0
+        ) {
+            return 0;
+        }
+
+
+        return cantidad;
+    }
+
+
+    function cambiarCantidadDenominacion(
+        indice,
+        cambio
+    ) {
+
+        const input =
+            document.getElementById(
+                `denominacion-${indice}`
+            );
+
+
+        if (!input) {
+            return;
+        }
+
+
+        const actual =
+            obtenerCantidadDenominacion(
+                indice
+            );
+
+
+        input.value =
+            Math.max(
+                0,
+                actual + cambio
+            );
+
+
+        actualizarArqueo();
+    }
+
+
+    function normalizarCantidadDenominacion(
+        indice
+    ) {
+
+        const input =
+            document.getElementById(
+                `denominacion-${indice}`
+            );
+
+
+        if (!input) {
+            return;
+        }
+
+
+        const cantidad =
+            obtenerCantidadDenominacion(
+                indice
+            );
+
+
+        input.value =
+            cantidad;
+
+
+        actualizarArqueo();
+    }
+
+
+    function obtenerDenominaciones() {
+
+        return DENOMINACIONES
+            .map(
+                (
+                    denominacion,
+                    indice
+                ) => ({
+                    valor:
+                        denominacion.valor,
+
+                    cantidad:
+                        obtenerCantidadDenominacion(
+                            indice
+                        )
+                })
+            );
+    }
+
+
+    function calcularEfectivoContado() {
+
+        return obtenerDenominaciones()
+            .reduce(
+                (
+                    total,
+                    denominacion
+                ) =>
+                    total +
+                    (
+                        Number(
+                            denominacion.valor
+                        ) *
+                        Number(
+                            denominacion.cantidad
+                        )
+                    ),
+                0
+            );
+    }
+
+
+    function actualizarArqueo() {
+
+        DENOMINACIONES
+            .forEach(
+                (
+                    denominacion,
+                    indice
+                ) => {
+
+                    const cantidad =
+                        obtenerCantidadDenominacion(
+                            indice
+                        );
+
+
+                    const subtotal =
+                        denominacion.valor *
+                        cantidad;
+
+
+                    const subtotalElemento =
+                        document.getElementById(
+                            `subtotal-denominacion-${indice}`
+                        );
+
+
+                    if (
+                        subtotalElemento
+                    ) {
+
+                        subtotalElemento
+                            .innerText =
+                            dinero(
+                                subtotal
+                            );
+                    }
+                }
             );
 
 
         const efectivoContado =
-            document.getElementById(
-                "efectivoContado"
-            );
-
-        const observacionCierre =
-            document.getElementById(
-                "observacionCierre"
-            );
-
-        const btnCerrarCaja =
-            document.getElementById(
-                "btnCerrarCaja"
-            );
-
-        const mensajeCierre =
-            document.getElementById(
-                "mensajeCierre"
-            );
+            calcularEfectivoContado();
 
 
-        const resultadoDiferencia =
-            document.getElementById(
-                "resultadoDiferencia"
-            );
-
-
-        const contenedorHistorial =
-            document.getElementById(
-                "contenedorHistorial"
-            );
-
-
-        let resumenActual =
-            null;
-
-        let procesandoApertura =
-            false;
-
-        let procesandoCierre =
-            false;
-
-
-        validarSesion();
-
-
-        usuarioInfo.innerText =
-            `${usuarioNombre || ""} - ${usuarioRol || ""}`;
-
-
-        // =============================================
-        // VALIDAR SESIÓN
-        // =============================================
-
-        function validarSesion() {
-
-            if (!token) {
-
-                window.location.href =
-                    "/login.html";
-
-                return;
-            }
-
-
-            if (
-                usuarioRol !== "Caja" &&
-                usuarioRol !== "Administrador"
-            ) {
-
-                alert(
-                    "No tiene permiso para acceder al módulo de cierre de caja"
-                );
-
-                window.location.href =
-                    "/panel.html";
-            }
-        }
-
-
-        function manejarNoAutorizado(
-            response
-        ) {
-
-            if (
-                response.status === 401 ||
-                response.status === 403
-            ) {
-
-                alert(
-                    "No tiene permiso o la sesión expiró"
-                );
-
-                localStorage.clear();
-
-                window.location.href =
-                    "/login.html";
-
-                return true;
-            }
-
-            return false;
-        }
-
-
-        // =============================================
-        // UTILIDADES
-        // =============================================
-
-        function dinero(
-            valor
-        ) {
-
-            return `$${Number(valor || 0).toFixed(2)}`;
-        }
-
-
-        function escaparHtml(
-            texto
-        ) {
-
-            return String(texto ?? "")
-                .replaceAll(
-                    "&",
-                    "&amp;"
+        const efectivoEsperado =
+            resumenCajaActual
+                ? Number(
+                    resumenCajaActual
+                        .efectivoEsperado ||
+                    0
                 )
-                .replaceAll(
-                    "<",
-                    "&lt;"
-                )
-                .replaceAll(
-                    ">",
-                    "&gt;"
-                )
-                .replaceAll(
-                    '"',
-                    "&quot;"
-                )
-                .replaceAll(
-                    "'",
-                    "&#039;"
-                );
-        }
+                : 0;
 
 
-        function fechaLocal(
-            fecha
-        ) {
+        const diferencia =
+            efectivoContado -
+            efectivoEsperado;
 
-            if (!fecha) {
-                return "-";
-            }
 
-            return new Date(
-                fecha
+        document
+            .getElementById(
+                "efectivoContadoTexto"
             )
-                .toLocaleString();
-        }
+            .innerText =
+            dinero(
+                efectivoContado
+            );
 
 
-        function fechaHoyInput() {
-
-            const ahora =
-                new Date();
-
-            const anio =
-                ahora.getFullYear();
-
-            const mes =
-                String(
-                    ahora.getMonth() + 1
+        document
+            .getElementById(
+                "diferenciaTexto"
+            )
+            .innerText =
+            `${diferencia < 0 ? "-" : ""}${dinero(
+                Math.abs(
+                    diferencia
                 )
-                    .padStart(
-                        2,
-                        "0"
-                    );
-
-            const dia =
-                String(
-                    ahora.getDate()
-                )
-                    .padStart(
-                        2,
-                        "0"
-                    );
-
-            return `${anio}-${mes}-${dia}`;
-        }
+            )}`;
 
 
-        // =============================================
-        // CARGAR ESTADO DE CAJA
-        // =============================================
+        const diferenciaBox =
+            document.getElementById(
+                "diferenciaBox"
+            );
 
-        async function cargarCaja() {
-
-            limpiarMensajes();
-
-            try {
-
-                const response =
-                    await fetch(
-                        "/api/Caja/activa",
-                        {
-                            headers: {
-                                "Authorization":
-                                    `Bearer ${token}`
-                            }
-                        }
-                    );
+        const estado =
+            document.getElementById(
+                "estadoDiferenciaTexto"
+            );
 
 
-                if (
-                    manejarNoAutorizado(
-                        response
-                    )
-                ) {
-                    return;
-                }
+        diferenciaBox
+            .classList
+            .remove(
+                "cuadrada",
+                "faltante",
+                "sobrante"
+            );
 
 
-                if (
-                    response.status === 204
-                ) {
+        if (
+            Math.abs(
+                diferencia
+            ) < 0.001
+        ) {
 
-                    resumenActual =
-                        null;
-
-                    panelApertura.style.display =
-                        "block";
-
-                    panelCajaActiva.style.display =
-                        "none";
-
-                    return;
-                }
-
-
-                if (!response.ok) {
-
-                    mostrarMensaje(
-                        mensajeApertura,
-                        "No se pudo consultar el estado de la caja.",
-                        "error"
-                    );
-
-                    return;
-                }
-
-
-                panelApertura.style.display =
-                    "none";
-
-                panelCajaActiva.style.display =
-                    "block";
-
-
-                await cargarResumenCaja();
-
-            } catch (error) {
-
-                mostrarMensaje(
-                    mensajeApertura,
-                    "Error de conexión con el servidor.",
-                    "error"
-                );
-            }
-        }
-
-
-        // =============================================
-        // ABRIR CAJA
-        // =============================================
-
-        async function abrirCaja() {
-
-            if (
-                procesandoApertura
-            ) {
-                return;
-            }
-
-
-            limpiarMensajes();
-
-
-            const fondo =
-                Number(
-                    fondoInicial.value
+            diferenciaBox
+                .classList
+                .add(
+                    "cuadrada"
                 );
 
+            estado.innerText =
+                "✓ Caja cuadrada";
 
-            if (
-                Number.isNaN(fondo) ||
-                fondo < 0
-            ) {
+        } else if (
+            diferencia < 0
+        ) {
 
-                mostrarMensaje(
-                    mensajeApertura,
-                    "Ingrese un fondo inicial válido.",
-                    "error"
+            diferenciaBox
+                .classList
+                .add(
+                    "faltante"
                 );
 
-                return;
-            }
+            estado.innerText =
+                "⚠ Faltante de efectivo";
 
+        } else {
 
-            const confirmar =
-                window.confirm(
-                    `Se abrirá la caja con un fondo inicial de ${dinero(fondo)}.\n\n¿Desea continuar?`
-                );
-
-
-            if (!confirmar) {
-                return;
-            }
-
-
-            procesandoApertura =
-                true;
-
-            btnAbrirCaja.disabled =
-                true;
-
-            btnAbrirCaja.innerText =
-                "Abriendo caja...";
-
-
-            try {
-
-                const response =
-                    await fetch(
-                        "/api/Caja/abrir",
-                        {
-                            method:
-                                "POST",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json",
-
-                                "Authorization":
-                                    `Bearer ${token}`
-                            },
-
-                            body:
-                                JSON.stringify({
-                                    fondoInicial:
-                                        fondo
-                                })
-                        }
-                    );
-
-
-                if (
-                    manejarNoAutorizado(
-                        response
-                    )
-                ) {
-                    return;
-                }
-
-
-                if (!response.ok) {
-
-                    const error =
-                        await obtenerError(
-                            response
-                        );
-
-                    mostrarMensaje(
-                        mensajeApertura,
-                        error ||
-                        "No se pudo abrir la caja.",
-                        "error"
-                    );
-
-                    return;
-                }
-
-
-                mostrarMensaje(
-                    mensajeApertura,
-                    "Caja abierta correctamente.",
-                    "ok"
-                );
-
-
-                fondoInicial.value =
-                    "0.00";
-
-
-                await cargarCaja();
-
-                await cargarHistorial();
-
-            } catch (error) {
-
-                mostrarMensaje(
-                    mensajeApertura,
-                    "Error de conexión con el servidor.",
-                    "error"
-                );
-
-            } finally {
-
-                procesandoApertura =
-                    false;
-
-                btnAbrirCaja.disabled =
-                    false;
-
-                btnAbrirCaja.innerText =
-                    "Abrir caja";
-            }
-        }
-
-
-        // =============================================
-        // RESUMEN CAJA ACTIVA
-        // =============================================
-
-        async function cargarResumenCaja() {
-
-            try {
-
-                const response =
-                    await fetch(
-                        "/api/Caja/activa/resumen",
-                        {
-                            headers: {
-                                "Authorization":
-                                    `Bearer ${token}`
-                            }
-                        }
-                    );
-
-
-                if (
-                    manejarNoAutorizado(
-                        response
-                    )
-                ) {
-                    return;
-                }
-
-
-                if (
-                    response.status === 204
-                ) {
-
-                    resumenActual =
-                        null;
-
-                    panelApertura.style.display =
-                        "block";
-
-                    panelCajaActiva.style.display =
-                        "none";
-
-                    return;
-                }
-
-
-                if (!response.ok) {
-
-                    mostrarMensaje(
-                        mensajeCierre,
-                        "No se pudo cargar el resumen de caja.",
-                        "error"
-                    );
-
-                    return;
-                }
-
-
-                resumenActual =
-                    await response.json();
-
-
-                panelApertura.style.display =
-                    "none";
-
-                panelCajaActiva.style.display =
-                    "block";
-
-
-                renderizarResumenCaja();
-
-
-            } catch (error) {
-
-                mostrarMensaje(
-                    mensajeCierre,
-                    "Error al consultar el resumen de caja.",
-                    "error"
-                );
-            }
-        }
-
-
-        function renderizarResumenCaja() {
-
-            if (!resumenActual) {
-                return;
-            }
-
-
-            document
-                .getElementById(
-                    "cajaId"
-                )
-                .innerText =
-                `#${resumenActual.cajaId}`;
-
-
-            document
-                .getElementById(
-                    "usuarioApertura"
-                )
-                .innerText =
-                resumenActual.usuarioApertura ||
-                "-";
-
-
-            document
-                .getElementById(
-                    "fechaApertura"
-                )
-                .innerText =
-                fechaLocal(
-                    resumenActual.fechaApertura
-                );
-
-
-            document
-                .getElementById(
-                    "cantidadPagos"
-                )
-                .innerText =
-                resumenActual.cantidadPagos;
-
-
-            document
-                .getElementById(
-                    "resumenFondo"
-                )
-                .innerText =
-                dinero(
-                    resumenActual.fondoInicial
-                );
-
-
-            document
-                .getElementById(
-                    "resumenEfectivo"
-                )
-                .innerText =
-                dinero(
-                    resumenActual.totalEfectivo
-                );
-
-
-            document
-                .getElementById(
-                    "resumenTransferencia"
-                )
-                .innerText =
-                dinero(
-                    resumenActual.totalTransferencia
-                );
-
-
-            document
-                .getElementById(
-                    "resumenD1"
-                )
-                .innerText =
-                dinero(
-                    resumenActual.totalD1
-                );
-
-
-            document
-                .getElementById(
-                    "resumenTotal"
-                )
-                .innerText =
-                dinero(
-                    resumenActual.totalCobrado
-                );
-
-
-            document
-                .getElementById(
-                    "resumenEsperado"
-                )
-                .innerText =
-                dinero(
-                    resumenActual.efectivoEsperado
-                );
-
-
-            document
-                .getElementById(
-                    "cuadreFondo"
-                )
-                .innerText =
-                dinero(
-                    resumenActual.fondoInicial
-                );
-
-
-            document
-                .getElementById(
-                    "cuadreEfectivo"
-                )
-                .innerText =
-                dinero(
-                    resumenActual.totalEfectivo
-                );
-
-
-            document
-                .getElementById(
-                    "cuadreEsperado"
-                )
-                .innerText =
-                dinero(
-                    resumenActual.efectivoEsperado
-                );
-
-
-            calcularDiferenciaVisual();
-        }
-
-
-        // =============================================
-        // DIFERENCIA VISUAL
-        // =============================================
-
-        function calcularDiferenciaVisual() {
-
-            if (!resumenActual) {
-
-                resultadoDiferencia.innerText =
-                    "Diferencia: $0.00";
-
-                return;
-            }
-
-
-            const contado =
-                Number(
-                    efectivoContado.value
-                );
-
-
-            if (
-                efectivoContado.value === "" ||
-                Number.isNaN(contado)
-            ) {
-
-                resultadoDiferencia.innerText =
-                    "Ingrese el efectivo contado.";
-
-                resultadoDiferencia.className =
-                    "resultado-diferencia cuadrada";
-
-                return;
-            }
-
-
-            const esperado =
-                Number(
-                    resumenActual.efectivoEsperado
-                );
-
-
-            const diferencia =
-                contado -
-                esperado;
-
-
-            resultadoDiferencia.className =
-                "resultado-diferencia";
-
-
-            if (
-                Math.abs(diferencia) <
-                0.001
-            ) {
-
-                resultadoDiferencia
-                    .classList
-                    .add(
-                        "cuadrada"
-                    );
-
-                resultadoDiferencia.innerText =
-                    "✅ Caja cuadrada · Diferencia $0.00";
-
-                return;
-            }
-
-
-            if (diferencia < 0) {
-
-                resultadoDiferencia
-                    .classList
-                    .add(
-                        "faltante"
-                    );
-
-                resultadoDiferencia.innerText =
-                    `⚠️ Faltante: ${dinero(Math.abs(diferencia))}`;
-
-                return;
-            }
-
-
-            resultadoDiferencia
+            diferenciaBox
                 .classList
                 .add(
                     "sobrante"
                 );
 
-            resultadoDiferencia.innerText =
-                `⚠️ Sobrante: ${dinero(diferencia)}`;
+            estado.innerText =
+                "⚠ Sobrante de efectivo";
         }
+    }
 
 
-        // =============================================
-        // CERRAR CAJA
-        // =============================================
+    function limpiarConteo() {
 
-        async function cerrarCaja() {
+        DENOMINACIONES
+            .forEach(
+                (
+                    denominacion,
+                    indice
+                ) => {
 
-            if (
-                procesandoCierre ||
-                !resumenActual
-            ) {
-                return;
-            }
-
-
-            limpiarMensajes();
-
-
-            const contado =
-                Number(
-                    efectivoContado.value
-                );
-
-
-            if (
-                efectivoContado.value === "" ||
-                Number.isNaN(contado) ||
-                contado < 0
-            ) {
-
-                mostrarMensaje(
-                    mensajeCierre,
-                    "Ingrese correctamente el efectivo contado.",
-                    "error"
-                );
-
-                return;
-            }
-
-
-            const esperado =
-                Number(
-                    resumenActual.efectivoEsperado
-                );
-
-
-            const diferencia =
-                contado -
-                esperado;
-
-
-            const observacion =
-                observacionCierre
-                    .value
-                    .trim();
-
-
-            if (
-                Math.abs(diferencia) >= 0.001 &&
-                !observacion
-            ) {
-
-                mostrarMensaje(
-                    mensajeCierre,
-                    "Existe una diferencia. Debe ingresar una observación antes de cerrar.",
-                    "error"
-                );
-
-                return;
-            }
-
-
-            let detalle =
-                `Efectivo esperado: ${dinero(esperado)}\n` +
-                `Efectivo contado: ${dinero(contado)}\n`;
-
-
-            if (
-                Math.abs(diferencia) <
-                0.001
-            ) {
-
-                detalle +=
-                    "Diferencia: $0.00";
-
-            } else if (
-                diferencia < 0
-            ) {
-
-                detalle +=
-                    `Faltante: ${dinero(Math.abs(diferencia))}`;
-
-            } else {
-
-                detalle +=
-                    `Sobrante: ${dinero(diferencia)}`;
-            }
-
-
-            const confirmar =
-                window.confirm(
-                    `¿Confirma el cierre de caja?\n\n${detalle}\n\nDespués del cierre deberá abrir una nueva caja para registrar nuevos pagos.`
-                );
-
-
-            if (!confirmar) {
-                return;
-            }
-
-
-            procesandoCierre =
-                true;
-
-            btnCerrarCaja.disabled =
-                true;
-
-            btnCerrarCaja.innerText =
-                "Cerrando caja...";
-
-
-            try {
-
-                const response =
-                    await fetch(
-                        "/api/Caja/cerrar",
-                        {
-                            method:
-                                "POST",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json",
-
-                                "Authorization":
-                                    `Bearer ${token}`
-                            },
-
-                            body:
-                                JSON.stringify({
-                                    efectivoContado:
-                                        contado,
-
-                                    observacionCierre:
-                                        observacion ||
-                                        null
-                                })
-                        }
-                    );
-
-
-                if (
-                    manejarNoAutorizado(
-                        response
-                    )
-                ) {
-                    return;
-                }
-
-
-                if (!response.ok) {
-
-                    const error =
-                        await obtenerError(
-                            response
+                    const input =
+                        document.getElementById(
+                            `denominacion-${indice}`
                         );
 
-                    mostrarMensaje(
-                        mensajeCierre,
-                        error ||
-                        "No se pudo cerrar la caja.",
-                        "error"
-                    );
 
-                    return;
+                    if (input) {
+                        input.value =
+                            0;
+                    }
                 }
+            );
 
 
-                const data =
-                    await response.json();
+        document
+            .getElementById(
+                "observacionCierre"
+            )
+            .value =
+            "";
 
 
-                window.alert(
-                    `Caja cerrada correctamente.\n\n` +
-                    `Estado: ${data.estadoCuadre}\n` +
-                    `Total cobrado: ${dinero(data.totalCobrado)}\n` +
-                    `Diferencia: ${dinero(data.diferencia)}`
+        actualizarArqueo();
+    }
+
+
+    // =============================================
+    // CERRAR CAJA
+    // =============================================
+
+    async function cerrarCaja() {
+
+        if (
+            cerrandoCaja ||
+            !resumenCajaActual
+        ) {
+            return;
+        }
+
+
+        limpiarMensaje(
+            mensajeCierre
+        );
+
+
+        const denominaciones =
+            obtenerDenominaciones();
+
+
+        const efectivoContado =
+            calcularEfectivoContado();
+
+
+        const efectivoEsperado =
+            Number(
+                resumenCajaActual
+                    .efectivoEsperado ||
+                0
+            );
+
+
+        const diferencia =
+            efectivoContado -
+            efectivoEsperado;
+
+
+        const observacion =
+            document
+                .getElementById(
+                    "observacionCierre"
+                )
+                .value
+                .trim();
+
+
+        if (
+            Math.abs(
+                diferencia
+            ) >= 0.001 &&
+            !observacion
+        ) {
+
+            mostrarMensaje(
+                mensajeCierre,
+                "Existe una diferencia de caja. Debe ingresar una observación.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        const confirmar =
+            window.confirm(
+                `¿Cerrar la caja?\n\n` +
+                `Efectivo esperado: ${dinero(efectivoEsperado)}\n` +
+                `Efectivo contado: ${dinero(efectivoContado)}\n` +
+                `Diferencia: ${diferencia < 0 ? "-" : ""}${dinero(Math.abs(diferencia))}`
+            );
+
+
+        if (!confirmar) {
+            return;
+        }
+
+
+        const btn =
+            document.getElementById(
+                "btnCerrarCaja"
+            );
+
+
+        cerrandoCaja =
+            true;
+
+        btn.disabled =
+            true;
+
+        btn.innerText =
+            "Cerrando caja...";
+
+
+        try {
+
+            /*
+             * efectivoContado se mantiene temporalmente
+             * porque el DTO todavía contiene la propiedad.
+             * El backend NO confía en este valor: calcula
+             * el total nuevamente desde denominaciones.
+             */
+            const dto = {
+                efectivoContado:
+                    efectivoContado,
+
+                observacionCierre:
+                    observacion || null,
+
+                denominaciones:
+                    denominaciones
+            };
+
+
+            const response =
+                await fetch(
+                    "/api/Caja/cerrar",
+                    {
+                        method:
+                            "POST",
+
+                        headers:
+                            headersJson(),
+
+                        body:
+                            JSON.stringify(
+                                dto
+                            )
+                    }
                 );
 
 
-                efectivoContado.value =
-                    "";
-
-                observacionCierre.value =
-                    "";
-
-                resumenActual =
-                    null;
-
-
-                await cargarCaja();
-
-                await cargarHistorial();
+            if (
+                manejarNoAutorizado(
+                    response
+                )
+            ) {
+                return;
+            }
 
 
-            } catch (error) {
+            if (!response.ok) {
+
+                let error =
+                    await response.text();
+
+
+                try {
+
+                    const errorJson =
+                        JSON.parse(
+                            error
+                        );
+
+
+                    error =
+                        errorJson.mensaje ||
+                        errorJson.title ||
+                        error;
+
+                } catch (_) {
+                }
+
 
                 mostrarMensaje(
                     mensajeCierre,
-                    "Error de conexión con el servidor.",
+                    error ||
+                    "No se pudo cerrar la caja.",
                     "error"
                 );
 
-            } finally {
-
-                procesandoCierre =
-                    false;
-
-                btnCerrarCaja.disabled =
-                    false;
-
-                btnCerrarCaja.innerText =
-                    "Cerrar y cuadrar caja";
+                return;
             }
+
+
+            const data =
+                await response.json();
+
+
+            alert(
+                `Caja cerrada correctamente.\n\n` +
+                `Estado: ${data.estadoCuadre}\n` +
+                `Efectivo contado: ${dinero(data.efectivoContado)}\n` +
+                `Diferencia: ${data.diferencia < 0 ? "-" : ""}${dinero(Math.abs(Number(data.diferencia || 0)))}`
+            );
+
+
+            resumenCajaActual =
+                null;
+
+
+            limpiarConteo();
+
+            await cargarCaja();
+
+            await cargarHistorial();
+
+        } catch (error) {
+
+            mostrarMensaje(
+                mensajeCierre,
+                "Error de conexión con el servidor.",
+                "error"
+            );
+
+        } finally {
+
+            cerrandoCaja =
+                false;
+
+            btn.disabled =
+                false;
+
+            btn.innerText =
+                "Cerrar caja";
+        }
+    }
+
+
+    // =============================================
+    // HISTORIAL
+    // =============================================
+
+    async function cargarHistorial() {
+
+        const desde =
+            document
+                .getElementById(
+                    "filtroDesde"
+                )
+                .value;
+
+        const hasta =
+            document
+                .getElementById(
+                    "filtroHasta"
+                )
+                .value;
+
+
+        const params =
+            new URLSearchParams();
+
+
+        if (desde) {
+            params.set(
+                "desde",
+                desde
+            );
         }
 
 
-        // =============================================
-        // HISTORIAL
-        // =============================================
-
-        async function cargarHistorial() {
-
-            const desde =
-                document.getElementById(
-                    "desde"
-                ).value;
-
-            const hasta =
-                document.getElementById(
-                    "hasta"
-                ).value;
-
-
-            const params =
-                new URLSearchParams();
-
-
-            if (desde) {
-                params.append(
-                    "desde",
-                    desde
-                );
-            }
-
-            if (hasta) {
-                params.append(
-                    "hasta",
-                    hasta
-                );
-            }
-
-
-            try {
-
-                const response =
-                    await fetch(
-                        `/api/Caja/historial?${params.toString()}`,
-                        {
-                            headers: {
-                                "Authorization":
-                                    `Bearer ${token}`
-                            }
-                        }
-                    );
-
-
-                if (
-                    manejarNoAutorizado(
-                        response
-                    )
-                ) {
-                    return;
-                }
-
-
-                if (!response.ok) {
-
-                    contenedorHistorial.innerHTML = `
-                        <div class="vacio">
-                            No se pudo cargar el historial.
-                        </div>
-                    `;
-
-                    return;
-                }
-
-
-                const cierres =
-                    await response.json();
-
-
-                renderizarHistorial(
-                    cierres
-                );
-
-
-            } catch (error) {
-
-                contenedorHistorial.innerHTML = `
-                    <div class="vacio">
-                        Error al consultar el historial.
-                    </div>
-                `;
-            }
+        if (hasta) {
+            params.set(
+                "hasta",
+                hasta
+            );
         }
 
 
-        function renderizarHistorial(
-            cierres
-        ) {
+        const url =
+            params.toString()
 
-            contenedorHistorial.innerHTML =
+                ? `/api/Caja/historial?${params.toString()}`
+
+                : "/api/Caja/historial";
+
+
+        const tbody =
+            document.getElementById(
+                "tablaHistorial"
+            );
+
+
+        const mensaje =
+            document.getElementById(
+                "mensajeHistorial"
+            );
+
+
+        limpiarMensaje(
+            mensaje
+        );
+
+
+        try {
+
+            const response =
+                await fetch(
+                    url,
+                    {
+                        headers:
+                            headersAuth()
+                    }
+                );
+
+
+            if (
+                manejarNoAutorizado(
+                    response
+                )
+            ) {
+                return;
+            }
+
+
+            if (!response.ok) {
+
+                mostrarMensaje(
+                    mensaje,
+                    "No se pudo cargar el historial.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            const cierres =
+                await response.json();
+
+
+            tbody.innerHTML =
                 "";
 
 
@@ -2085,10 +2419,12 @@
                 cierres.length === 0
             ) {
 
-                contenedorHistorial.innerHTML = `
-                    <div class="vacio">
-                        No existen cierres para los filtros seleccionados.
-                    </div>
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9">
+                            No hay cierres registrados para este período.
+                        </td>
+                    </tr>
                 `;
 
                 return;
@@ -2098,293 +2434,184 @@
             cierres.forEach(
                 cierre => {
 
-                    const div =
-                        document.createElement(
-                            "div"
-                        );
+                    const tr =
+                        document
+                            .createElement(
+                                "tr"
+                            );
 
 
-                    const claseCuadre =
-                        String(
-                            cierre.estadoCuadre ||
-                            ""
-                        )
-                            .toLowerCase();
+                    tr.innerHTML = `
+                        <td>
+                            #${cierre.id}
+                        </td>
 
+                        <td>
+                            ${fechaLocal(
+                                cierre.fechaApertura
+                            )}
+                        </td>
 
-                    div.className =
-                        "cierre-card";
+                        <td>
+                            ${fechaLocal(
+                                cierre.fechaCierre
+                            )}
+                        </td>
 
+                        <td>
+                            ${escaparHtml(
+                                cierre.usuarioCierre ||
+                                cierre.usuarioApertura ||
+                                "-"
+                            )}
+                        </td>
 
-                    div.innerHTML = `
+                        <td>
+                            ${dinero(
+                                cierre.totalCobrado
+                            )}
+                        </td>
 
-                        <div class="cierre-header">
+                        <td>
+                            ${dinero(
+                                cierre.efectivoEsperado
+                            )}
+                        </td>
 
-                            <div>
+                        <td>
+                            ${dinero(
+                                cierre.efectivoContado
+                            )}
+                        </td>
 
-                                <div class="cierre-titulo">
-                                    Cierre de caja #${cierre.id}
-                                </div>
+                        <td>
+                            ${
+                                Number(
+                                    cierre.diferencia ||
+                                    0
+                                ) < 0
+                                    ? "-"
+                                    : ""
+                            }${dinero(
+                                Math.abs(
+                                    Number(
+                                        cierre.diferencia ||
+                                        0
+                                    )
+                                )
+                            )}
+                        </td>
 
-                                <div>
-                                    ${fechaLocal(cierre.fechaCierre)}
-                                </div>
-
-                            </div>
-
-
+                        <td>
                             <span class="
-                                badge-cuadre
-                                ${claseCuadre}
+                                estado-cuadre
+                                ${escaparHtml(
+                                    cierre.estadoCuadre ||
+                                    ""
+                                )}
                             ">
-                                ${escaparHtml(cierre.estadoCuadre)}
+                                ${escaparHtml(
+                                    cierre.estadoCuadre ||
+                                    "-"
+                                )}
                             </span>
-
-                        </div>
-
-
-                        <div class="cierre-grid">
-
-
-                            <div class="cierre-dato">
-                                <span>Abrió</span>
-                                <strong>
-                                    ${escaparHtml(cierre.usuarioApertura)}
-                                </strong>
-                            </div>
-
-
-                            <div class="cierre-dato">
-                                <span>Cerró</span>
-                                <strong>
-                                    ${escaparHtml(cierre.usuarioCierre)}
-                                </strong>
-                            </div>
-
-
-                            <div class="cierre-dato">
-                                <span>Fondo inicial</span>
-                                <strong>
-                                    ${dinero(cierre.fondoInicial)}
-                                </strong>
-                            </div>
-
-
-                            <div class="cierre-dato">
-                                <span>Efectivo</span>
-                                <strong>
-                                    ${dinero(cierre.totalEfectivo)}
-                                </strong>
-                            </div>
-
-
-                            <div class="cierre-dato">
-                                <span>Transferencia</span>
-                                <strong>
-                                    ${dinero(cierre.totalTransferencia)}
-                                </strong>
-                            </div>
-
-
-                            <div class="cierre-dato">
-                                <span>D1</span>
-                                <strong>
-                                    ${dinero(cierre.totalD1)}
-                                </strong>
-                            </div>
-
-
-                            <div class="cierre-dato">
-                                <span>Total cobrado</span>
-                                <strong>
-                                    ${dinero(cierre.totalCobrado)}
-                                </strong>
-                            </div>
-
-
-                            <div class="cierre-dato">
-                                <span>Esperado</span>
-                                <strong>
-                                    ${dinero(cierre.efectivoEsperado)}
-                                </strong>
-                            </div>
-
-
-                            <div class="cierre-dato">
-                                <span>Contado</span>
-                                <strong>
-                                    ${dinero(cierre.efectivoContado)}
-                                </strong>
-                            </div>
-
-
-                            <div class="cierre-dato">
-                                <span>Diferencia</span>
-                                <strong>
-                                    ${dinero(cierre.diferencia)}
-                                </strong>
-                            </div>
-
-
-                        </div>
-
-
-                        ${
-                            cierre.observacionCierre
-
-                            ? `
-                                <div class="observacion">
-
-                                    <strong>
-                                        Observación:
-                                    </strong>
-
-                                    ${escaparHtml(cierre.observacionCierre)}
-
-                                </div>
-                              `
-
-                            : ""
-                        }
+                        </td>
                     `;
 
 
-                    contenedorHistorial
+                    tbody
                         .appendChild(
-                            div
+                            tr
                         );
                 }
             );
+
+        } catch (error) {
+
+            mostrarMensaje(
+                mensaje,
+                "Error de conexión al consultar el historial.",
+                "error"
+            );
         }
+    }
 
 
-        // =============================================
-        // ERROR RESPUESTAS
-        // =============================================
+    // =============================================
+    // MENSAJES / NAVEGACIÓN
+    // =============================================
 
-        async function obtenerError(
-            response
-        ) {
+    function mostrarMensaje(
+        elemento,
+        texto,
+        tipo
+    ) {
 
-            const texto =
-                await response.text();
+        elemento.innerText =
+            texto;
 
-
-            if (!texto) {
-                return "";
-            }
-
-
-            try {
-
-                const json =
-                    JSON.parse(
-                        texto
-                    );
+        elemento.className =
+            `mensaje ${tipo}`;
+    }
 
 
-                if (
-                    typeof json ===
-                    "string"
-                ) {
-                    return json;
-                }
+    function limpiarMensaje(
+        elemento
+    ) {
+
+        elemento.innerText =
+            "";
+
+        elemento.className =
+            "mensaje";
+    }
 
 
-                return (
-                    json.mensaje ||
-                    json.message ||
-                    texto
-                );
+    function volverPanel() {
 
-            } catch (_) {
-
-                return texto;
-            }
-        }
+        window.location.href =
+            "/panel.html";
+    }
 
 
-        // =============================================
-        // MENSAJES
-        // =============================================
+    function cerrarSesion() {
 
-        function mostrarMensaje(
-            elemento,
-            texto,
-            tipo
-        ) {
+        localStorage.clear();
 
-            elemento.innerText =
-                texto;
-
-            elemento.className =
-                `mensaje ${tipo}`;
-        }
+        window.location.href =
+            "/login.html";
+    }
 
 
-        function limpiarMensajes() {
+    // =============================================
+    // INICIO
+    // =============================================
 
-            mensajeApertura.innerText =
-                "";
-
-            mensajeApertura.className =
-                "mensaje";
+    renderizarDenominaciones();
 
 
-            mensajeCierre.innerText =
-                "";
+    const hoy =
+        fechaInputHoy();
 
-            mensajeCierre.className =
-                "mensaje";
-        }
+    document
+        .getElementById(
+            "filtroDesde"
+        )
+        .value =
+        hoy;
 
-
-        // =============================================
-        // NAVEGACIÓN
-        // =============================================
-
-        function volverPanel() {
-
-            window.location.href =
-                "/panel.html";
-        }
-
-
-        function cerrarSesion() {
-
-            localStorage.clear();
-
-            window.location.href =
-                "/login.html";
-        }
+    document
+        .getElementById(
+            "filtroHasta"
+        )
+        .value =
+        hoy;
 
 
-        // =============================================
-        // INICIALIZACIÓN
-        // =============================================
+    cargarCaja();
 
-        document
-            .getElementById(
-                "desde"
-            )
-            .value =
-            fechaHoyInput();
+    cargarHistorial();
 
-
-        document
-            .getElementById(
-                "hasta"
-            )
-            .value =
-            fechaHoyInput();
-
-
-        cargarCaja();
-
-        cargarHistorial();
-
-    </script>
-
+</script>
 </body>
-
 </html>

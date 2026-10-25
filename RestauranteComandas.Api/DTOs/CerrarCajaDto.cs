@@ -5,5 +5,7 @@
         public decimal EfectivoContado { get; set; }
 
         public string? ObservacionCierre { get; set; }
+        public List<ConteoDenominacionDto> Denominaciones { get; set; } =
+                 new();
     }
 }

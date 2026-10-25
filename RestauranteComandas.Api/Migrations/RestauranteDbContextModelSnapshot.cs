@@ -22,6 +22,36 @@ namespace RestauranteComandas.Api.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("RestauranteComandas.Api.Models.CajaConteoDenominacion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CajaSesionId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Cantidad")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Subtotal")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<decimal>("Valor")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CajaSesionId", "Valor")
+                        .IsUnique();
+
+                    b.ToTable("CajaConteoDenominaciones");
+                });
+
             modelBuilder.Entity("RestauranteComandas.Api.Models.CajaSesion", b =>
                 {
                     b.Property<int>("Id")
@@ -334,6 +364,17 @@ namespace RestauranteComandas.Api.Migrations
                     b.ToTable("Usuarios");
                 });
 
+            modelBuilder.Entity("RestauranteComandas.Api.Models.CajaConteoDenominacion", b =>
+                {
+                    b.HasOne("RestauranteComandas.Api.Models.CajaSesion", "CajaSesion")
+                        .WithMany("ConteoDenominaciones")
+                        .HasForeignKey("CajaSesionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CajaSesion");
+                });
+
             modelBuilder.Entity("RestauranteComandas.Api.Models.CajaSesion", b =>
                 {
                     b.HasOne("RestauranteComandas.Api.Models.Usuario", "UsuarioApertura")
@@ -436,6 +477,8 @@ namespace RestauranteComandas.Api.Migrations
 
             modelBuilder.Entity("RestauranteComandas.Api.Models.CajaSesion", b =>
                 {
+                    b.Navigation("ConteoDenominaciones");
+
                     b.Navigation("Pagos");
                 });
 

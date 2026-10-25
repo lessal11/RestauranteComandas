@@ -18,6 +18,7 @@ namespace RestauranteComandas.Api.Data
         public DbSet<Pago> Pagos { get; set; }
         public DbSet<PagoDetalle> PagoDetalles { get; set; }
         public DbSet<CajaSesion> CajaSesiones { get; set; }
+        public DbSet<CajaConteoDenominacion> CajaConteoDenominaciones { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -158,6 +159,32 @@ namespace RestauranteComandas.Api.Data
 
             modelBuilder.Entity<CajaSesion>()
                 .Property(c => c.Diferencia)
+                .HasPrecision(10, 2);
+
+            // =============================================
+            // CONTEO DE DENOMINACIONES DE CAJA
+            // =============================================
+
+            modelBuilder.Entity<CajaConteoDenominacion>()
+                .HasOne(d => d.CajaSesion)
+                .WithMany(c => c.ConteoDenominaciones)
+                .HasForeignKey(d => d.CajaSesionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<CajaConteoDenominacion>()
+                .HasIndex(d => new
+                {
+                    d.CajaSesionId,
+                    d.Valor
+                })
+                .IsUnique();
+
+            modelBuilder.Entity<CajaConteoDenominacion>()
+                .Property(d => d.Valor)
+                .HasPrecision(10, 2);
+
+            modelBuilder.Entity<CajaConteoDenominacion>()
+                .Property(d => d.Subtotal)
                 .HasPrecision(10, 2);
         }
     }

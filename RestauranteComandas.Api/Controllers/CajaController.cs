@@ -15,6 +15,22 @@ namespace RestauranteComandas.Api.Controllers
     {
         private readonly RestauranteDbContext _context;
 
+        private static readonly decimal[] DenominacionesPermitidas =
+        {
+            0.01m,
+            0.05m,
+            0.10m,
+            0.25m,
+            0.50m,
+            1.00m,
+            2.00m,
+            5.00m,
+            10.00m,
+            20.00m,
+            50.00m,
+            100.00m
+        };
+
         public CajaController(
             RestauranteDbContext context)
         {
@@ -330,14 +346,6 @@ namespace RestauranteComandas.Api.Controllers
         public async Task<IActionResult> CerrarCaja(
             CerrarCajaDto dto)
         {
-            if (dto.EfectivoContado < 0)
-            {
-                return BadRequest(
-                    "El efectivo contado no puede ser negativo"
-                );
-            }
-
-
             // =========================================
             // USUARIO AUTENTICADO
             // =========================================
@@ -397,7 +405,67 @@ namespace RestauranteComandas.Api.Controllers
 
 
             // =========================================
-            // PAGOS CONFIRMADOS DE ESTA CAJA
+            // VALIDAR DENOMINACIONES
+            // =========================================
+
+            if (
+                dto.Denominaciones == null ||
+                !dto.Denominaciones.Any()
+            )
+            {
+                return BadRequest(
+                    "Debe registrar el conteo de efectivo por denominaciones."
+                );
+            }
+
+
+            if (
+                dto.Denominaciones.Any(
+                    d => d.Cantidad < 0
+                )
+            )
+            {
+                return BadRequest(
+                    "La cantidad de una denominación no puede ser negativa."
+                );
+            }
+
+
+            if (
+                dto.Denominaciones.Any(
+                    d =>
+                        !DenominacionesPermitidas.Contains(
+                            d.Valor
+                        )
+                )
+            )
+            {
+                return BadRequest(
+                    "Se recibió una denominación de efectivo no permitida."
+                );
+            }
+
+
+            var denominacionesDuplicadas =
+                dto.Denominaciones
+                    .GroupBy(
+                        d => d.Valor
+                    )
+                    .Any(
+                        g => g.Count() > 1
+                    );
+
+
+            if (denominacionesDuplicadas)
+            {
+                return BadRequest(
+                    "No se puede registrar dos veces la misma denominación."
+                );
+            }
+
+
+            // =========================================
+            // PAGOS CONFIRMADOS
             // =========================================
 
             var pagos =
@@ -408,10 +476,6 @@ namespace RestauranteComandas.Api.Controllers
                     )
                     .ToListAsync();
 
-
-            // =========================================
-            // TOTALES POR MÉTODO
-            // =========================================
 
             var totalEfectivo =
                 pagos
@@ -452,15 +516,20 @@ namespace RestauranteComandas.Api.Controllers
                 totalEfectivo;
 
 
+            var efectivoContado =
+                dto.Denominaciones
+                    .Sum(
+                        d =>
+                            d.Valor *
+                            d.Cantidad
+                    );
+
+
             var diferencia =
-                dto.EfectivoContado -
+                efectivoContado -
                 efectivoEsperado;
 
 
-            /*
-             * Si existe sobrante o faltante,
-             * exigimos una explicación.
-             */
             if (
                 diferencia != 0m &&
                 string.IsNullOrWhiteSpace(
@@ -476,7 +545,7 @@ namespace RestauranteComandas.Api.Controllers
 
 
             // =========================================
-            // GUARDAR FOTOGRAFÍA DEL CIERRE
+            // SNAPSHOT DE CIERRE
             // =========================================
 
             caja.UsuarioCierreId =
@@ -486,7 +555,7 @@ namespace RestauranteComandas.Api.Controllers
                 DateTime.UtcNow;
 
             caja.EfectivoContado =
-                dto.EfectivoContado;
+                efectivoContado;
 
             caja.TotalEfectivo =
                 totalEfectivo;
@@ -517,12 +586,49 @@ namespace RestauranteComandas.Api.Controllers
                 "Cerrada";
 
 
+            // =========================================
+            // GUARDAR DENOMINACIONES
+            // =========================================
+
+            foreach (
+                var denominacion in
+                    dto.Denominaciones
+                        .Where(
+                            d => d.Cantidad > 0
+                        )
+            )
+            {
+                var subtotal =
+                    denominacion.Valor *
+                    denominacion.Cantidad;
+
+
+                var conteo =
+                    new CajaConteoDenominacion
+                    {
+                        CajaSesionId =
+                            caja.Id,
+
+                        Valor =
+                            denominacion.Valor,
+
+                        Cantidad =
+                            denominacion.Cantidad,
+
+                        Subtotal =
+                            subtotal
+                    };
+
+
+                _context.CajaConteoDenominaciones
+                    .Add(
+                        conteo
+                    );
+            }
+
+
             await _context.SaveChangesAsync();
 
-
-            // =========================================
-            // ESTADO DEL CUADRE
-            // =========================================
 
             string estadoCuadre;
 
@@ -586,7 +692,31 @@ namespace RestauranteComandas.Api.Controllers
                 estadoCuadre,
 
                 observacion =
-                    caja.ObservacionCierre
+                    caja.ObservacionCierre,
+
+                denominaciones =
+                    dto.Denominaciones
+                        .Where(
+                            d => d.Cantidad > 0
+                        )
+                        .OrderBy(
+                            d => d.Valor
+                        )
+                        .Select(
+                            d => new
+                            {
+                                valor =
+                                    d.Valor,
+
+                                cantidad =
+                                    d.Cantidad,
+
+                                subtotal =
+                                    d.Valor *
+                                    d.Cantidad
+                            }
+                        )
+                        .ToList()
             });
         }
 
